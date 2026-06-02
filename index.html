@@ -1086,7 +1086,15 @@ function b64url(buf) {
     .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
+function cleanPrivateKey(key) {
+  return key
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '')
+    .trim();
+}
+
 async function makeJWT(email, pemKey) {
+  pemKey = cleanPrivateKey(pemKey);
   const now  = Math.floor(Date.now() / 1000);
   const header  = { alg: 'RS256', typ: 'JWT' };
   const payload = {
