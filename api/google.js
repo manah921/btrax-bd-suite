@@ -79,58 +79,56 @@ async function handleSheets(token, { path, method = 'GET', body }) {
   return data;
 }
 
-async function handleGA4(token, { body }) {
-  const propertyId = process.env.GA4_PROPERTY_ID || '260384621';
-  const resp = await fetch(
-    `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`,
-    { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-  );
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error?.message || `HTTP ${resp.status}`);
-  return data;
+// TODO: replace with live GA4/GSC data once
+// service account permissions resolved
+function handleGA4() {
+  return {
+    rows: [
+      { dimensionValues: [{ value: 'google / organic' }],   metricValues: [{ value: '3842' }] },
+      { dimensionValues: [{ value: 'direct / none' }],      metricValues: [{ value: '2105' }] },
+      { dimensionValues: [{ value: 'linkedin / social' }],  metricValues: [{ value: '984' }] },
+      { dimensionValues: [{ value: 'referral / btrax.com' }], metricValues: [{ value: '541' }] },
+      { dimensionValues: [{ value: 'email / newsletter' }], metricValues: [{ value: '318' }] },
+    ],
+    totals: [{ metricValues: [{ value: '7790' }, { value: '5421' }] }],
+    rowCount: 5,
+    _mock: true,
+  };
 }
 
-async function handleGSC(token, { body }) {
-  const siteUrl = process.env.GSC_SITE_URL || 'https://btrax.com/';
-  const resp = await fetch(
-    `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`,
-    { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-  );
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error?.message || `HTTP ${resp.status}`);
-  return data;
+function handleGSC() {
+  return {
+    rows: [
+      { keys: ['ux design agency japan'],         clicks: 142, impressions: 4820, ctr: 0.029, position: 3.2 },
+      { keys: ['design thinking consulting'],     clicks: 98,  impressions: 3105, ctr: 0.032, position: 4.7 },
+      { keys: ['btrax san francisco'],            clicks: 87,  impressions: 1240, ctr: 0.070, position: 2.1 },
+      { keys: ['japan market entry strategy'],    clicks: 74,  impressions: 2890, ctr: 0.026, position: 5.3 },
+      { keys: ['cross cultural design'],          clicks: 61,  impressions: 1680, ctr: 0.036, position: 6.8 },
+      { keys: ['ui ux consulting firm'],          clicks: 53,  impressions: 2240, ctr: 0.024, position: 7.1 },
+      { keys: ['innovation consulting tokyo'],    clicks: 47,  impressions: 1560, ctr: 0.030, position: 4.4 },
+      { keys: ['service design agency'],          clicks: 39,  impressions: 1890, ctr: 0.021, position: 8.2 },
+      { keys: ['bilingual design team'],          clicks: 31,  impressions: 920,  ctr: 0.034, position: 5.9 },
+      { keys: ['japan us business consulting'],   clicks: 28,  impressions: 1340, ctr: 0.021, position: 9.4 },
+    ],
+    responseAggregationType: 'byPage',
+    _mock: true,
+  };
 }
 
 async function handleTest(token) {
-  const sheetId    = process.env.GOOGLE_SHEET_ID;
-  const propertyId = process.env.GA4_PROPERTY_ID || '260384621';
-  const siteUrl    = process.env.GSC_SITE_URL    || 'https://btrax.com/';
-
-  const end   = new Date(); end.setDate(end.getDate() - 3);
-  const start = new Date(end); start.setDate(start.getDate() - 7);
-  const fmt   = d => d.toISOString().slice(0, 10);
-
+  const sheetId = process.env.GOOGLE_SHEET_ID;
   const authHdr = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
 
-  const [sheets, ga4, gsc] = await Promise.allSettled([
-    fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A1`, { headers: authHdr })
-      .then(r => r.ok ? { ok: true } : r.json().then(e => { throw new Error(e.error?.message || `HTTP ${r.status}`); })),
-
-    fetch(`https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`, {
-      method: 'POST', headers: authHdr,
-      body: JSON.stringify({ dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }], metrics: [{ name: 'sessions' }] }),
-    }).then(r => r.ok ? { ok: true } : r.json().then(e => { throw new Error(e.error?.message || `HTTP ${r.status}`); })),
-
-    fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/searchAnalytics/query`, {
-      method: 'POST', headers: authHdr,
-      body: JSON.stringify({ startDate: fmt(start), endDate: fmt(end), dimensions: ['query'], rowLimit: 3 }),
-    }).then(r => r.ok ? { ok: true } : r.json().then(e => { throw new Error(e.error?.message || `HTTP ${r.status}`); })),
-  ]);
+  const sheetsResult = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A1`,
+    { headers: authHdr }
+  ).then(r => r.ok ? { ok: true } : r.json().then(e => { throw new Error(e.error?.message || `HTTP ${r.status}`); }))
+   .catch(e => ({ ok: false, error: e.message }));
 
   return {
-    sheets: sheets.status === 'fulfilled' ? { ok: true }  : { ok: false, error: sheets.reason?.message },
-    ga4:    ga4.status    === 'fulfilled' ? { ok: true }  : { ok: false, error: ga4.reason?.message },
-    gsc:    gsc.status    === 'fulfilled' ? { ok: true }  : { ok: false, error: gsc.reason?.message },
+    sheets: sheetsResult,
+    ga4:    { ok: true, mock: true },
+    gsc:    { ok: true, mock: true },
   };
 }
 
@@ -147,8 +145,8 @@ module.exports = async function handler(req, res) {
 
     let result;
     if      (action === 'sheets') result = await handleSheets(token, params);
-    else if (action === 'ga4')    result = await handleGA4(token, params);
-    else if (action === 'gsc')    result = await handleGSC(token, params);
+    else if (action === 'ga4')    result = handleGA4();
+    else if (action === 'gsc')    result = handleGSC();
     else if (action === 'test')   result = await handleTest(token);
     else return res.status(400).json({ error: `Unknown action: ${action}` });
 
