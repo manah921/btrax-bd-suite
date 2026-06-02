@@ -1,6 +1,12 @@
 {
   "version": 2,
   "functions": {
-    "api/google.js": { "runtime": "nodejs20.x" }
-  }
+    "api/google.js": {
+      "runtime": "nodejs20.x"
+    }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }
