@@ -716,6 +716,68 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 
 /* status pill (display, not select) */
 .st-pill { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; }
+/* view toggle */
+.p-view-toggle { display:flex; gap:0; }
+.p-view-btn { background:none; border:1px solid var(--border); padding:6px 14px; font-family:'Open Sans',sans-serif; font-size:11px; font-weight:600; color:var(--text-muted); cursor:pointer; transition:all .12s; border-radius:0; margin-left:-1px; }
+.p-view-btn:first-child { border-radius:var(--r-sm) 0 0 var(--r-sm); margin-left:0; }
+.p-view-btn:last-child  { border-radius:0 var(--r-sm) var(--r-sm) 0; }
+.p-view-btn.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+.p-view-btn:hover:not(.active) { background:var(--sidebar); color:var(--navy); }
+
+/* saved views bar */
+.p-views-bar { display:flex; align-items:center; gap:0; margin-bottom:12px; border-bottom:1px solid var(--border); flex-wrap:nowrap; overflow-x:auto; }
+.p-saved-tab { background:none; border:none; padding:9px 18px; font-family:'Open Sans',sans-serif; font-size:12px; font-weight:600; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; transition:color .12s; }
+.p-saved-tab.active { color:var(--navy); border-bottom-color:var(--navy); }
+.p-saved-tab:hover:not(.active) { color:var(--text); }
+.p-saved-tab .tab-rm { margin-left:5px; opacity:.5; font-size:11px; }
+.p-saved-tab .tab-rm:hover { opacity:1; color:var(--red); }
+.p-save-view-btn { background:none; border:none; padding:9px 12px; font-size:11px; font-weight:600; color:var(--text-muted); cursor:pointer; white-space:nowrap; }
+.p-save-view-btn:hover { color:var(--navy); }
+
+/* active filter pills */
+.p-active-filters { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; align-items:center; }
+.p-af-pill { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; background:rgba(26,26,46,.07); border:1px solid rgba(26,26,46,.15); border-radius:20px; font-family:'Open Sans',sans-serif; font-size:11px; font-weight:600; color:var(--navy); }
+.p-af-rm { background:none; border:none; cursor:pointer; color:var(--text-muted); line-height:1; padding:0 0 0 2px; font-size:12px; }
+.p-af-rm:hover { color:var(--red); }
+.p-clear-all { font-size:11px; color:var(--text-muted); cursor:pointer; padding:0 4px; text-decoration:underline; }
+.p-clear-all:hover { color:var(--red); }
+
+/* filter builder panel */
+.p-filter-builder { background:var(--surface); border:1px solid var(--border); border-radius:var(--r-sm); padding:14px 16px; margin-bottom:10px; display:grid; grid-template-columns:1fr 1fr 1.2fr auto auto; gap:8px; align-items:end; }
+.p-filter-builder select, .p-filter-builder input[type=text], .p-filter-builder input[type=number] { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:var(--r-sm); padding:7px 10px; font-family:'Open Sans',sans-serif; font-size:12px; color:var(--text); }
+.p-filter-builder select:focus, .p-filter-builder input:focus { outline:none; border-color:var(--navy); }
+
+/* monthly group header row */
+.p-group-row th { padding:3px 14px; font-size:9px; font-weight:700; letter-spacing:.8px; text-transform:uppercase; color:var(--text-muted); border-bottom:none; cursor:default; }
+.p-group-row th.p-month-group { color:var(--navy); border-bottom:2px solid var(--navy); text-align:center; background:rgba(26,26,46,.04); }
+
+/* form side panel */
+.p-form-overlay { position:fixed; inset:0; background:rgba(28,25,23,.28); z-index:600; backdrop-filter:blur(2px); }
+.p-form-panel { position:fixed; top:0; right:-460px; width:440px; height:100vh; background:var(--surface); border-left:1px solid var(--border); z-index:601; overflow-y:auto; transition:right .26s cubic-bezier(.4,0,.2,1); box-shadow:-8px 0 40px rgba(28,25,23,.12); display:flex; flex-direction:column; }
+.p-form-panel.open { right:0; }
+.p-form-header { display:flex; justify-content:space-between; align-items:center; padding:22px 24px 18px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.p-form-title { font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1.5px; color:var(--navy); }
+.p-form-close { background:none; border:none; cursor:pointer; font-size:17px; color:var(--text-muted); padding:4px 6px; border-radius:4px; transition:all .12s; }
+.p-form-close:hover { color:var(--navy); background:var(--sidebar); }
+.p-form-body { padding:20px 24px 40px; overflow-y:auto; flex:1; }
+.p-form-hint { font-size:11px; color:var(--gold); font-weight:600; padding:5px 0 2px; }
+.p-form-month-preview { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-top:8px; }
+.p-month-cell { background:var(--sidebar); border-radius:4px; padding:5px 8px; }
+.p-month-lbl { font-size:9px; font-weight:700; text-transform:uppercase; color:var(--text-muted); }
+.p-month-val { font-size:12px; font-weight:600; color:var(--navy); }
+
+/* radio toggle buttons */
+.p-radio-grp { display:flex; gap:0; margin-top:4px; }
+.p-radio-btn { background:none; border:1px solid var(--border); padding:6px 14px; font-family:'Open Sans',sans-serif; font-size:12px; font-weight:600; color:var(--text-muted); cursor:pointer; transition:all .12s; border-radius:0; margin-left:-1px; }
+.p-radio-btn:first-child { border-radius:var(--r-sm) 0 0 var(--r-sm); margin-left:0; }
+.p-radio-btn:last-child  { border-radius:0 var(--r-sm) var(--r-sm) 0; }
+.p-radio-btn.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+.p-radio-btn:hover:not(.active) { background:var(--sidebar); color:var(--navy); }
+
+/* new-row highlight */
+@keyframes newRowHL { 0%{background:rgba(139,105,20,.22)} 100%{background:transparent} }
+.p-new-row-hl td { animation:newRowHL 1.6s ease forwards !important; }
+
 
 /* ─── COMING SOON ───────────────────────────────────────── */
 .coming-soon-wrap { padding: 64px 0 0; max-width: 480px; }
@@ -1129,9 +1191,16 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       </div>
     </div>
 
+    <!-- saved views tabs -->
+    <div class="p-views-bar" id="p-views-bar">
+      <button class="p-saved-tab active" data-idx="-1" onclick="pLoadView(-1,this)">All Deals</button>
+      <button class="p-save-view-btn" onclick="pSaveViewPrompt()">+ Save view</button>
+    </div>
+
     <!-- filter bar -->
     <div class="p-filter-bar">
       <input id="p-search" class="p-search" type="text" placeholder="Search deals…" oninput="pSearch(this.value)" />
+      <button class="p-pill" id="p-add-filter-btn" onclick="pToggleFilterBuilder()">＋ Add Filter</button>
       <div class="p-pills" id="p-status-pills">
         <button class="p-pill active" onclick="pFilterStatus('',this)">All</button>
         <button class="p-pill" onclick="pFilterStatus('Lead',this)">Lead</button>
@@ -1149,16 +1218,49 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       </div>
     </div>
 
+    <!-- filter builder -->
+    <div id="p-filter-builder" class="p-filter-builder hidden">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px">Column</div>
+        <select id="pfb-col"></select>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px">Condition</div>
+        <select id="pfb-cond">
+          <option value="contains">contains</option>
+          <option value="is">is</option>
+          <option value="is not">is not</option>
+          <option value=">">&gt; (greater than)</option>
+          <option value="<">&lt; (less than)</option>
+          <option value="empty">is empty</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px">Value</div>
+        <input type="text" id="pfb-val" placeholder="Filter value…" />
+      </div>
+      <button class="btn-add" style="padding:7px 16px;font-size:12px" onclick="pAddFilter()">Add</button>
+      <button class="btn-import" style="padding:7px 12px;font-size:12px" onclick="pToggleFilterBuilder()">Cancel</button>
+    </div>
+
+    <!-- active filter pills -->
+    <div id="p-active-filters" class="p-active-filters hidden"></div>
+
     <div class="toolbar">
       <span class="section-label" id="dealCount">All Deals</span>
       <div class="toolbar-right" style="position:relative;align-items:center">
         <span id="p-sync" class="p-sync"></span>
-        <div style="position:relative">
+        <div class="p-view-toggle">
+          <button class="p-view-btn active" data-view="summary" onclick="pSetView('summary')">Summary</button>
+          <button class="p-view-btn" data-view="full" onclick="pSetView('full')">Full View</button>
+        </div>
+        <div style="position:relative" id="p-cols-wrap">
           <button class="btn-cols" id="p-cols-btn" onclick="pToggleColVis(event)">Columns ▾</button>
           <div id="p-col-vis-panel" class="col-vis-panel hidden"></div>
         </div>
         <button class="btn-import" onclick="triggerCSV('pipeline')">↑ Import CSV</button>
         <button class="btn-add"    onclick="pAddRow()">+ Add Deal</button>
+        <button class="btn-import" style="font-size:16px;padding:6px 10px" title="Add Deal (form)" onclick="pShowForm()">🗒</button>
       </div>
     </div>
 
@@ -1169,7 +1271,7 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
           <tr><td class="td-state" colspan="27">Connect to load pipeline data.</td></tr>
         </tbody>
       </table>
-      <button class="add-row-btn" onclick="pAddRow()">+ Add row</button>
+      <button class="add-row-btn" onclick="pAddRowBottom()">+ Add row</button>
     </div>
 
     <!-- dropdown + more-menu overlays -->
@@ -1447,6 +1549,18 @@ const VALUE_CI    = 9;  // index of 2026 Deal Value
 const STATUS_OPTS = ['Lead','Qualified','Pitch','Negotiation','Won','Lost','Closed'];
 
 const GP_AMOUNT_CI   = 11;
+const P_SUMMARY_COLS = [0, 1, 2, 3, 4, 8, 9, 11, 26]; // Owner,Region,Status,ClientName,ServiceOffering,Currency,DealValue,GPAmount,Total
+const DROPDOWN_OPTS  = {
+  2:  ['Lead','Qualified','Pitch','Negotiation','Won','Lost','Closed'],
+  1:  ['US','JP'],
+  8:  ['USD','JPY'],
+  4:  ['UX Design','Brand Strategy','Market Entry Consulting','Brand Localization','UX Research','Growth Marketing','Workshop'],
+  6:  ['Enterprise','Mid-Market','Startup','Government','NGO'],
+  12: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+  13: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+  0:  ['Mana','Brandon'],
+  7:  ['Mana','Brandon'],
+};
 const TOTAL_CI       = 26;
 const START_CI       = 12;
 const END_CI         = 13;
@@ -1483,6 +1597,10 @@ let _pSearch     = '';
 let _pFilterSt   = '';
 let _pFilterReg  = '';
 let _pAutoRows   = new Set();   // row indices using auto-monthly distribution
+let _pView       = 'summary';   // 'summary' | 'full'
+let _pFilters    = [];          // [{ci,cond,val}] custom filter conditions
+let _pSavedViews = [];          // [{name, filters, filterSt, filterReg, search}]
+let _pFpState    = { region:'US', currency:'USD', alloc:'auto', source:'outbound' }; // form panel state
 let _activeEdit  = null;        // { td, ri, ci, before }
 let _dragCI      = -1;
 let _pSyncTimer  = null;
@@ -1683,12 +1801,22 @@ function pInitPrefs() {
     const v = JSON.parse(localStorage.getItem('p_col_vis'));
     _pColVis = v ? new Set(v) : new Set(P_COLS.map((_,i)=>i));
   } catch { _pColVis = new Set(P_COLS.map((_,i)=>i)); }
+  try { _pSavedViews = JSON.parse(localStorage.getItem('p_saved_views')) || []; } catch {}
+  try { _pView = localStorage.getItem('p_view') || 'summary'; } catch {}
+  pRenderSavedViews();
 }
 
 function pSavePrefs() {
-  localStorage.setItem('p_col_w',   JSON.stringify(_pColW));
-  localStorage.setItem('p_col_order', JSON.stringify(_pColOrder));
-  localStorage.setItem('p_col_vis', JSON.stringify([..._pColVis]));
+  localStorage.setItem('p_col_w',    JSON.stringify(_pColW));
+  localStorage.setItem('p_col_order',JSON.stringify(_pColOrder));
+  localStorage.setItem('p_col_vis',  JSON.stringify([..._pColVis]));
+  localStorage.setItem('p_view',     _pView);
+}
+
+// Returns the ordered visible column indices for the current view
+function pGetVisibleCols() {
+  if (_pView === 'summary') return P_SUMMARY_COLS;
+  return _pColOrder.filter(ci => _pColVis.has(ci));
 }
 
 function pGetFilteredRows() {
@@ -1699,9 +1827,12 @@ function pGetFilteredRows() {
   }
   if (_pFilterSt)  rows = rows.filter(({r}) => (r[STATUS_CI]||'').toLowerCase() === _pFilterSt.toLowerCase());
   if (_pFilterReg) rows = rows.filter(({r}) => (r[REGION_CI]||'').toUpperCase() === _pFilterReg);
+  _pFilters.forEach(({ci, cond, val}) => {
+    rows = rows.filter(({r}) => pMatchFilter(String(r[ci]??''), cond, val));
+  });
   if (_pSort.ci >= 0) {
     rows.sort((a,b) => {
-      const av = a.r[_pSort.ci] ?? '', bv = b.r[_pSort.ci] ?? '';
+      const av = a.r[_pSort.ci]??'', bv = b.r[_pSort.ci]??'';
       const cmp = P_NUM.has(_pSort.ci) ? (parseFloat(av)||0)-(parseFloat(bv)||0) : String(av).localeCompare(String(bv));
       return _pSort.dir * cmp;
     });
@@ -1709,38 +1840,92 @@ function pGetFilteredRows() {
   return rows;
 }
 
+function pMatchFilter(cell, cond, val) {
+  const c = cell.toLowerCase(), v = (val||'').toLowerCase();
+  switch (cond) {
+    case 'is':       return c === v;
+    case 'is not':   return c !== v;
+    case 'contains': return c.includes(v);
+    case '>':        return (parseFloat(cell)||0) > (parseFloat(val)||0);
+    case '<':        return (parseFloat(cell)||0) < (parseFloat(val)||0);
+    case 'empty':    return c === '';
+    default:         return true;
+  }
+}
+
 function renderPipeline() {
-  // Header
-  const visOrder = _pColOrder.filter(ci => _pColVis.has(ci));
-  let hCells = visOrder.map(ci => {
-    const sorted = _pSort.ci === ci;
-    const sortCls = sorted ? (' p-th-sorted sort-' + (_pSort.dir===1?'asc':'desc')) : '';
-    const locked  = ci === 0 ? ' data-locked="1"' : '';
+  const isFull    = _pView === 'full';
+  const visOrder  = pGetVisibleCols();
+  const MONTH_CIS = new Set([14,15,16,17,18,19,20,21,22,23,24,25]);
+
+  // Show/hide Columns button only in Full view
+  const colsWrap = document.getElementById('p-cols-wrap');
+  if (colsWrap) colsWrap.style.display = isFull ? '' : 'none';
+
+  // Sync view toggle buttons
+  document.querySelectorAll('.p-view-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.view === _pView));
+
+  // Build header
+  let groupRow = '';
+  if (isFull) {
+    // Identify consecutive monthly columns in visOrder
+    let prevWasMonth = false;
+    const cells = visOrder.map(ci => {
+      const isM = MONTH_CIS.has(ci);
+      if (isM && !prevWasMonth) { prevWasMonth = true; return null; }
+      if (!isM) prevWasMonth = false;
+      return isM ? null : `<th class="p-th-empty"></th>`;
+    }).filter(c => c !== null);
+
+    // Find first and last month position
+    const monthStart = visOrder.findIndex(ci => MONTH_CIS.has(ci));
+    const monthCount = visOrder.filter(ci => MONTH_CIS.has(ci)).length;
+    if (monthStart >= 0 && monthCount > 0) {
+      const before = monthStart;
+      const after  = visOrder.length - monthStart - monthCount;
+      groupRow = '<tr class="p-group-row">' +
+        '<th></th>'.repeat(before) +
+        `<th colspan="${monthCount}" class="p-month-group">MONTHLY ALLOCATION</th>` +
+        '<th></th>'.repeat(after) +
+        '<th></th>' + // actions column
+        '</tr>';
+    }
+  }
+
+  const hCells = visOrder.map(ci => {
+    const sorted   = _pSort.ci === ci;
+    const sortCls  = sorted ? (' p-th-sorted sort-' + (_pSort.dir===1?'asc':'desc')) : '';
+    const locked   = ci === 0 ? ' data-locked="1"' : '';
+    const draggable = (isFull && ci !== 0) ? 'true' : 'false';
     return `<th data-ci="${ci}" style="min-width:${_pColW[ci]}px;width:${_pColW[ci]}px"
-      class="${sortCls}"
-      onclick="pSortCol(${ci},event)"
-      draggable="${ci!==0}"
+      class="${sortCls}" onclick="pSortCol(${ci},event)"
+      draggable="${draggable}"
       ondragstart="pDragStart(event,${ci})"
       ondragover="pDragOver(event,${ci})"
       ondragleave="pDragLeave(event,${ci})"
       ondrop="pDragDrop(event,${ci})"${locked}>
       <span class="sort-icon">${esc(P_COLS[ci])}</span>
-      <div class="col-rz" onmousedown="pResizeStart(event,${ci})" onclick="e=>e.stopPropagation()"></div>
+      ${isFull ? `<div class="col-rz" onmousedown="pResizeStart(event,${ci})" onclick="e=>e.stopPropagation()"></div>` : ''}
     </th>`;
   }).join('');
-  document.getElementById('p-thead').innerHTML = `<tr>${hCells}</tr>`;
+
+  document.getElementById('p-thead').innerHTML =
+    groupRow + `<tr>${hCells}<th style="width:72px;cursor:default"></th></tr>`;
 
   const filtered = pGetFilteredRows();
   document.getElementById('dealCount').textContent =
-    (filtered.length === _pRows.length ? `All Deals · ${_pRows.length}` : `${filtered.length} of ${_pRows.length} deals`);
+    filtered.length === _pRows.length
+      ? `All Deals · ${_pRows.length}`
+      : `${filtered.length} of ${_pRows.length} deals`;
 
   const tbody = document.getElementById('p-tbody');
   if (!_pRows.length) {
-    tbody.innerHTML = `<tr><td class="td-state" colspan="${visOrder.length}">No deals yet — click + Add Deal.</td></tr>`;
+    tbody.innerHTML = `<tr><td class="td-state" colspan="${visOrder.length+1}">No deals yet — click + Add Deal.</td></tr>`;
     return;
   }
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td class="td-state" colspan="${visOrder.length}">No deals match the current filter.</td></tr>`;
+    tbody.innerHTML = `<tr><td class="td-state" colspan="${visOrder.length+1}">No deals match the current filter.</td></tr>`;
     return;
   }
   tbody.innerHTML = filtered.map(({r,i}) => pBuildRow(r,i,visOrder)).join('');
@@ -1750,28 +1935,27 @@ function pBuildRow(row, ri, visOrder) {
   const cells = visOrder.map(ci => {
     const raw = row[ci] ?? '';
 
-    // Read-only computed cells
+    // Read-only computed
     if (ci === GP_AMOUNT_CI || ci === TOTAL_CI) {
       return `<td data-ri="${ri}" data-ci="${ci}" class="cell-readonly td-value">${esc(raw)}</td>`;
     }
 
     // Status pill
     if (ci === STATUS_CI) {
-      return `<td data-ri="${ri}" data-ci="${ci}" ondblclick="pStartEdit(this)"
-        style="padding:8px 14px">
+      return `<td data-ri="${ri}" data-ci="${ci}" ondblclick="pStartEdit(this)" style="padding:8px 14px">
         <span class="st-pill" style="${statusCSS(raw)}">${esc(raw)||'—'}</span>
       </td>`;
     }
 
-    // Monthly cells — show auto badge on Jan cell
+    // Monthly Jan cell — show auto/manual badge
     if (ci === 14) {
       const isAuto = _pAutoRows.has(ri);
       return `<td data-ri="${ri}" data-ci="${ci}" class="td-value" ondblclick="pStartEdit(this)">
-        ${esc(raw)}<span class="auto-badge${isAuto?' on':''}" onclick="pToggleAuto(${ri},event)">${isAuto?'A':'M'}</span>
+        ${esc(raw)}<span class="auto-badge${isAuto?' on':''}" title="${isAuto?'Auto mode':'Manual mode'}" onclick="pToggleAuto(${ri},event)">${isAuto?'A':'M'}</span>
       </td>`;
     }
 
-    const cls = ci === REGION_CI || ci === CURRENCY_CI ? 'td-muted'
+    const cls = (ci === REGION_CI || ci === CURRENCY_CI) ? 'td-muted'
               : P_NUM.has(ci) ? 'td-value' : '';
 
     return `<td data-ri="${ri}" data-ci="${ci}" class="${cls}" ondblclick="pStartEdit(this)">${esc(raw)}</td>`;
@@ -1779,7 +1963,7 @@ function pBuildRow(row, ri, visOrder) {
 
   return `<tr data-ri="${ri}">
     ${cells}
-    <td style="width:80px;padding:0;border-bottom:1px solid var(--border)">
+    <td style="width:72px;padding:0;border-bottom:1px solid var(--border)">
       <div class="row-acts">
         <button class="row-act danger" title="Delete" onclick="pDeleteRow(${ri})">🗑</button>
         <button class="row-act" title="More" onclick="pMoreMenu(${ri},event)">⋮</button>
@@ -1788,7 +1972,7 @@ function pBuildRow(row, ri, visOrder) {
   </tr>`;
 }
 
-// ── Cell editing ──────────────────────────────────────────
+// ── Cell editing ──────────────────────────────────────────────────────────────
 
 function pStartEdit(td) {
   if (!td || td.classList.contains('cell-readonly')) return;
@@ -1798,17 +1982,9 @@ function pStartEdit(td) {
   const cur = _pRows[ri]?.[ci] ?? '';
   td.classList.add('cell-active');
 
-  // Dropdown cells
-  const ddOpts =
-    ci === STATUS_CI      ? STATUS_OPTS :
-    ci === REGION_CI      ? ['US','JP'] :
-    ci === CURRENCY_CI    ? ['USD','JPY'] :
-    ci === START_CI       ? MONTHS_LIST :
-    ci === END_CI         ? MONTHS_LIST : null;
-
+  const ddOpts = DROPDOWN_OPTS[ci] || null;
   if (ddOpts) { pShowDropdown(td, ddOpts, ri, ci, cur); return; }
 
-  // Text/number input
   const inp = document.createElement('input');
   inp.className = 'cell-input';
   inp.type = P_NUM.has(ci) ? 'number' : 'text';
@@ -1818,7 +1994,6 @@ function pStartEdit(td) {
   inp.focus(); inp.select();
 
   _activeEdit = { td, ri, ci, before: cur };
-
   inp.addEventListener('blur',    () => pCommitEdit());
   inp.addEventListener('keydown', e => {
     if (e.key === 'Enter')  { e.preventDefault(); pCommitEdit(); }
@@ -1831,19 +2006,14 @@ function pCommitEdit() {
   if (!_activeEdit) return;
   const { td, ri, ci, before } = _activeEdit;
   _activeEdit = null;
-
   const inp = td.querySelector('.cell-input');
   const val = inp ? inp.value.trim() : td.textContent.trim();
   td.classList.remove('cell-active');
-
   _pRows[ri] = _pRows[ri] || [];
   _pRows[ri][ci] = val;
   pAutoCalc(ri);
-
   renderPipeline();
-  calcSummary();
-  renderProjects(); renderFollowUps();
-
+  calcSummary(); renderProjects(); renderFollowUps();
   if (val !== before) {
     td.classList.add('cell-dirty');
     pSyncCell(ri, ci, val);
@@ -1860,50 +2030,40 @@ function pCancelEdit() {
 }
 
 function pMoveNext(ri, ci, back) {
-  const visOrder = _pColOrder.filter(c => _pColVis.has(c));
+  const visOrder = pGetVisibleCols();
   const pos = visOrder.indexOf(ci);
-  const next = back ? pos - 1 : pos + 1;
-  if (next < 0 || next >= visOrder.length) return;
-  const nextCI = visOrder[next];
+  const nxt = back ? pos - 1 : pos + 1;
+  if (nxt < 0 || nxt >= visOrder.length) return;
   setTimeout(() => {
-    const td = document.querySelector(`td[data-ri="${ri}"][data-ci="${nextCI}"]`);
+    const td = document.querySelector(`td[data-ri="${ri}"][data-ci="${visOrder[nxt]}"]`);
     if (td) pStartEdit(td);
   }, 20);
 }
 
-// ── Dropdown ──────────────────────────────────────────────
+// ── Dropdown ──────────────────────────────────────────────────────────────────
 
 function pShowDropdown(td, opts, ri, ci, cur) {
-  const dd = document.getElementById('p-dropdown');
+  const dd   = document.getElementById('p-dropdown');
   const rect = td.getBoundingClientRect();
-
   dd.innerHTML = opts.map(o => {
-    const sel  = o === cur;
     const style = ci === STATUS_CI ? ` style="${statusCSS(o)}"` : '';
-    return `<div class="p-dd-item${sel?' dd-sel':''}"${style}
-      onclick="pSelectDd('${o.replace(/'/g,"\\'")}',${ri},${ci})">${esc(o)}</div>`;
+    return `<div class="p-dd-item${o===cur?' dd-sel':''}"${style}
+      onclick="pSelectDd(${JSON.stringify(o)},${ri},${ci})">${esc(o)}</div>`;
   }).join('');
-
   dd.style.left = rect.left + 'px';
-  dd.style.top  = (rect.bottom + 2) + 'px';
+  dd.style.top  = Math.min(rect.bottom + 2, window.innerHeight - 200) + 'px';
   dd.classList.remove('hidden');
   _activeEdit = { td, ri, ci, before: cur, isDd: true };
-
-  setTimeout(() => document.addEventListener('click', pCloseDdOutside, true), 10);
+  setTimeout(() => document.addEventListener('click', pCloseDdOut, true), 10);
 }
 
-function pCloseDdOutside(e) {
-  const dd = document.getElementById('p-dropdown');
-  if (!dd.contains(e.target)) { pCloseDd(); }
+function pCloseDdOut(e) {
+  if (!document.getElementById('p-dropdown').contains(e.target)) pCloseDd();
 }
 function pCloseDd() {
-  const dd = document.getElementById('p-dropdown');
-  dd.classList.add('hidden');
-  if (_activeEdit?.isDd) {
-    _activeEdit.td?.classList.remove('cell-active');
-    _activeEdit = null;
-  }
-  document.removeEventListener('click', pCloseDdOutside, true);
+  document.getElementById('p-dropdown').classList.add('hidden');
+  if (_activeEdit?.isDd) { _activeEdit.td?.classList.remove('cell-active'); _activeEdit = null; }
+  document.removeEventListener('click', pCloseDdOut, true);
 }
 
 function pSelectDd(val, ri, ci) {
@@ -1911,29 +2071,22 @@ function pSelectDd(val, ri, ci) {
   const before = _pRows[ri]?.[ci] ?? '';
   _pRows[ri] = _pRows[ri] || [];
   _pRows[ri][ci] = val;
-
-  // Auto-set currency when region changes
   if (ci === REGION_CI) _pRows[ri][CURRENCY_CI] = val === 'JP' ? 'JPY' : 'USD';
-
   pAutoCalc(ri);
-  renderPipeline();
-  calcSummary();
+  renderPipeline(); calcSummary();
   if (ci === STATUS_CI) { renderProjects(); renderFollowUps(); }
-
   if (val !== before) pSyncCell(ri, ci, val);
 }
 
-// ── Auto-calc ─────────────────────────────────────────────
+// ── Auto-calc ─────────────────────────────────────────────────────────────────
 
 function pAutoCalc(ri) {
-  const row = _pRows[ri];
-  if (!row) return;
-  const val = parseFloat(row[VALUE_CI]) || 0;
-  const gp  = parseFloat(row[10])      || 0;
+  const row = _pRows[ri]; if (!row) return;
+  const val = parseFloat(row[VALUE_CI])||0, gp = parseFloat(row[10])||0;
   row[GP_AMOUNT_CI] = (val * gp / 100).toFixed(0);
   if (_pAutoRows.has(ri)) pAutoMonths(ri);
   let total = 0;
-  for (let m = 14; m <= 25; m++) total += parseFloat(row[m]) || 0;
+  for (let m = 14; m <= 25; m++) total += parseFloat(row[m])||0;
   row[TOTAL_CI] = total ? total.toFixed(0) : '';
 }
 
@@ -1942,21 +2095,27 @@ function pAutoMonths(ri) {
   const si  = MONTHS_LIST.indexOf(row[START_CI]);
   const ei  = MONTHS_LIST.indexOf(row[END_CI]);
   if (si < 0 || ei < 0 || ei < si) return;
-  const val   = parseFloat(row[VALUE_CI]) || 0;
-  const count = ei - si + 1;
-  const each  = count > 0 ? (val / count).toFixed(0) : 0;
+  const val = parseFloat(row[VALUE_CI])||0;
+  const each = ((val / (ei - si + 1)).toFixed(0));
   for (let m = 14; m <= 25; m++) row[m] = (m-14 >= si && m-14 <= ei) ? each : '';
 }
 
 function pToggleAuto(ri, e) {
   e.stopPropagation();
-  if (_pAutoRows.has(ri)) _pAutoRows.delete(ri); else { _pAutoRows.add(ri); pAutoMonths(ri); }
-  pAutoCalc(ri);
-  renderPipeline();
-  calcSummary();
+  if (_pAutoRows.has(ri)) _pAutoRows.delete(ri);
+  else { _pAutoRows.add(ri); pAutoMonths(ri); }
+  pAutoCalc(ri); renderPipeline(); calcSummary();
 }
 
-// ── Column sort ───────────────────────────────────────────
+// ── View toggle ───────────────────────────────────────────────────────────────
+
+function pSetView(view) {
+  _pView = view;
+  pSavePrefs();
+  renderPipeline();
+}
+
+// ── Column sort ───────────────────────────────────────────────────────────────
 
 function pSortCol(ci, e) {
   if (e.target.classList.contains('col-rz')) return;
@@ -1967,7 +2126,7 @@ function pSortCol(ci, e) {
   renderPipeline();
 }
 
-// ── Column resize ─────────────────────────────────────────
+// ── Column resize ─────────────────────────────────────────────────────────────
 
 function pResizeStart(e, ci) {
   e.preventDefault(); e.stopPropagation();
@@ -1981,20 +2140,18 @@ function pResizeStart(e, ci) {
   };
   const onUp = () => {
     document.removeEventListener('mousemove', onMove);
-    document.removeEventListener('mouseup',   onUp);
+    document.removeEventListener('mouseup', onUp);
     pSavePrefs();
   };
   document.addEventListener('mousemove', onMove);
-  document.addEventListener('mouseup',   onUp);
+  document.addEventListener('mouseup', onUp);
 }
 
-// ── Column reorder ────────────────────────────────────────
+// ── Column reorder ────────────────────────────────────────────────────────────
 
 function pDragStart(e, ci) {
   if (ci === 0) { e.preventDefault(); return; }
-  _dragCI = ci;
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', ci);
+  _dragCI = ci; e.dataTransfer.effectAllowed = 'move';
 }
 function pDragOver(e, ci) {
   if (_dragCI < 0 || _dragCI === ci || ci === 0) return;
@@ -2007,17 +2164,14 @@ function pDragLeave(e, ci) {
 }
 function pDragDrop(e, ci) {
   e.preventDefault();
-  document.querySelectorAll('.p-table th').forEach(th => th.classList.remove('drag-target'));
+  document.querySelectorAll('.p-table th').forEach(t => t.classList.remove('drag-target'));
   if (_dragCI < 0 || ci === 0) return;
-  const from = _pColOrder.indexOf(_dragCI);
-  const to   = _pColOrder.indexOf(ci);
+  const from = _pColOrder.indexOf(_dragCI), to = _pColOrder.indexOf(ci);
   _pColOrder.splice(to, 0, _pColOrder.splice(from, 1)[0]);
-  _dragCI = -1;
-  pSavePrefs();
-  renderPipeline();
+  _dragCI = -1; pSavePrefs(); renderPipeline();
 }
 
-// ── Column visibility ─────────────────────────────────────
+// ── Column visibility ─────────────────────────────────────────────────────────
 
 function pToggleColVis(e) {
   e.stopPropagation();
@@ -2031,34 +2185,30 @@ function pToggleColVis(e) {
 }
 function pCloseColVis(e) {
   const panel = document.getElementById('p-col-vis-panel');
-  const btn   = document.getElementById('p-cols-btn');
-  if (!panel.contains(e.target) && !btn.contains(e.target)) {
+  if (!document.getElementById('p-cols-btn').contains(e.target) && !panel.contains(e.target)) {
     panel.classList.add('hidden');
     document.removeEventListener('click', pCloseColVis, true);
   }
 }
 function pSetColVis(ci, show) {
   if (show) _pColVis.add(ci); else { if (_pColVis.size <= 1) return; _pColVis.delete(ci); }
-  pSavePrefs();
-  renderPipeline();
+  pSavePrefs(); renderPipeline();
 }
 
-// ── Row actions ───────────────────────────────────────────
+// ── Row actions ───────────────────────────────────────────────────────────────
 
 function pDeleteRow(ri) {
   if (!confirm('Delete this deal?')) return;
   _pRows.splice(ri, 1);
-  _pAutoRows = new Set([..._pAutoRows].filter(r => r !== ri).map(r => r > ri ? r-1 : r));
+  _pAutoRows = new Set([..._pAutoRows].filter(r=>r!==ri).map(r=>r>ri?r-1:r));
   renderPipeline(); calcSummary(); renderProjects(); renderFollowUps();
-  // Sync: rebuild full sheet (no delete API — just flag local only)
   pSetSync('saved', '⚠ Deleted locally');
-  setTimeout(() => pSetSync('', ''), 3000);
+  setTimeout(() => pSetSync('',''), 3000);
 }
 
 let _moreRI = -1;
 function pMoreMenu(ri, e) {
-  e.stopPropagation();
-  _moreRI = ri;
+  e.stopPropagation(); _moreRI = ri;
   const menu = document.getElementById('p-more-menu');
   menu.innerHTML = `
     <div class="more-item" onclick="pDuplicateRow(${ri})">Duplicate row</div>
@@ -2066,7 +2216,7 @@ function pMoreMenu(ri, e) {
     <div class="more-item" onclick="pCopyRowText(${ri})">Copy row as text</div>
     <div class="more-item danger" onclick="pDeleteRow(${ri})">Delete row</div>`;
   menu.style.left = (e.clientX - 10) + 'px';
-  menu.style.top  = (e.clientY + 4)  + 'px';
+  menu.style.top  = (e.clientY + 4) + 'px';
   menu.classList.remove('hidden');
   setTimeout(() => document.addEventListener('click', pCloseMore, true), 10);
 }
@@ -2074,95 +2224,321 @@ function pCloseMore() {
   document.getElementById('p-more-menu').classList.add('hidden');
   document.removeEventListener('click', pCloseMore, true);
 }
-function pDuplicateRow(ri) {
-  pCloseMore();
-  _pRows.splice(ri + 1, 0, [..._pRows[ri]]);
-  renderPipeline(); calcSummary();
-}
-function pMoveToTop(ri) {
-  pCloseMore();
-  const row = _pRows.splice(ri, 1)[0];
-  _pRows.unshift(row);
-  renderPipeline(); calcSummary();
-}
-function pCopyRowText(ri) {
-  pCloseMore();
-  const text = P_COLS.map((c,i) => `${c}: ${_pRows[ri][i]??''}`).join('\n');
-  navigator.clipboard?.writeText(text).then(() => toast('Row copied to clipboard', 'ok'));
-}
+function pDuplicateRow(ri)  { pCloseMore(); _pRows.splice(ri+1,0,[..._pRows[ri]]); renderPipeline(); calcSummary(); }
+function pMoveToTop(ri)     { pCloseMore(); _pRows.unshift(_pRows.splice(ri,1)[0]); renderPipeline(); calcSummary(); }
+function pCopyRowText(ri)   { pCloseMore(); navigator.clipboard?.writeText(P_COLS.map((c,i)=>`${c}: ${_pRows[ri][i]??''}`).join('\n')).then(()=>toast('Copied','ok')); }
 
-// ── Inline add row ────────────────────────────────────────
+// ── Add row ───────────────────────────────────────────────────────────────────
+
+function pClearFilters() {
+  _pSearch=''; _pFilterSt=''; _pFilterReg='';
+  document.getElementById('p-search').value = '';
+  document.querySelectorAll('#p-status-pills .p-pill').forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.querySelectorAll('.p-region-grp .p-pill').forEach((b,i)=>b.classList.toggle('active',i===0));
+}
 
 function pAddRow() {
-  _pSearch = ''; _pFilterSt = ''; _pFilterReg = '';
-  document.getElementById('p-search').value = '';
-  document.querySelectorAll('#p-status-pills .p-pill').forEach((b,i) => b.classList.toggle('active', i===0));
-  document.querySelectorAll('.p-region-grp .p-pill').forEach((b,i) => b.classList.toggle('active', i===0));
-
+  pClearFilters();
   const row = new Array(P_COLS.length).fill('');
-  row[STATUS_CI] = 'Lead';
-  _pRows.push(row);
-  const ri = _pRows.length - 1;
-  renderPipeline();
-  calcSummary();
-
+  row[STATUS_CI]   = 'Lead';
+  row[CURRENCY_CI] = 'USD';
+  _pRows.unshift(row);
+  // Re-index _pAutoRows
+  _pAutoRows = new Set([..._pAutoRows].map(r=>r+1));
+  renderPipeline(); calcSummary();
   setTimeout(() => {
-    const td = document.querySelector(`td[data-ri="${ri}"][data-ci="0"]`);
-    td?.scrollIntoView({ block:'center', behavior:'smooth' });
+    const td = document.querySelector('td[data-ri="0"][data-ci="0"]');
+    td?.scrollIntoView({block:'center',behavior:'smooth'});
     if (td) pStartEdit(td);
   }, 60);
 }
 
-// ── Filter + search ───────────────────────────────────────
-
-function pSearch(val) {
-  _pSearch = val;
-  renderPipeline();
-  calcSummary();
+function pAddRowBottom() {
+  pClearFilters();
+  const row = new Array(P_COLS.length).fill('');
+  row[STATUS_CI]   = 'Lead';
+  row[CURRENCY_CI] = 'USD';
+  _pRows.push(row);
+  const ri = _pRows.length - 1;
+  renderPipeline(); calcSummary();
+  setTimeout(() => {
+    const td = document.querySelector(`td[data-ri="${ri}"][data-ci="0"]`);
+    td?.scrollIntoView({block:'center',behavior:'smooth'});
+    if (td) pStartEdit(td);
+  }, 60);
 }
+
+// ── Filter builder ────────────────────────────────────────────────────────────
+
+function pToggleFilterBuilder() {
+  const fb = document.getElementById('p-filter-builder');
+  const hidden = fb.classList.contains('hidden');
+  if (hidden) {
+    // Populate column select
+    const sel = document.getElementById('pfb-col');
+    sel.innerHTML = P_COLS.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join('');
+    document.getElementById('pfb-val').value = '';
+    fb.classList.remove('hidden');
+    document.getElementById('pfb-val').focus();
+  } else {
+    fb.classList.add('hidden');
+  }
+}
+
+function pAddFilter() {
+  const ci   = +document.getElementById('pfb-col').value;
+  const cond = document.getElementById('pfb-cond').value;
+  const val  = document.getElementById('pfb-val').value.trim();
+  if (cond !== 'empty' && !val) { toast('Enter a filter value', 'err'); return; }
+  _pFilters.push({ci, cond, val});
+  document.getElementById('p-filter-builder').classList.add('hidden');
+  pRenderActiveFilters();
+  renderPipeline(); calcSummary();
+}
+
+function pRemoveFilter(idx) {
+  _pFilters.splice(idx, 1);
+  pRenderActiveFilters();
+  renderPipeline(); calcSummary();
+}
+
+function pClearAllFilters() {
+  _pFilters = []; _pSearch=''; _pFilterSt=''; _pFilterReg='';
+  document.getElementById('p-search').value='';
+  document.querySelectorAll('#p-status-pills .p-pill').forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.querySelectorAll('.p-region-grp .p-pill').forEach((b,i)=>b.classList.toggle('active',i===0));
+  pRenderActiveFilters(); renderPipeline(); calcSummary();
+}
+
+function pRenderActiveFilters() {
+  const el = document.getElementById('p-active-filters');
+  const total = _pFilters.length + (_pFilterSt?1:0) + (_pFilterReg?1:0) + (_pSearch?1:0);
+  if (total === 0) { el.classList.add('hidden'); el.innerHTML=''; return; }
+  el.classList.remove('hidden');
+  let html = '';
+  if (_pSearch)     html += `<span class="p-af-pill">Search: "${esc(_pSearch)}"<button class="p-af-rm" onclick="document.getElementById('p-search').value='';pSearch('')">✕</button></span>`;
+  if (_pFilterSt)   html += `<span class="p-af-pill">Status: ${esc(_pFilterSt)}<button class="p-af-rm" onclick="pFilterStatus('',document.querySelector('#p-status-pills .p-pill'))">✕</button></span>`;
+  if (_pFilterReg)  html += `<span class="p-af-pill">Region: ${esc(_pFilterReg)}<button class="p-af-rm" onclick="pFilterRegion('',document.querySelector('.p-region-grp .p-pill'))">✕</button></span>`;
+  _pFilters.forEach((f,i) => {
+    const label = `${esc(P_COLS[f.ci])} ${f.cond}${f.cond!=='empty'?' '+esc(f.val):''}`;
+    html += `<span class="p-af-pill">${label}<button class="p-af-rm" onclick="pRemoveFilter(${i})">✕</button></span>`;
+  });
+  html += `<span class="p-clear-all" onclick="pClearAllFilters()">Clear all</span>`;
+  el.innerHTML = html;
+}
+
+// ── Saved views ───────────────────────────────────────────────────────────────
+
+function pSaveViewPrompt() {
+  const name = prompt('Name this view:');
+  if (!name) return;
+  _pSavedViews.push({ name, filters:[..._pFilters], filterSt:_pFilterSt, filterReg:_pFilterReg, search:_pSearch });
+  localStorage.setItem('p_saved_views', JSON.stringify(_pSavedViews));
+  pRenderSavedViews();
+}
+
+function pDeleteSavedView(idx, e) {
+  e.stopPropagation();
+  _pSavedViews.splice(idx, 1);
+  localStorage.setItem('p_saved_views', JSON.stringify(_pSavedViews));
+  pRenderSavedViews();
+  // If we deleted the active view, switch to All Deals
+  document.querySelectorAll('.p-saved-tab').forEach((t,i) => { if (i===0) t.classList.add('active'); else t.classList.remove('active'); });
+}
+
+function pLoadView(idx, btn) {
+  document.querySelectorAll('.p-saved-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  if (idx === -1) { _pFilters=[]; _pFilterSt=''; _pFilterReg=''; _pSearch=''; document.getElementById('p-search').value=''; }
+  else {
+    const v = _pSavedViews[idx];
+    _pFilters=[...v.filters]; _pFilterSt=v.filterSt; _pFilterReg=v.filterReg; _pSearch=v.search||'';
+    document.getElementById('p-search').value = _pSearch;
+  }
+  pRenderActiveFilters(); renderPipeline(); calcSummary();
+}
+
+function pRenderSavedViews() {
+  const bar = document.getElementById('p-views-bar');
+  if (!bar) return;
+  let html = `<button class="p-saved-tab active" data-idx="-1" onclick="pLoadView(-1,this)">All Deals</button>`;
+  _pSavedViews.forEach((v,i) => {
+    html += `<button class="p-saved-tab" data-idx="${i}" onclick="pLoadView(${i},this)">${esc(v.name)}<span class="tab-rm" onclick="pDeleteSavedView(${i},event)">✕</span></button>`;
+  });
+  html += `<button class="p-save-view-btn" onclick="pSaveViewPrompt()">+ Save view</button>`;
+  bar.innerHTML = html;
+}
+
+// ── Filter + search ───────────────────────────────────────────────────────────
+
+function pSearch(val) { _pSearch=val; pRenderActiveFilters(); renderPipeline(); calcSummary(); }
+
 function pFilterStatus(val, btn) {
   _pFilterSt = val;
-  document.querySelectorAll('#p-status-pills .p-pill').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#p-status-pills .p-pill').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  renderPipeline(); calcSummary();
-}
-function pFilterRegion(val, btn) {
-  _pFilterReg = val;
-  document.querySelectorAll('.p-region-grp .p-pill').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderPipeline(); calcSummary();
+  pRenderActiveFilters(); renderPipeline(); calcSummary();
 }
 
-// ── Sync ──────────────────────────────────────────────────
+function pFilterRegion(val, btn) {
+  _pFilterReg = val;
+  document.querySelectorAll('.p-region-grp .p-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  pRenderActiveFilters(); renderPipeline(); calcSummary();
+}
+
+// ── Sync ──────────────────────────────────────────────────────────────────────
 
 function pSetSync(cls, text) {
   const el = document.getElementById('p-sync');
   if (!el) return;
-  el.className = 'p-sync' + (cls ? ' ' + cls : '');
+  el.className = 'p-sync' + (cls?' '+cls:'');
   el.textContent = text;
 }
 
 async function pSyncCell(ri, ci, val) {
-  pSetSync('saving', 'Saving…');
+  pSetSync('saving','Saving…');
   clearTimeout(_pSyncTimer);
-  const ref = `${PIPELINE_TAB}!${colLetter(ci)}${ri + 2}`;
+  const ref = `${PIPELINE_TAB}!${colLetter(ci)}${ri+2}`;
   try {
     await sheetsPut(ref, val);
-    pSetSync('saved', 'Saved ✓');
+    pSetSync('saved','Saved ✓');
     const td = document.querySelector(`td[data-ri="${ri}"][data-ci="${ci}"]`);
     if (td) { td.classList.remove('cell-dirty'); td.classList.add('cell-saved'); }
   } catch (err) {
-    pSetSync('error', 'Sync failed');
+    pSetSync('error','Sync failed');
     toast('Saved locally — ' + err.message, 'warn');
   }
-  _pSyncTimer = setTimeout(() => pSetSync('', ''), 3000);
+  _pSyncTimer = setTimeout(() => pSetSync('',''), 3000);
 }
 
-// ── Auto-refresh ──────────────────────────────────────────
+// ── Auto-refresh ──────────────────────────────────────────────────────────────
 
 function pStartAutoRefresh() {
   clearInterval(_pRefreshInt);
   _pRefreshInt = setInterval(() => { if (_connected && !_activeEdit) loadPipeline(); }, 60000);
+}
+
+// ── Form panel (Method B) ────────────────────────────────────────────────────
+
+function pShowForm() {
+  document.getElementById('p-form-overlay').classList.remove('hidden');
+  document.getElementById('p-form-panel').classList.add('open');
+  // Reset form
+  ['fp-client','fp-desc'].forEach(id => document.getElementById(id).value='');
+  ['fp-owner','fp-status','fp-type','fp-service','fp-pm','fp-start','fp-end'].forEach(id => { const el=document.getElementById(id); if(el) el.selectedIndex=0; });
+  document.getElementById('fp-value').value='';
+  document.getElementById('fp-gp').value='';
+  _pFpState = { region:'US', currency:'USD', alloc:'auto', source:'outbound' };
+  pFpRefreshRadios();
+  pFpCalc();
+  setTimeout(() => document.getElementById('fp-client').focus(), 200);
+}
+
+function pHideForm() {
+  document.getElementById('p-form-overlay').classList.add('hidden');
+  document.getElementById('p-form-panel').classList.remove('open');
+}
+
+function pFpRadio(group, val) {
+  _pFpState[group] = val;
+  if (group === 'region') {
+    _pFpState.currency = val === 'JP' ? 'JPY' : 'USD';
+  }
+  pFpRefreshRadios();
+  pFpCalc();
+}
+
+function pFpRefreshRadios() {
+  // Region
+  document.querySelectorAll('#fp-region-grp .p-radio-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.v === _pFpState.region));
+  // Currency
+  ['fp-usd','fp-jpy'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', el.dataset.v === _pFpState.currency);
+  });
+  // Alloc
+  document.getElementById('fp-auto-btn')?.classList.toggle('active', _pFpState.alloc === 'auto');
+  document.getElementById('fp-manual-btn')?.classList.toggle('active', _pFpState.alloc === 'manual');
+  // Source
+  document.getElementById('fp-src-out')?.classList.toggle('active', _pFpState.source === 'outbound');
+  document.getElementById('fp-src-in')?.classList.toggle('active', _pFpState.source === 'inbound');
+}
+
+function pFpCalc() {
+  const val = parseFloat(document.getElementById('fp-value').value)||0;
+  const gp  = parseFloat(document.getElementById('fp-gp').value)||0;
+  const gpAmt = (val * gp / 100);
+  document.getElementById('fp-gp-hint').textContent = `GP Amount: ${_pFpState.currency==='JPY'?'¥':'$'}${gpAmt.toLocaleString('en-US',{maximumFractionDigits:0})}`;
+
+  // Month preview
+  const startName = document.getElementById('fp-start').value;
+  const endName   = document.getElementById('fp-end').value;
+  const si = MONTHS_LIST.indexOf(startName);
+  const ei = MONTHS_LIST.indexOf(endName);
+  const preview = document.getElementById('fp-month-preview');
+
+  if (_pFpState.alloc === 'auto' && si >= 0 && ei >= si) {
+    const count = ei - si + 1;
+    const each  = count > 0 ? (val / count) : 0;
+    preview.innerHTML = MONTHS_LIST.slice(si, ei+1).map(m =>
+      `<div class="p-month-cell"><div class="p-month-lbl">${m}</div><div class="p-month-val">${each.toLocaleString('en-US',{maximumFractionDigits:0})}</div></div>`
+    ).join('');
+  } else {
+    preview.innerHTML = '';
+  }
+}
+
+function pSubmitForm() {
+  const g = id => (document.getElementById(id)?.value || '').trim();
+  if (!g('fp-client')) { toast('Client Name is required', 'err'); document.getElementById('fp-client').focus(); return; }
+  if (!g('fp-owner'))  { toast('Owner is required', 'err'); return; }
+
+  const row = new Array(P_COLS.length).fill('');
+  row[0]  = g('fp-owner');
+  row[1]  = _pFpState.region;
+  row[2]  = g('fp-status') || 'Lead';
+  row[3]  = g('fp-client');
+  row[4]  = g('fp-service');
+  row[5]  = g('fp-desc');
+  row[6]  = g('fp-type');
+  row[7]  = g('fp-pm');
+  row[8]  = _pFpState.currency;
+  row[9]  = g('fp-value');
+  row[10] = g('fp-gp');
+  row[12] = g('fp-start');
+  row[13] = g('fp-end');
+
+  // Auto-calc GP Amount, months, total
+  const val = parseFloat(row[9])||0, gp = parseFloat(row[10])||0;
+  row[11] = (val * gp / 100).toFixed(0);
+  const si = MONTHS_LIST.indexOf(row[12]), ei = MONTHS_LIST.indexOf(row[13]);
+  if (_pFpState.alloc === 'auto' && si >= 0 && ei >= si) {
+    const each = ((val / (ei - si + 1)).toFixed(0));
+    for (let m = 14; m <= 25; m++) row[m] = (m-14 >= si && m-14 <= ei) ? each : '';
+  }
+  let total = 0;
+  for (let m = 14; m <= 25; m++) total += parseFloat(row[m])||0;
+  row[26] = total ? total.toFixed(0) : '';
+
+  _pRows.push(row);
+  const newRI = _pRows.length - 1;
+  pHideForm();
+  renderPipeline(); calcSummary(); renderProjects(); renderFollowUps();
+
+  // Scroll to and highlight new row
+  setTimeout(() => {
+    const tr = document.querySelector(`tr[data-ri="${newRI}"]`);
+    if (tr) { tr.scrollIntoView({block:'center',behavior:'smooth'}); tr.classList.add('p-new-row-hl'); setTimeout(()=>tr.classList.remove('p-new-row-hl'),1600); }
+  }, 80);
+
+  // Sync to Sheets
+  pSetSync('saving','Saving…');
+  sheetsAppend(PIPELINE_TAB, [row])
+    .then(() => { pSetSync('saved','Saved ✓'); toast('Deal added ✓', 'ok'); })
+    .catch(err => { pSetSync('error','Sync failed'); toast('Added locally — '+err.message,'warn'); })
+    .finally(() => setTimeout(() => pSetSync('',''), 3000));
 }
 
 // ─── Read-only row renderer (Projects + FollowUps) ───────────
@@ -2765,5 +3141,84 @@ function showView(name) {
 
 })();
 </script>
+
+<!-- ══════════════════════════════════════════ ADD DEAL FORM PANEL -->
+<div id="p-form-overlay" class="p-form-overlay hidden" onclick="pHideForm()"></div>
+<div id="p-form-panel" class="p-form-panel">
+  <div class="p-form-header">
+    <div class="p-form-title">ADD NEW DEAL</div>
+    <button class="p-form-close" onclick="pHideForm()">✕</button>
+  </div>
+  <div class="p-form-body">
+    <div class="form-grid">
+      <div class="field field-full"><label>Client Name *</label>
+        <input type="text" id="fp-client" placeholder="Company name" /></div>
+      <div class="field"><label>Owner / AM *</label>
+        <select id="fp-owner">
+          <option value="">Select…</option>
+          <option>Mana</option><option>Brandon</option>
+        </select></div>
+      <div class="field"><label>Region *</label>
+        <div class="p-radio-grp" id="fp-region-grp">
+          <button class="p-radio-btn active" data-v="US" onclick="pFpRadio('region','US')">🇺🇸 US</button>
+          <button class="p-radio-btn" data-v="JP" onclick="pFpRadio('region','JP')">🇯🇵 JP</button>
+        </div></div>
+      <div class="field"><label>Status *</label>
+        <select id="fp-status">
+          <option>Lead</option><option>Qualified</option><option>Pitch</option>
+          <option>Negotiation</option><option>Won</option><option>Lost</option><option>Closed</option>
+        </select></div>
+      <div class="field"><label>Client Type</label>
+        <select id="fp-type">
+          <option value="">Select…</option>
+          <option>Enterprise</option><option>Mid-Market</option><option>Startup</option>
+          <option>Government</option><option>NGO</option>
+        </select></div>
+      <div class="field field-full"><label>Service Offering</label>
+        <select id="fp-service">
+          <option value="">Select…</option>
+          <option>UX Design</option><option>Brand Strategy</option>
+          <option>Market Entry Consulting</option><option>Brand Localization</option>
+          <option>UX Research</option><option>Growth Marketing</option><option>Workshop</option>
+        </select></div>
+      <div class="field field-full"><label>Project Description</label>
+        <textarea id="fp-desc" rows="2" placeholder="Brief description"></textarea></div>
+      <div class="field"><label>PM</label>
+        <select id="fp-pm">
+          <option value="">Select…</option>
+          <option>Mana</option><option>Brandon</option>
+        </select></div>
+      <div class="field"><label>Currency *</label>
+        <div class="p-radio-grp">
+          <button class="p-radio-btn active" id="fp-usd" data-v="USD" onclick="pFpRadio('currency','USD')">USD</button>
+          <button class="p-radio-btn" id="fp-jpy" data-v="JPY" onclick="pFpRadio('currency','JPY')">JPY</button>
+        </div></div>
+      <div class="field"><label>2026 Deal Value *</label>
+        <input type="number" id="fp-value" placeholder="e.g. 45000" oninput="pFpCalc()" /></div>
+      <div class="field"><label>GP Estimate %</label>
+        <input type="number" id="fp-gp" placeholder="e.g. 40" min="0" max="100" oninput="pFpCalc()" />
+        <div class="p-form-hint" id="fp-gp-hint">GP Amount: —</div></div>
+      <div class="field"><label>Start Month</label>
+        <select id="fp-start" onchange="pFpCalc()"><option value="">Select…</option><option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option><option>May</option><option>Jun</option><option>Jul</option><option>Aug</option><option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option></select></div>
+      <div class="field"><label>End Month</label>
+        <select id="fp-end" onchange="pFpCalc()"><option value="">Select…</option><option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option><option>May</option><option>Jun</option><option>Jul</option><option>Aug</option><option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option></select></div>
+      <div class="field field-full"><label>Monthly Allocation</label>
+        <div class="p-radio-grp">
+          <button class="p-radio-btn active" id="fp-auto-btn" onclick="pFpRadio('alloc','auto')">Auto</button>
+          <button class="p-radio-btn" id="fp-manual-btn" onclick="pFpRadio('alloc','manual')">Manual</button>
+        </div>
+        <div id="fp-month-preview" class="p-form-month-preview"></div></div>
+      <div class="field"><label>Source</label>
+        <div class="p-radio-grp">
+          <button class="p-radio-btn active" id="fp-src-out" onclick="pFpRadio('source','outbound')">Outbound</button>
+          <button class="p-radio-btn" id="fp-src-in" onclick="pFpRadio('source','inbound')">Inbound</button>
+        </div></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)">
+      <button class="btn-primary" onclick="pSubmitForm()">SAVE DEAL</button>
+      <button class="btn-cancel"  onclick="pHideForm()">Cancel</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
