@@ -1966,25 +1966,50 @@ async function loadAll() {
   await Promise.allSettled([loadPipeline(), loadContacts()]);
 }
 
+
+// Sample pipeline data shown immediately before Sheets loads
+const SAMPLE_ROWS = [
+  ['Mana','US','Pitch','Tanaka Digital KK','UX Design','Mobile app redesign for Japan launch','Enterprise','Brandon','USD','95000','40','38000','Jan','Jun','15833','15833','15834','15833','15833','15834','','','','','','','95000'],
+  ['Brandon','US','Qualified','Meridian Health','Market Entry Consulting','US-Japan market entry strategy','Mid-Market','Mana','USD','60000','35','21000','Mar','May','20000','20000','20000','','','','','','','','','','60000'],
+  ['Mana','JP','Lead','株式会社Future Tech','Brand Strategy','Brand refresh for Tokyo expansion','Enterprise','','JPY','12000000','38','4560000','Apr','Sep','2000000','2000000','2000000','2000000','2000000','2000000','','','','','','','12000000'],
+  ['Brandon','US','Negotiation','Apex Ventures','UX Research','Usability testing + research synthesis','Startup','Mana','USD','38000','42','15960','Feb','Feb','38000','','','','','','','','','','','','38000'],
+  ['Mana','JP','Won','Sakura Beauty Co.','Brand Localization','E-commerce brand localization','Mid-Market','Brandon','JPY','5500000','40','2200000','Jan','Mar','1833333','1833333','1833334','','','','','','','','','','5500000'],
+];
 // ═══════════════════════════════════════════════════════ PIPELINE
 
 async function loadPipeline() {
   if (!_pColW.length) pInitPrefs();
-  const tbody = document.getElementById('p-tbody');
-  tbody.innerHTML = `<tr><td class="td-state" colspan="${P_COLS.length}">Loading from Google Sheets…</td></tr>`;
+
+  // Show sample data immediately so the table is never blank
+  if (!_pRows.length) {
+    _pRows = SAMPLE_ROWS.map(r => [...r]);
+    renderPipeline(); calcSummary(); renderProjects(); renderFollowUps();
+  }
+
+  // Attempt background fetch from Google Sheets
   try {
     const data = await sheetsGet(`${PIPELINE_TAB}!A:${colLetter(P_COLS.length - 1)}`);
     const all  = data.values || [];
-    _pRows     = all.length > 1 ? all.slice(1) : [];
-    renderPipeline();
-    calcSummary();
-    renderProjects();
-    renderFollowUps();
-    pStartAutoRefresh();
+    if (all.length > 1) {
+      _pRows = all.slice(1);
+      renderPipeline(); calcSummary(); renderProjects(); renderFollowUps();
+      pStartAutoRefresh();
+      // Clear any sample-data notice
+      const notice = document.getElementById('p-sample-notice');
+      if (notice) notice.remove();
+    }
   } catch (err) {
-    setConn('err');
-    tbody.innerHTML = `<tr><td class="td-state td-err" colspan="${P_COLS.length}">${esc(err.message)}</td></tr>`;
-    toast(err.message, 'err');
+    // Keep sample data visible; show a subtle notice instead of an error
+    setConn('none');
+    let notice = document.getElementById('p-sample-notice');
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.id = 'p-sample-notice';
+      notice.style.cssText = 'font-size:11px;color:var(--text-muted);padding:6px 0 10px;';
+      notice.textContent = 'Showing sample data — connect in Settings to load live pipeline';
+      const dealCount = document.getElementById('dealCount');
+      if (dealCount) dealCount.parentNode.insertBefore(notice, dealCount.nextSibling);
+    }
   }
 }
 
@@ -2049,7 +2074,7 @@ function pMatchFilter(cell, cond, val) {
   }
 }
 
-function renderPipeline() {
+function _renderPipelineCore() {
   const isFull    = _pView === 'full';
   const visOrder  = pGetVisibleCols();
   const MONTH_CIS = new Set([14,15,16,17,18,19,20,21,22,23,24,25]);
@@ -3417,14 +3442,11 @@ function pCardEdit(ri, e) {
   pShowForm();
 }
 
-// Override renderPipeline to switch modes
-const _origRenderPipeline = renderPipeline;
+// Responsive render dispatcher (calls _renderPipelineCore for desktop/tablet)
 function renderPipeline() {
   const isMobile = window.innerWidth < 768;
   const cardsEl  = document.getElementById('p-cards');
   const tableWrap = document.querySelector('#view-pipeline .table-wrap');
-  const toolbar   = document.querySelector('#view-pipeline .toolbar');
-  const filterBar = document.querySelector('#view-pipeline .p-filter-bar');
 
   if (isMobile && cardsEl) {
     cardsEl.style.display = 'block';
@@ -3434,7 +3456,7 @@ function renderPipeline() {
   } else {
     if (cardsEl) cardsEl.style.display = 'none';
     if (tableWrap) tableWrap.style.display = '';
-    _origRenderPipeline();
+    _renderPipelineCore();
   }
 }
 
