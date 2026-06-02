@@ -1073,71 +1073,62 @@ function updateBanners() {
 
 // ═══════════════════════════════════════════════════════ SERVICE ACCOUNT JWT
 
-function pemToDer(pem) {
-  const b64 = pem.replace(/-----[^-]+-----/g, '').replace(/\s+/g, '');
-  const bin = atob(b64);
-  const buf = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
-  return buf.buffer;
-}
-
-function b64url(buf) {
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
-function cleanPrivateKey(key) {
-  return key
+async function makeJWT(email, privateKey) {
+  const cleanKey = privateKey
     .replace(/\\n/g, '\n')
-    .replace(/\\r/g, '')
     .trim();
-}
 
-async function makeJWT(email, pemKey) {
-  pemKey = cleanPrivateKey(pemKey);
-  const now  = Math.floor(Date.now() / 1000);
-  const header  = { alg: 'RS256', typ: 'JWT' };
-  const payload = {
-    iss: email, scope: SA_SCOPES,
+  const header = btoa(JSON.stringify({
+    alg: 'RS256', typ: 'JWT'
+  })).replace(/=/g, '').replace(/\+/g, '-')
+     .replace(/\//g, '_');
+
+  const now = Math.floor(Date.now() / 1000);
+  const payload = btoa(JSON.stringify({
+    iss: email,
+    scope: [
+      'https://www.googleapis.com/auth/spreadsheets',
+      'https://www.googleapis.com/auth/analytics.readonly',
+      'https://www.googleapis.com/auth/webmasters.readonly'
+    ].join(' '),
     aud: 'https://oauth2.googleapis.com/token',
-    iat: now, exp: now + 3600,
-  };
-  const enc     = new TextEncoder();
-  const hdr64   = b64url(enc.encode(JSON.stringify(header)));
-  const pay64   = b64url(enc.encode(JSON.stringify(payload)));
-  const signing = enc.encode(`${hdr64}.${pay64}`);
+    exp: now + 3600,
+    iat: now
+  })).replace(/=/g, '').replace(/\+/g, '-')
+     .replace(/\//g, '_');
 
-  // Try PKCS8 first; fall back to PKCS1 wrapped as PKCS8
-  let cryptoKey;
-  try {
-    cryptoKey = await crypto.subtle.importKey(
-      'pkcs8', pemToDer(pemKey),
-      { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-      false, ['sign']
-    );
-  } catch {
-    // Wrap PKCS1 in a PKCS8 envelope
-    const der   = new Uint8Array(pemToDer(pemKey));
-    const seq   = new Uint8Array([0x30, 0x0d, 0x06, 0x09, 0x2a, 0x86, 0x48, 0x86,
-                                  0xf7, 0x0d, 0x01, 0x01, 0x01, 0x05, 0x00]);
-    const inner = new Uint8Array(der.length + 4);
-    inner[0] = 0x04; inner[1] = 0x82;
-    inner[2] = (der.length >> 8) & 0xff; inner[3] = der.length & 0xff;
-    inner.set(der, 4);
-    const outer = new Uint8Array(seq.length + inner.length + 4);
-    outer[0] = 0x30; outer[1] = 0x82;
-    outer[2] = ((seq.length + inner.length) >> 8) & 0xff;
-    outer[3] =  (seq.length + inner.length)       & 0xff;
-    outer.set(seq, 4); outer.set(inner, 4 + seq.length);
-    cryptoKey = await crypto.subtle.importKey(
-      'pkcs8', outer.buffer,
-      { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-      false, ['sign']
-    );
-  }
+  const pemContents = cleanKey
+    .replace(/-----BEGIN PRIVATE KEY-----/, '')
+    .replace(/-----END PRIVATE KEY-----/, '')
+    .replace(/-----BEGIN RSA PRIVATE KEY-----/, '')
+    .replace(/-----END RSA PRIVATE KEY-----/, '')
+    .replace(/\s/g, '');
 
-  const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', cryptoKey, signing);
-  return `${hdr64}.${pay64}.${b64url(sig)}`;
+  const binaryKey = Uint8Array.from(
+    atob(pemContents), c => c.charCodeAt(0)
+  );
+
+  const cryptoKey = await crypto.subtle.importKey(
+    'pkcs8',
+    binaryKey.buffer,
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signingInput = `${header}.${payload}`;
+  const signature = await crypto.subtle.sign(
+    'RSASSA-PKCS1-v1_5',
+    cryptoKey,
+    new TextEncoder().encode(signingInput)
+  );
+
+  const encodedSig = btoa(
+    String.fromCharCode(...new Uint8Array(signature))
+  ).replace(/=/g, '').replace(/\+/g, '-')
+   .replace(/\//g, '_');
+
+  return `${signingInput}.${encodedSig}`;
 }
 
 async function exchangeJWT(jwt) {
