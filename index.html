@@ -631,6 +631,92 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 
 .btn-cancel:hover { background: var(--sidebar); color: var(--navy); }
 
+/* ─── PIPELINE V2 ───────────────────────────────────────── */
+
+/* filter bar */
+.p-filter-bar { display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.p-search { flex:1; min-width:180px; max-width:260px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r-sm); padding:7px 12px; font-family:'Open Sans',sans-serif; font-size:12px; color:var(--text); transition:border-color .15s; }
+.p-search:focus { outline:none; border-color:var(--navy); }
+.p-pills  { display:flex; gap:4px; flex-wrap:wrap; }
+.p-pill   { background:none; border:1px solid var(--border); border-radius:20px; padding:4px 12px; font-family:'Open Sans',sans-serif; font-size:11px; font-weight:600; color:var(--text-muted); cursor:pointer; transition:all .12s; white-space:nowrap; }
+.p-pill:hover  { background:var(--sidebar); color:var(--navy); }
+.p-pill.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+.p-region-grp .p-pill            { border-radius:0; margin-left:-1px; }
+.p-region-grp .p-pill:first-child { border-radius:20px 0 0 20px; margin-left:0; }
+.p-region-grp .p-pill:last-child  { border-radius:0 20px 20px 0; }
+
+/* sync status */
+.p-sync         { font-size:11px; color:var(--text-muted); min-width:72px; text-align:right; white-space:nowrap; transition:color .2s; }
+.p-sync.saving  { color:var(--gold); }
+.p-sync.saved   { color:var(--green); }
+.p-sync.error   { color:var(--red); }
+
+/* columns button + visibility panel */
+.btn-cols  { background:none; border:1px solid var(--border); border-radius:var(--r-sm); padding:7px 12px; font-family:'Open Sans',sans-serif; font-size:11px; font-weight:600; color:var(--text-muted); cursor:pointer; transition:all .12s; position:relative; }
+.btn-cols:hover  { background:var(--sidebar); color:var(--navy); }
+.col-vis-panel  { position:absolute; top:calc(100% + 4px); right:0; z-index:200; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:12px 16px; min-width:200px; max-height:360px; overflow-y:auto; box-shadow:0 6px 24px rgba(28,25,23,.12); }
+.col-vis-panel label  { display:flex; align-items:center; gap:8px; padding:4px 0; font-size:12px; cursor:pointer; user-select:none; white-space:nowrap; }
+.col-vis-panel label:hover { color:var(--navy); }
+
+/* pipeline table */
+.p-table  { border-collapse:collapse; font-size:13px; min-width:100%; }
+.p-table thead  { background:var(--sidebar); }
+.p-table th  { padding:11px 14px; text-align:left; font-size:10px; font-weight:700; letter-spacing:.7px; text-transform:uppercase; color:var(--text-muted); border-bottom:1px solid var(--border); white-space:nowrap; position:relative; cursor:pointer; user-select:none; }
+.p-table th:first-child  { position:sticky; left:0; z-index:3; background:var(--sidebar); }
+.p-table th.p-th-sorted  { background:var(--navy); color:#fff; }
+.sort-icon::after { font-size:8px; margin-left:3px; opacity:.7; }
+.p-table th.sort-asc  .sort-icon::after { content:'▲'; }
+.p-table th.sort-desc .sort-icon::after { content:'▼'; }
+.p-table th.drag-target { outline:2px dashed var(--gold); outline-offset:-2px; }
+.col-rz  { position:absolute; right:0; top:0; width:6px; height:100%; cursor:col-resize; z-index:4; }
+.col-rz:hover  { background:rgba(26,26,46,.2); }
+.p-table td  { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:middle; white-space:nowrap; }
+.p-table td:first-child  { position:sticky; left:0; z-index:1; background:var(--surface); font-weight:600; }
+.p-table tr:hover td:first-child { background:#f5f0e8; }
+.p-table tr:last-child td  { border-bottom:none; }
+.p-table tbody tr:hover td  { background:rgba(26,26,46,.018); }
+.p-table tbody tr:hover td:first-child { background:#f5f0e8; }
+
+/* cell states */
+.p-table td.cell-active   { outline:2px solid var(--gold) !important; outline-offset:-1px; position:relative; z-index:2; }
+.p-table td.cell-dirty    { background:rgba(253,246,160,.5) !important; }
+@keyframes cellSaved { 0%{background:rgba(45,80,22,.18)} 100%{background:transparent} }
+.p-table td.cell-saved    { animation:cellSaved .9s ease forwards; }
+.p-table td.cell-readonly { color:var(--text-muted); cursor:default; }
+.cell-input { width:100%; background:transparent; border:none; outline:none; font-family:'Open Sans',sans-serif; font-size:13px; color:var(--text); padding:0; min-width:40px; }
+.cell-input[type=number]  { text-align:right; }
+
+/* custom dropdown */
+#p-dropdown { position:fixed; z-index:9100; background:var(--surface); border:1px solid var(--border); border-radius:var(--r-sm); box-shadow:0 4px 20px rgba(28,25,23,.12); min-width:140px; overflow:hidden; max-height:280px; overflow-y:auto; }
+.p-dd-item  { padding:8px 14px; font-size:13px; cursor:pointer; transition:background .1s; }
+.p-dd-item:hover  { background:var(--sidebar); }
+.p-dd-item.dd-sel { font-weight:700; }
+
+/* row actions */
+.p-table tr { position:relative; }
+.row-acts   { display:none; position:absolute; right:4px; top:50%; transform:translateY(-50%); background:var(--surface); border:1px solid var(--border); border-radius:var(--r-sm); box-shadow:0 2px 8px rgba(28,25,23,.1); padding:2px; gap:1px; align-items:center; z-index:5; }
+.p-table tr:hover .row-acts { display:flex; }
+.row-act    { background:none; border:none; padding:4px 7px; cursor:pointer; font-size:13px; color:var(--text-muted); border-radius:3px; line-height:1; }
+.row-act:hover { background:var(--sidebar); color:var(--navy); }
+.row-act.danger:hover { background:rgba(185,28,28,.1); color:var(--red); }
+
+/* more menu */
+#p-more-menu { position:fixed; z-index:9200; background:var(--surface); border:1px solid var(--border); border-radius:var(--r-sm); box-shadow:0 4px 16px rgba(28,25,23,.1); padding:6px 0; min-width:160px; }
+.more-item { padding:9px 16px; font-size:12px; cursor:pointer; color:var(--text); }
+.more-item:hover { background:var(--sidebar); }
+.more-item.danger { color:var(--red); }
+
+/* add row at bottom */
+.add-row-btn { display:block; width:100%; padding:10px; text-align:center; font-family:'Open Sans',sans-serif; font-size:12px; font-weight:600; color:var(--text-muted); background:var(--sidebar); border:none; border-top:1px solid var(--border); cursor:pointer; transition:all .12s; border-radius:0 0 var(--r) var(--r); }
+.add-row-btn:hover { background:rgba(26,26,46,.06); color:var(--navy); }
+
+/* auto badge on monthly cells */
+.auto-badge { font-size:9px; font-weight:700; padding:1px 5px; border-radius:3px; background:rgba(26,26,46,.08); color:var(--text-muted); cursor:pointer; vertical-align:middle; margin-left:3px; }
+.auto-badge.on { background:rgba(26,26,46,.18); color:var(--navy); }
+
+/* status pill (display, not select) */
+.st-pill { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; }
+
 /* ─── COMING SOON ───────────────────────────────────────── */
 .coming-soon-wrap { padding: 64px 0 0; max-width: 480px; }
 .coming-soon-title { font-size: 15px; color: var(--text-muted); margin-bottom: 8px; }
@@ -1043,22 +1129,52 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       </div>
     </div>
 
+    <!-- filter bar -->
+    <div class="p-filter-bar">
+      <input id="p-search" class="p-search" type="text" placeholder="Search deals…" oninput="pSearch(this.value)" />
+      <div class="p-pills" id="p-status-pills">
+        <button class="p-pill active" onclick="pFilterStatus('',this)">All</button>
+        <button class="p-pill" onclick="pFilterStatus('Lead',this)">Lead</button>
+        <button class="p-pill" onclick="pFilterStatus('Qualified',this)">Qualified</button>
+        <button class="p-pill" onclick="pFilterStatus('Pitch',this)">Pitch</button>
+        <button class="p-pill" onclick="pFilterStatus('Negotiation',this)">Negotiation</button>
+        <button class="p-pill" onclick="pFilterStatus('Won',this)">Won</button>
+        <button class="p-pill" onclick="pFilterStatus('Lost',this)">Lost</button>
+        <button class="p-pill" onclick="pFilterStatus('Closed',this)">Closed</button>
+      </div>
+      <div class="p-region-grp p-pills">
+        <button class="p-pill active" onclick="pFilterRegion('',this)">All</button>
+        <button class="p-pill" onclick="pFilterRegion('US',this)">🇺🇸 US</button>
+        <button class="p-pill" onclick="pFilterRegion('JP',this)">🇯🇵 JP</button>
+      </div>
+    </div>
+
     <div class="toolbar">
       <span class="section-label" id="dealCount">All Deals</span>
-      <div class="toolbar-right">
+      <div class="toolbar-right" style="position:relative;align-items:center">
+        <span id="p-sync" class="p-sync"></span>
+        <div style="position:relative">
+          <button class="btn-cols" id="p-cols-btn" onclick="pToggleColVis(event)">Columns ▾</button>
+          <div id="p-col-vis-panel" class="col-vis-panel hidden"></div>
+        </div>
         <button class="btn-import" onclick="triggerCSV('pipeline')">↑ Import CSV</button>
-        <button class="btn-add"    onclick="openAddDeal()">+ Add Deal</button>
+        <button class="btn-add"    onclick="pAddRow()">+ Add Deal</button>
       </div>
     </div>
 
     <div class="table-wrap">
-      <table>
+      <table class="p-table">
         <thead id="p-thead"></thead>
         <tbody id="p-tbody">
-          <tr><td class="td-state" colspan="27">Add your API key in Settings to load data.</td></tr>
+          <tr><td class="td-state" colspan="27">Connect to load pipeline data.</td></tr>
         </tbody>
       </table>
+      <button class="add-row-btn" onclick="pAddRow()">+ Add row</button>
     </div>
+
+    <!-- dropdown + more-menu overlays -->
+    <div id="p-dropdown" class="hidden"></div>
+    <div id="p-more-menu" class="hidden"></div>
   </div>
 
   <!-- ── CONTACTS ───────────────────────────────────────── -->
@@ -1330,6 +1446,13 @@ const VALUE_CI    = 9;  // index of 2026 Deal Value
 
 const STATUS_OPTS = ['Lead','Qualified','Pitch','Negotiation','Won','Lost','Closed'];
 
+const GP_AMOUNT_CI   = 11;
+const TOTAL_CI       = 26;
+const START_CI       = 12;
+const END_CI         = 13;
+const REGION_CI      = 1;
+const MONTHS_LIST    = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 const STATUS_CSS = {
   lead:        'background:rgba(120,113,108,.12);color:#57534E',
   qualified:   'background:rgba(26,58,92,.12);color:#1A3A5C',
@@ -1351,6 +1474,19 @@ const C_COL_W_DEFAULT = [140,160,130,190,120,90,90,220];
 // ═══════════════════════════════════════════════════════ STATE
 
 let _connected = false;
+// Pipeline V2 state
+let _pColW       = [];          // per-column widths (from localStorage)
+let _pColOrder   = [];          // column order (indices)
+let _pColVis     = new Set();   // visible column indices
+let _pSort       = { ci: -1, dir: 0 };
+let _pSearch     = '';
+let _pFilterSt   = '';
+let _pFilterReg  = '';
+let _pAutoRows   = new Set();   // row indices using auto-monthly distribution
+let _activeEdit  = null;        // { td, ri, ci, before }
+let _dragCI      = -1;
+let _pSyncTimer  = null;
+let _pRefreshInt = null;
 let _pRows   = [];   // pipeline data rows (no header)
 let _cRows   = [];   // contact data rows (no header)
 let _cCols   = C_COLS_DEFAULT.slice();  // contact column names
@@ -1519,6 +1655,7 @@ async function loadAll() {
 // ═══════════════════════════════════════════════════════ PIPELINE
 
 async function loadPipeline() {
+  if (!_pColW.length) pInitPrefs();
   const tbody = document.getElementById('p-tbody');
   tbody.innerHTML = `<tr><td class="td-state" colspan="${P_COLS.length}">Loading from Google Sheets…</td></tr>`;
   try {
@@ -1529,6 +1666,7 @@ async function loadPipeline() {
     calcSummary();
     renderProjects();
     renderFollowUps();
+    pStartAutoRefresh();
   } catch (err) {
     setConn('err');
     tbody.innerHTML = `<tr><td class="td-state td-err" colspan="${P_COLS.length}">${esc(err.message)}</td></tr>`;
@@ -1536,121 +1674,553 @@ async function loadPipeline() {
   }
 }
 
+function pInitPrefs() {
+  try { _pColW = JSON.parse(localStorage.getItem('p_col_w')); } catch {}
+  if (!_pColW || _pColW.length !== P_COLS.length) _pColW = P_COL_W.slice();
+  try { _pColOrder = JSON.parse(localStorage.getItem('p_col_order')); } catch {}
+  if (!_pColOrder || _pColOrder.length !== P_COLS.length) _pColOrder = P_COLS.map((_,i)=>i);
+  try {
+    const v = JSON.parse(localStorage.getItem('p_col_vis'));
+    _pColVis = v ? new Set(v) : new Set(P_COLS.map((_,i)=>i));
+  } catch { _pColVis = new Set(P_COLS.map((_,i)=>i)); }
+}
+
+function pSavePrefs() {
+  localStorage.setItem('p_col_w',   JSON.stringify(_pColW));
+  localStorage.setItem('p_col_order', JSON.stringify(_pColOrder));
+  localStorage.setItem('p_col_vis', JSON.stringify([..._pColVis]));
+}
+
+function pGetFilteredRows() {
+  let rows = _pRows.map((r,i) => ({r,i}));
+  if (_pSearch) {
+    const q = _pSearch.toLowerCase();
+    rows = rows.filter(({r}) => r.some(c => String(c||'').toLowerCase().includes(q)));
+  }
+  if (_pFilterSt)  rows = rows.filter(({r}) => (r[STATUS_CI]||'').toLowerCase() === _pFilterSt.toLowerCase());
+  if (_pFilterReg) rows = rows.filter(({r}) => (r[REGION_CI]||'').toUpperCase() === _pFilterReg);
+  if (_pSort.ci >= 0) {
+    rows.sort((a,b) => {
+      const av = a.r[_pSort.ci] ?? '', bv = b.r[_pSort.ci] ?? '';
+      const cmp = P_NUM.has(_pSort.ci) ? (parseFloat(av)||0)-(parseFloat(bv)||0) : String(av).localeCompare(String(bv));
+      return _pSort.dir * cmp;
+    });
+  }
+  return rows;
+}
+
 function renderPipeline() {
   // Header
-  document.getElementById('p-thead').innerHTML =
-    `<tr>${P_COLS.map((c,i) => `<th style="min-width:${P_COL_W[i]}px">${esc(c)}</th>`).join('')}</tr>`;
+  const visOrder = _pColOrder.filter(ci => _pColVis.has(ci));
+  let hCells = visOrder.map(ci => {
+    const sorted = _pSort.ci === ci;
+    const sortCls = sorted ? (' p-th-sorted sort-' + (_pSort.dir===1?'asc':'desc')) : '';
+    const locked  = ci === 0 ? ' data-locked="1"' : '';
+    return `<th data-ci="${ci}" style="min-width:${_pColW[ci]}px;width:${_pColW[ci]}px"
+      class="${sortCls}"
+      onclick="pSortCol(${ci},event)"
+      draggable="${ci!==0}"
+      ondragstart="pDragStart(event,${ci})"
+      ondragover="pDragOver(event,${ci})"
+      ondragleave="pDragLeave(event,${ci})"
+      ondrop="pDragDrop(event,${ci})"${locked}>
+      <span class="sort-icon">${esc(P_COLS[ci])}</span>
+      <div class="col-rz" onmousedown="pResizeStart(event,${ci})" onclick="e=>e.stopPropagation()"></div>
+    </th>`;
+  }).join('');
+  document.getElementById('p-thead').innerHTML = `<tr>${hCells}</tr>`;
 
-  document.getElementById('dealCount').textContent = `All Deals · ${_pRows.length}`;
+  const filtered = pGetFilteredRows();
+  document.getElementById('dealCount').textContent =
+    (filtered.length === _pRows.length ? `All Deals · ${_pRows.length}` : `${filtered.length} of ${_pRows.length} deals`);
 
   const tbody = document.getElementById('p-tbody');
   if (!_pRows.length) {
-    tbody.innerHTML = `<tr><td class="td-state" colspan="${P_COLS.length}">No deals yet — click + Add Deal to create one.</td></tr>`;
+    tbody.innerHTML = `<tr><td class="td-state" colspan="${visOrder.length}">No deals yet — click + Add Deal.</td></tr>`;
     return;
   }
-  tbody.innerHTML = _pRows.map((row, ri) => pipelineRow(row, ri, true)).join('');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td class="td-state" colspan="${visOrder.length}">No deals match the current filter.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(({r,i}) => pBuildRow(r,i,visOrder)).join('');
 }
+
+function pBuildRow(row, ri, visOrder) {
+  const cells = visOrder.map(ci => {
+    const raw = row[ci] ?? '';
+
+    // Read-only computed cells
+    if (ci === GP_AMOUNT_CI || ci === TOTAL_CI) {
+      return `<td data-ri="${ri}" data-ci="${ci}" class="cell-readonly td-value">${esc(raw)}</td>`;
+    }
+
+    // Status pill
+    if (ci === STATUS_CI) {
+      return `<td data-ri="${ri}" data-ci="${ci}" ondblclick="pStartEdit(this)"
+        style="padding:8px 14px">
+        <span class="st-pill" style="${statusCSS(raw)}">${esc(raw)||'—'}</span>
+      </td>`;
+    }
+
+    // Monthly cells — show auto badge on Jan cell
+    if (ci === 14) {
+      const isAuto = _pAutoRows.has(ri);
+      return `<td data-ri="${ri}" data-ci="${ci}" class="td-value" ondblclick="pStartEdit(this)">
+        ${esc(raw)}<span class="auto-badge${isAuto?' on':''}" onclick="pToggleAuto(${ri},event)">${isAuto?'A':'M'}</span>
+      </td>`;
+    }
+
+    const cls = ci === REGION_CI || ci === CURRENCY_CI ? 'td-muted'
+              : P_NUM.has(ci) ? 'td-value' : '';
+
+    return `<td data-ri="${ri}" data-ci="${ci}" class="${cls}" ondblclick="pStartEdit(this)">${esc(raw)}</td>`;
+  }).join('');
+
+  return `<tr data-ri="${ri}">
+    ${cells}
+    <td style="width:80px;padding:0;border-bottom:1px solid var(--border)">
+      <div class="row-acts">
+        <button class="row-act danger" title="Delete" onclick="pDeleteRow(${ri})">🗑</button>
+        <button class="row-act" title="More" onclick="pMoreMenu(${ri},event)">⋮</button>
+      </div>
+    </td>
+  </tr>`;
+}
+
+// ── Cell editing ──────────────────────────────────────────
+
+function pStartEdit(td) {
+  if (!td || td.classList.contains('cell-readonly')) return;
+  if (_activeEdit && _activeEdit.td !== td) pCommitEdit();
+
+  const ri = +td.dataset.ri, ci = +td.dataset.ci;
+  const cur = _pRows[ri]?.[ci] ?? '';
+  td.classList.add('cell-active');
+
+  // Dropdown cells
+  const ddOpts =
+    ci === STATUS_CI      ? STATUS_OPTS :
+    ci === REGION_CI      ? ['US','JP'] :
+    ci === CURRENCY_CI    ? ['USD','JPY'] :
+    ci === START_CI       ? MONTHS_LIST :
+    ci === END_CI         ? MONTHS_LIST : null;
+
+  if (ddOpts) { pShowDropdown(td, ddOpts, ri, ci, cur); return; }
+
+  // Text/number input
+  const inp = document.createElement('input');
+  inp.className = 'cell-input';
+  inp.type = P_NUM.has(ci) ? 'number' : 'text';
+  inp.value = cur;
+  td.innerHTML = '';
+  td.appendChild(inp);
+  inp.focus(); inp.select();
+
+  _activeEdit = { td, ri, ci, before: cur };
+
+  inp.addEventListener('blur',    () => pCommitEdit());
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.preventDefault(); pCommitEdit(); }
+    if (e.key === 'Escape') { e.preventDefault(); pCancelEdit(); }
+    if (e.key === 'Tab')    { e.preventDefault(); pCommitEdit(); pMoveNext(ri, ci, e.shiftKey); }
+  });
+}
+
+function pCommitEdit() {
+  if (!_activeEdit) return;
+  const { td, ri, ci, before } = _activeEdit;
+  _activeEdit = null;
+
+  const inp = td.querySelector('.cell-input');
+  const val = inp ? inp.value.trim() : td.textContent.trim();
+  td.classList.remove('cell-active');
+
+  _pRows[ri] = _pRows[ri] || [];
+  _pRows[ri][ci] = val;
+  pAutoCalc(ri);
+
+  renderPipeline();
+  calcSummary();
+  renderProjects(); renderFollowUps();
+
+  if (val !== before) {
+    td.classList.add('cell-dirty');
+    pSyncCell(ri, ci, val);
+  }
+}
+
+function pCancelEdit() {
+  if (!_activeEdit) return;
+  const { td, ri, ci, before } = _activeEdit;
+  _activeEdit = null;
+  td.classList.remove('cell-active');
+  _pRows[ri][ci] = before;
+  renderPipeline();
+}
+
+function pMoveNext(ri, ci, back) {
+  const visOrder = _pColOrder.filter(c => _pColVis.has(c));
+  const pos = visOrder.indexOf(ci);
+  const next = back ? pos - 1 : pos + 1;
+  if (next < 0 || next >= visOrder.length) return;
+  const nextCI = visOrder[next];
+  setTimeout(() => {
+    const td = document.querySelector(`td[data-ri="${ri}"][data-ci="${nextCI}"]`);
+    if (td) pStartEdit(td);
+  }, 20);
+}
+
+// ── Dropdown ──────────────────────────────────────────────
+
+function pShowDropdown(td, opts, ri, ci, cur) {
+  const dd = document.getElementById('p-dropdown');
+  const rect = td.getBoundingClientRect();
+
+  dd.innerHTML = opts.map(o => {
+    const sel  = o === cur;
+    const style = ci === STATUS_CI ? ` style="${statusCSS(o)}"` : '';
+    return `<div class="p-dd-item${sel?' dd-sel':''}"${style}
+      onclick="pSelectDd('${o.replace(/'/g,"\\'")}',${ri},${ci})">${esc(o)}</div>`;
+  }).join('');
+
+  dd.style.left = rect.left + 'px';
+  dd.style.top  = (rect.bottom + 2) + 'px';
+  dd.classList.remove('hidden');
+  _activeEdit = { td, ri, ci, before: cur, isDd: true };
+
+  setTimeout(() => document.addEventListener('click', pCloseDdOutside, true), 10);
+}
+
+function pCloseDdOutside(e) {
+  const dd = document.getElementById('p-dropdown');
+  if (!dd.contains(e.target)) { pCloseDd(); }
+}
+function pCloseDd() {
+  const dd = document.getElementById('p-dropdown');
+  dd.classList.add('hidden');
+  if (_activeEdit?.isDd) {
+    _activeEdit.td?.classList.remove('cell-active');
+    _activeEdit = null;
+  }
+  document.removeEventListener('click', pCloseDdOutside, true);
+}
+
+function pSelectDd(val, ri, ci) {
+  pCloseDd();
+  const before = _pRows[ri]?.[ci] ?? '';
+  _pRows[ri] = _pRows[ri] || [];
+  _pRows[ri][ci] = val;
+
+  // Auto-set currency when region changes
+  if (ci === REGION_CI) _pRows[ri][CURRENCY_CI] = val === 'JP' ? 'JPY' : 'USD';
+
+  pAutoCalc(ri);
+  renderPipeline();
+  calcSummary();
+  if (ci === STATUS_CI) { renderProjects(); renderFollowUps(); }
+
+  if (val !== before) pSyncCell(ri, ci, val);
+}
+
+// ── Auto-calc ─────────────────────────────────────────────
+
+function pAutoCalc(ri) {
+  const row = _pRows[ri];
+  if (!row) return;
+  const val = parseFloat(row[VALUE_CI]) || 0;
+  const gp  = parseFloat(row[10])      || 0;
+  row[GP_AMOUNT_CI] = (val * gp / 100).toFixed(0);
+  if (_pAutoRows.has(ri)) pAutoMonths(ri);
+  let total = 0;
+  for (let m = 14; m <= 25; m++) total += parseFloat(row[m]) || 0;
+  row[TOTAL_CI] = total ? total.toFixed(0) : '';
+}
+
+function pAutoMonths(ri) {
+  const row = _pRows[ri];
+  const si  = MONTHS_LIST.indexOf(row[START_CI]);
+  const ei  = MONTHS_LIST.indexOf(row[END_CI]);
+  if (si < 0 || ei < 0 || ei < si) return;
+  const val   = parseFloat(row[VALUE_CI]) || 0;
+  const count = ei - si + 1;
+  const each  = count > 0 ? (val / count).toFixed(0) : 0;
+  for (let m = 14; m <= 25; m++) row[m] = (m-14 >= si && m-14 <= ei) ? each : '';
+}
+
+function pToggleAuto(ri, e) {
+  e.stopPropagation();
+  if (_pAutoRows.has(ri)) _pAutoRows.delete(ri); else { _pAutoRows.add(ri); pAutoMonths(ri); }
+  pAutoCalc(ri);
+  renderPipeline();
+  calcSummary();
+}
+
+// ── Column sort ───────────────────────────────────────────
+
+function pSortCol(ci, e) {
+  if (e.target.classList.contains('col-rz')) return;
+  if (_pSort.ci === ci) {
+    _pSort.dir = _pSort.dir === 1 ? -1 : _pSort.dir === -1 ? 0 : 1;
+    if (_pSort.dir === 0) _pSort.ci = -1;
+  } else { _pSort.ci = ci; _pSort.dir = 1; }
+  renderPipeline();
+}
+
+// ── Column resize ─────────────────────────────────────────
+
+function pResizeStart(e, ci) {
+  e.preventDefault(); e.stopPropagation();
+  const startX = e.clientX, startW = _pColW[ci];
+  const onMove = e => {
+    const w = Math.max(60, startW + e.clientX - startX);
+    _pColW[ci] = w;
+    document.querySelectorAll(`[data-ci="${ci}"]`).forEach(el => {
+      el.style.minWidth = w + 'px'; el.style.width = w + 'px';
+    });
+  };
+  const onUp = () => {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup',   onUp);
+    pSavePrefs();
+  };
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup',   onUp);
+}
+
+// ── Column reorder ────────────────────────────────────────
+
+function pDragStart(e, ci) {
+  if (ci === 0) { e.preventDefault(); return; }
+  _dragCI = ci;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', ci);
+}
+function pDragOver(e, ci) {
+  if (_dragCI < 0 || _dragCI === ci || ci === 0) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.p-table th').forEach(th => th.classList.remove('drag-target'));
+  document.querySelector(`.p-table th[data-ci="${ci}"]`)?.classList.add('drag-target');
+}
+function pDragLeave(e, ci) {
+  document.querySelector(`.p-table th[data-ci="${ci}"]`)?.classList.remove('drag-target');
+}
+function pDragDrop(e, ci) {
+  e.preventDefault();
+  document.querySelectorAll('.p-table th').forEach(th => th.classList.remove('drag-target'));
+  if (_dragCI < 0 || ci === 0) return;
+  const from = _pColOrder.indexOf(_dragCI);
+  const to   = _pColOrder.indexOf(ci);
+  _pColOrder.splice(to, 0, _pColOrder.splice(from, 1)[0]);
+  _dragCI = -1;
+  pSavePrefs();
+  renderPipeline();
+}
+
+// ── Column visibility ─────────────────────────────────────
+
+function pToggleColVis(e) {
+  e.stopPropagation();
+  const panel = document.getElementById('p-col-vis-panel');
+  if (!panel.classList.contains('hidden')) { panel.classList.add('hidden'); return; }
+  panel.innerHTML = P_COLS.map((name, ci) =>
+    `<label><input type="checkbox" ${_pColVis.has(ci)?'checked':''} onchange="pSetColVis(${ci},this.checked)">${esc(name)}</label>`
+  ).join('');
+  panel.classList.remove('hidden');
+  setTimeout(() => document.addEventListener('click', pCloseColVis, true), 10);
+}
+function pCloseColVis(e) {
+  const panel = document.getElementById('p-col-vis-panel');
+  const btn   = document.getElementById('p-cols-btn');
+  if (!panel.contains(e.target) && !btn.contains(e.target)) {
+    panel.classList.add('hidden');
+    document.removeEventListener('click', pCloseColVis, true);
+  }
+}
+function pSetColVis(ci, show) {
+  if (show) _pColVis.add(ci); else { if (_pColVis.size <= 1) return; _pColVis.delete(ci); }
+  pSavePrefs();
+  renderPipeline();
+}
+
+// ── Row actions ───────────────────────────────────────────
+
+function pDeleteRow(ri) {
+  if (!confirm('Delete this deal?')) return;
+  _pRows.splice(ri, 1);
+  _pAutoRows = new Set([..._pAutoRows].filter(r => r !== ri).map(r => r > ri ? r-1 : r));
+  renderPipeline(); calcSummary(); renderProjects(); renderFollowUps();
+  // Sync: rebuild full sheet (no delete API — just flag local only)
+  pSetSync('saved', '⚠ Deleted locally');
+  setTimeout(() => pSetSync('', ''), 3000);
+}
+
+let _moreRI = -1;
+function pMoreMenu(ri, e) {
+  e.stopPropagation();
+  _moreRI = ri;
+  const menu = document.getElementById('p-more-menu');
+  menu.innerHTML = `
+    <div class="more-item" onclick="pDuplicateRow(${ri})">Duplicate row</div>
+    <div class="more-item" onclick="pMoveToTop(${ri})">Move to top</div>
+    <div class="more-item" onclick="pCopyRowText(${ri})">Copy row as text</div>
+    <div class="more-item danger" onclick="pDeleteRow(${ri})">Delete row</div>`;
+  menu.style.left = (e.clientX - 10) + 'px';
+  menu.style.top  = (e.clientY + 4)  + 'px';
+  menu.classList.remove('hidden');
+  setTimeout(() => document.addEventListener('click', pCloseMore, true), 10);
+}
+function pCloseMore() {
+  document.getElementById('p-more-menu').classList.add('hidden');
+  document.removeEventListener('click', pCloseMore, true);
+}
+function pDuplicateRow(ri) {
+  pCloseMore();
+  _pRows.splice(ri + 1, 0, [..._pRows[ri]]);
+  renderPipeline(); calcSummary();
+}
+function pMoveToTop(ri) {
+  pCloseMore();
+  const row = _pRows.splice(ri, 1)[0];
+  _pRows.unshift(row);
+  renderPipeline(); calcSummary();
+}
+function pCopyRowText(ri) {
+  pCloseMore();
+  const text = P_COLS.map((c,i) => `${c}: ${_pRows[ri][i]??''}`).join('\n');
+  navigator.clipboard?.writeText(text).then(() => toast('Row copied to clipboard', 'ok'));
+}
+
+// ── Inline add row ────────────────────────────────────────
+
+function pAddRow() {
+  _pSearch = ''; _pFilterSt = ''; _pFilterReg = '';
+  document.getElementById('p-search').value = '';
+  document.querySelectorAll('#p-status-pills .p-pill').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('.p-region-grp .p-pill').forEach((b,i) => b.classList.toggle('active', i===0));
+
+  const row = new Array(P_COLS.length).fill('');
+  row[STATUS_CI] = 'Lead';
+  _pRows.push(row);
+  const ri = _pRows.length - 1;
+  renderPipeline();
+  calcSummary();
+
+  setTimeout(() => {
+    const td = document.querySelector(`td[data-ri="${ri}"][data-ci="0"]`);
+    td?.scrollIntoView({ block:'center', behavior:'smooth' });
+    if (td) pStartEdit(td);
+  }, 60);
+}
+
+// ── Filter + search ───────────────────────────────────────
+
+function pSearch(val) {
+  _pSearch = val;
+  renderPipeline();
+  calcSummary();
+}
+function pFilterStatus(val, btn) {
+  _pFilterSt = val;
+  document.querySelectorAll('#p-status-pills .p-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPipeline(); calcSummary();
+}
+function pFilterRegion(val, btn) {
+  _pFilterReg = val;
+  document.querySelectorAll('.p-region-grp .p-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPipeline(); calcSummary();
+}
+
+// ── Sync ──────────────────────────────────────────────────
+
+function pSetSync(cls, text) {
+  const el = document.getElementById('p-sync');
+  if (!el) return;
+  el.className = 'p-sync' + (cls ? ' ' + cls : '');
+  el.textContent = text;
+}
+
+async function pSyncCell(ri, ci, val) {
+  pSetSync('saving', 'Saving…');
+  clearTimeout(_pSyncTimer);
+  const ref = `${PIPELINE_TAB}!${colLetter(ci)}${ri + 2}`;
+  try {
+    await sheetsPut(ref, val);
+    pSetSync('saved', 'Saved ✓');
+    const td = document.querySelector(`td[data-ri="${ri}"][data-ci="${ci}"]`);
+    if (td) { td.classList.remove('cell-dirty'); td.classList.add('cell-saved'); }
+  } catch (err) {
+    pSetSync('error', 'Sync failed');
+    toast('Saved locally — ' + err.message, 'warn');
+  }
+  _pSyncTimer = setTimeout(() => pSetSync('', ''), 3000);
+}
+
+// ── Auto-refresh ──────────────────────────────────────────
+
+function pStartAutoRefresh() {
+  clearInterval(_pRefreshInt);
+  _pRefreshInt = setInterval(() => { if (_connected && !_activeEdit) loadPipeline(); }, 60000);
+}
+
+// ─── Read-only row renderer (Projects + FollowUps) ───────────
 
 function pipelineRow(row, ri, editable) {
   return `<tr data-ri="${ri}">${P_COLS.map((col, ci) => {
     const raw = row[ci] ?? '';
     const val = esc(raw);
-
     if (ci === STATUS_CI) {
       return `<td class="td-status" data-ri="${ri}" data-ci="${ci}">
-        <select class="status-sel" style="${statusCSS(raw)}"
-          ${editable ? `onchange="onStatusChange(this,${ri},${ci},'pipeline')"` : 'disabled'}>
-          ${STATUS_OPTS.map(o => `<option value="${o}"${raw===o?' selected':''}>${o}</option>`).join('')}
+        <select class="status-sel" style="${statusCSS(raw)}" disabled>
+          ${STATUS_OPTS.map(o => `<option${raw===o?' selected':''}>${o}</option>`).join('')}
         </select></td>`;
     }
-
     const cls = ci === 0 ? 'td-owner'
-              : (ci === 1 || ci === CURRENCY_CI) ? 'td-muted'
+              : (ci === REGION_CI || ci === CURRENCY_CI) ? 'td-muted'
               : P_NUM.has(ci) ? 'td-value' : '';
-
-    if (editable) {
-      return `<td class="${cls}" contenteditable="true"
-        data-ri="${ri}" data-ci="${ci}" data-tab="pipeline"
-        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
-        onfocus="this.dataset.before=this.textContent.trim()"
-        onblur="onCellBlur(this)">${val}</td>`;
-    }
     return `<td class="${cls}">${val}</td>`;
   }).join('')}</tr>`;
 }
 
-// ─── Inline cell edit ────────────────────────────────────────
+// ─── Contacts inline editing (contenteditable) ───────────────
 
 async function onCellBlur(el) {
-  const ri  = +el.dataset.ri;
-  const ci  = +el.dataset.ci;
-  const tab = el.dataset.tab;
-  const val    = el.textContent.trim();
-  const before = el.dataset.before ?? '';
+  const ri = +el.dataset.ri, ci = +el.dataset.ci, tab = el.dataset.tab;
+  const val = el.textContent.trim(), before = el.dataset.before ?? '';
   if (val === before) return;
-
-  // Update local state immediately — local is source of truth
-  const rows = tab === 'pipeline' ? _pRows : _cRows;
-  rows[ri] = rows[ri] || [];
-  rows[ri][ci] = val;
-
-  if (tab === 'pipeline') {
-    calcSummary();
-    renderProjects();
-    renderFollowUps();
-  }
-
-  // Attempt background sync
+  (tab === 'pipeline' ? _pRows : _cRows)[ri][ci] = val;
   el.classList.add('saving');
-  const sheetTab = tab === 'pipeline' ? PIPELINE_TAB : CONTACTS_TAB;
-  const ref      = `${sheetTab}!${colLetter(ci)}${ri + 2}`;
-  try {
-    await sheetsPut(ref, val);
-    toast('Saved ✓', 'ok');
-  } catch (err) {
-    toast('Saved locally — ' + err.message, 'warn');
-  } finally {
-    el.classList.remove('saving');
-  }
-}
-
-async function onStatusChange(sel, ri, ci, tab) {
-  const val = sel.value;
-  sel.setAttribute('style', statusCSS(val));
-
-  const rows = tab === 'pipeline' ? _pRows : _cRows;
-  rows[ri] = rows[ri] || [];
-  rows[ri][ci] = val;
-
-  if (tab === 'pipeline') {
-    renderProjects();
-    renderFollowUps();
-  }
-
-  const sheetTab = tab === 'pipeline' ? PIPELINE_TAB : CONTACTS_TAB;
-  const ref      = `${sheetTab}!${colLetter(ci)}${ri + 2}`;
-  try {
-    await sheetsPut(ref, val);
-    toast('Status updated ✓', 'ok');
-  } catch (err) {
-    toast('Local only — ' + err.message, 'warn');
-  }
+  const ref = `${tab === 'pipeline' ? PIPELINE_TAB : CONTACTS_TAB}!${colLetter(ci)}${ri + 2}`;
+  try { await sheetsPut(ref, val); toast('Saved ✓', 'ok'); }
+  catch (err) { toast('Saved locally — ' + err.message, 'warn'); }
+  finally { el.classList.remove('saving'); }
 }
 
 // ─── Summary cards ───────────────────────────────────────────
 
 function calcSummary() {
-  let usd = 0, jpy = 0;
-  _pRows.forEach(r => {
+  const rows = pGetFilteredRows().map(({r}) => r);
+  let usd = 0, jpy = 0, usdCount = 0, jpyCount = 0;
+  rows.forEach(r => {
     const cur = (r[CURRENCY_CI] || '').toUpperCase().trim();
     const v   = parseFloat(String(r[VALUE_CI] || '').replace(/[^0-9.-]/g,'')) || 0;
-    if (cur === 'USD') usd += v;
-    else if (cur === 'JPY') jpy += v;
+    if (cur === 'USD') { usd += v; usdCount++; }
+    else if (cur === 'JPY') { jpy += v; jpyCount++; }
   });
   document.getElementById('summaryUSD').textContent =
     '$' + usd.toLocaleString('en-US', { maximumFractionDigits: 0 });
   document.getElementById('summaryJPY').textContent =
     '¥' + jpy.toLocaleString('ja-JP');
+  const uSub = document.querySelector('#summaryUSD + .summary-sub');
+  const jSub = document.querySelector('#summaryJPY + .summary-sub');
+  // update deal count labels if elements exist
+  const cards = document.querySelectorAll('.summary-card');
+  if (cards[0]) cards[0].querySelector('.summary-sub').textContent =
+    `${usdCount} deal${usdCount!==1?'s':''} · USD`;
+  if (cards[1]) cards[1].querySelector('.summary-sub').textContent =
+    `${jpyCount} deal${jpyCount!==1?'s':''} · JPY`;
 }
 
 // ─── Add Deal ────────────────────────────────────────────────
@@ -2163,10 +2733,11 @@ function showView(name) {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
 
-  // Build Pipeline table headers immediately for layout
+  // Init pipeline prefs + headers
+  pInitPrefs();
   document.getElementById('p-thead').innerHTML =
-    `<tr>${P_COLS.map((c,i) =>
-      `<th style="min-width:${P_COL_W[i]}px">${esc(c)}</th>`
+    `<tr>${_pColOrder.filter(ci=>_pColVis.has(ci)).map(ci =>
+      `<th data-ci="${ci}" style="min-width:${_pColW[ci]}px">${esc(P_COLS[ci])}</th>`
     ).join('')}</tr>`;
 
   // Build default Contacts headers
