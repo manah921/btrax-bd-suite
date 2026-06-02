@@ -1082,26 +1082,215 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 #toast.err  { border-color: var(--red); }
 #toast.warn { border-color: var(--gold); }
 
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE LAYOUT
+═══════════════════════════════════════════════════════ */
+
+/* Nav icon + text structure */
+.nav-icon { min-width: 20px; text-align: center; font-size: 15px; flex-shrink: 0; }
+.nav-link  { gap: 10px; }
+
+/* Hamburger — hidden by default (desktop) */
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: all .15s;
+}
+.hamburger:hover { background: var(--sidebar); color: var(--navy); }
+
+/* Sidebar overlay (mobile) */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(28,25,23,.4);
+  z-index: 19;
+  backdrop-filter: blur(2px);
+}
+.sidebar-overlay.visible { display: block; }
+
+/* Mobile card view */
+.p-cards { display: none; padding: 0 0 100px; }
+.p-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: box-shadow .15s;
+}
+.p-card:hover    { box-shadow: 0 2px 12px rgba(28,25,23,.08); }
+.p-card.expanded { border-color: var(--gold); }
+.p-card-client   { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:.5px; color:var(--navy); margin-bottom:8px; }
+.p-card-row      { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:5px; }
+.p-card-value    { font-family:'Bebas Neue',sans-serif; font-size:16px; color:var(--navy); }
+.p-card-owner    { font-size:11px; color:var(--text-muted); font-weight:600; }
+.p-card-region   { font-size:12px; color:var(--text-muted); }
+.p-card-detail   { margin-top:14px; padding-top:14px; border-top:1px solid var(--border); }
+.p-card-field    { display:flex; justify-content:space-between; padding:5px 0; font-size:12px; border-bottom:1px solid rgba(214,207,192,.4); }
+.p-card-field:last-of-type { border-bottom:none; }
+.p-card-field-lbl { color:var(--text-muted); font-weight:600; font-size:10px; letter-spacing:.4px; text-transform:uppercase; }
+
+/* Mobile fixed add button */
+.mobile-fab {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 300;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 28px;
+  padding: 14px 24px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(26,26,46,.35);
+  cursor: pointer;
+  transition: opacity .15s;
+}
+.mobile-fab:hover { opacity: .88; }
+
+/* ── BREAKPOINT: Medium (1024–1400px) ─────────────────── */
+@media (max-width: 1400px) {
+  .p-form-panel { width: 380px; right: -380px; }
+  .p-form-panel.open { right: 0; }
+}
+
+/* ── BREAKPOINT: Small (768–1024px) ───────────────────── */
+@media (max-width: 1024px) {
+  /* Sidebar collapses to icon-only strip */
+  .sidebar { width: 58px; overflow: hidden; }
+  .sidebar-brand { padding: 12px; justify-content: center; }
+  .brand-name, .nav-section, .sidebar-footer { display: none; }
+  .nav-link { justify-content: center; padding: 10px; gap: 0; }
+  .nav-text { display: none; }
+  .nav-icon { min-width: unset; font-size: 16px; }
+
+  /* Shift topbar/main to match narrower sidebar */
+  .topbar { left: 58px; padding: 0 20px; }
+  .main   { margin-left: 58px; }
+
+  /* Form panel: 60% width */
+  .p-form-panel { width: 60vw; right: -60vw; }
+  .p-form-panel.open { right: 0; }
+
+  /* Filter bar wraps */
+  .p-filter-bar { flex-wrap: wrap; }
+  .p-search { max-width: 100%; }
+
+  /* Auto-hide verbose columns in Full View */
+  .p-table th[data-ci="5"], .p-table td[data-ci="5"],
+  .p-table th[data-ci="6"], .p-table td[data-ci="6"],
+  .p-table th[data-ci="7"], .p-table td[data-ci="7"] { display: none; }
+}
+
+/* ── BREAKPOINT: Mobile (<768px) ──────────────────────── */
+@media (max-width: 767px) {
+  /* Sidebar: hidden by default, slides in as overlay */
+  .sidebar {
+    width: 220px;
+    transform: translateX(-220px);
+    transition: transform .26s cubic-bezier(.4,0,.2,1);
+    z-index: 50;
+    overflow: visible;
+  }
+  .sidebar.mobile-open { transform: translateX(0); }
+  .brand-name, .nav-section, .sidebar-footer { display: flex; }
+  .sidebar-brand { padding: 22px 18px; justify-content: flex-start; }
+  .brand-name { display: block; }
+  .nav-link { justify-content: flex-start; padding: 9px 12px; gap: 10px; }
+  .nav-text { display: inline; }
+
+  /* Topbar/main: full width */
+  .topbar { left: 0; padding: 0 14px; }
+  .main   { margin-left: 0; }
+  .hamburger { display: flex; }
+
+  /* Page padding */
+  .view { padding: 76px 14px 120px; }
+  .page-title { font-size: 32px; }
+
+  /* Summary bar stacks */
+  .summary-row { flex-direction: column; gap: 10px; }
+  .summary-card { min-width: unset; }
+
+  /* Toolbar compacts */
+  .toolbar { flex-wrap: wrap; gap: 8px; }
+  .toolbar-right { flex-wrap: wrap; gap: 6px; }
+
+  /* Filter stacks */
+  .p-filter-bar { flex-direction: column; align-items: stretch; }
+  .p-search { max-width: 100%; }
+  .p-views-bar { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Views bar tabs scroll */
+  .p-pills { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
+
+  /* Hide table, show cards */
+  .view .table-wrap,
+  .view .p-views-bar,
+  .view .p-filter-bar,
+  .view .p-filter-builder,
+  .view .p-active-filters,
+  .view .toolbar { display: none !important; }
+  .p-cards { display: block; }
+  .mobile-fab { display: flex; }
+
+  /* But keep the page-title visible */
+  .view .page-title { display: block !important; }
+  .view .summary-row { display: flex !important; }
+  .view .sync-banner { display: flex !important; }
+
+  /* Form: full screen */
+  .p-form-panel { width: 100vw; right: -100vw; border-left: none; }
+  .p-form-panel.open { right: 0; }
+
+  /* Settings panel */
+  .settings-panel { width: 100vw; right: 0; border-radius: 0; }
+
+  /* Table in contacts (still table view) */
+  #view-contacts .table-wrap  { display: block !important; overflow-x: auto; }
+}
+
+/* Smooth column transitions */
+.p-table th, .p-table td {
+  transition: width .18s ease, min-width .18s ease;
+}
+
 </style>
 </head>
 <body>
 
 <!-- ══════════════════════════════════════════════ SIDEBAR -->
-<aside class="sidebar">
+<div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <div class="brand-mark">B</div>
     <div class="brand-name">BD SUITE</div>
   </div>
   <nav class="sidebar-nav">
-    <button class="nav-link active" onclick="showView('dashboard')">Dashboard</button>
+    <button class="nav-link active" onclick="showView('dashboard')"><span class="nav-icon" aria-hidden="true">⊟</span><span class="nav-text">Dashboard</span></button>
     <div class="nav-section">Live Data</div>
-    <button class="nav-link" onclick="showView('pipeline')">Pipeline</button>
-    <button class="nav-link" onclick="showView('contacts')">Contacts</button>
+    <button class="nav-link" onclick="showView('pipeline')"><span class="nav-icon" aria-hidden="true">≡</span><span class="nav-text">Pipeline</span></button>
+    <button class="nav-link" onclick="showView('contacts')"><span class="nav-icon" aria-hidden="true">◯</span><span class="nav-text">Contacts</span></button>
     <div class="nav-section">Filtered Views</div>
-    <button class="nav-link" onclick="showView('projects')">Projects</button>
-    <button class="nav-link" onclick="showView('followups')">Follow Ups</button>
+    <button class="nav-link" onclick="showView('projects')"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-text">Projects</span></button>
+    <button class="nav-link" onclick="showView('followups')"><span class="nav-icon" aria-hidden="true">↺</span><span class="nav-text">Follow Ups</span></button>
     <div class="nav-section">Coming Soon</div>
-    <button class="nav-link" onclick="showView('leads')">Leads</button>
+    <button class="nav-link" onclick="showView('leads')"><span class="nav-icon" aria-hidden="true">↗</span><span class="nav-text">Leads</span></button>
   </nav>
   <div class="sidebar-footer">Btrax BD Suite · v0.3</div>
 </aside>
@@ -1122,6 +1311,7 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 
 <!-- ══════════════════════════════════════════════ TOPBAR -->
 <div class="topbar">
+  <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
   <div id="connStatus" class="conn-status" onclick="connectFromStatus()" title="Click to connect" style="cursor:pointer">
     <span class="conn-dot"></span>
     <span id="connLabel">No credentials</span>
@@ -1263,6 +1453,12 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
         <button class="btn-import" style="font-size:16px;padding:6px 10px" title="Add Deal (form)" onclick="pShowForm()">🗒</button>
       </div>
     </div>
+
+    <!-- mobile card view -->
+    <div id="p-cards" class="p-cards"></div>
+
+    <!-- mobile fixed add button -->
+    <button class="mobile-fab" onclick="pAddRow()">+ Add Deal</button>
 
     <div class="table-wrap">
       <table class="p-table">
@@ -3140,6 +3336,116 @@ function showView(name) {
     .catch(() => {});
 
 })();
+
+// ═══════════════════════════════════════════════════════ RESPONSIVE
+
+function toggleSidebar() {
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('sidebar-overlay');
+  const isOpen   = sidebar.classList.contains('mobile-open');
+  sidebar.classList.toggle('mobile-open', !isOpen);
+  overlay.classList.toggle('visible', !isOpen);
+}
+
+function pRenderCards() {
+  const el = document.getElementById('p-cards');
+  if (!el) return;
+  const filtered = pGetFilteredRows();
+  if (!filtered.length) {
+    el.innerHTML = '<div style="padding:32px 0;text-align:center;color:var(--text-muted);font-size:13px">No deals found</div>';
+    return;
+  }
+  el.innerHTML = filtered.map(({r,i}) => {
+    const status = r[STATUS_CI] || 'Lead';
+    const client = r[3] || 'Unnamed Deal';
+    const region = r[REGION_CI] || '';
+    const flag   = region === 'JP' ? '🇯🇵' : '🇺🇸';
+    const curr   = r[CURRENCY_CI] || '';
+    const val    = parseFloat(r[VALUE_CI])||0;
+    const valFmt = val ? (curr==='JPY'?'¥':'$') + val.toLocaleString('en-US',{maximumFractionDigits:0}) : '—';
+    const owner  = r[0] || '';
+    // Detail rows: non-empty fields
+    const detailFields = P_COLS.slice(0, 14).map((col, ci) => {
+      const v = r[ci];
+      return v ? `<div class="p-card-field"><span class="p-card-field-lbl">${esc(col)}</span><span>${esc(v)}</span></div>` : '';
+    }).join('');
+    return `<div class="p-card" data-ri="${i}" onclick="pCardTap(this,${i})">
+      <div class="p-card-client">${esc(client)}</div>
+      <div class="p-card-row">
+        <span class="st-pill" style="${statusCSS(status)}">${esc(status)}</span>
+        <span class="p-card-region">${flag} ${esc(region)}</span>
+      </div>
+      <div class="p-card-row">
+        <span class="p-card-value">${valFmt}</span>
+        <span class="p-card-owner">${esc(owner)}</span>
+      </div>
+      <div class="p-card-detail hidden" id="card-d-${i}">${detailFields}
+        <button class="btn-primary" style="margin-top:12px;width:100%;font-size:13px" onclick="pCardEdit(${i},event)">Edit Deal</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('dealCount').textContent = `${filtered.length} deal${filtered.length!==1?'s':''}`;
+}
+
+function pCardTap(el, ri) {
+  const detail = document.getElementById(`card-d-${ri}`);
+  const isOpen = !detail.classList.contains('hidden');
+  document.querySelectorAll('.p-card-detail').forEach(d => d.classList.add('hidden'));
+  document.querySelectorAll('.p-card').forEach(c => c.classList.remove('expanded'));
+  if (!isOpen) { detail.classList.remove('hidden'); el.classList.add('expanded'); el.scrollIntoView({block:'nearest',behavior:'smooth'}); }
+}
+
+function pCardEdit(ri, e) {
+  e.stopPropagation();
+  // Pre-fill form with existing row data
+  const row = _pRows[ri];
+  if (!row) return;
+  const sv = id => { const el=document.getElementById(id); if(el && el.tagName==='SELECT') { for(const o of el.options) if(o.value===String(row[P_COLS.indexOf(el.id.replace('fp-',''))]||'')) { o.selected=true; break; } } };
+  document.getElementById('fp-client').value  = row[3]  || '';
+  document.getElementById('fp-desc').value    = row[5]  || '';
+  document.getElementById('fp-value').value   = row[9]  || '';
+  document.getElementById('fp-gp').value      = row[10] || '';
+  // Selects
+  ['fp-owner','fp-status','fp-type','fp-service','fp-pm','fp-start','fp-end'].forEach(id => {
+    const el  = document.getElementById(id);
+    const idx = {'fp-owner':0,'fp-status':2,'fp-type':6,'fp-service':4,'fp-pm':7,'fp-start':12,'fp-end':13}[id];
+    if (el && idx !== undefined) { const v=row[idx]||''; for(const o of el.options) if(o.value===v||o.text===v){o.selected=true;break;} }
+  });
+  _pFpState.region   = row[1]  || 'US';
+  _pFpState.currency = row[8]  || 'USD';
+  pFpRefreshRadios(); pFpCalc();
+  pShowForm();
+}
+
+// Override renderPipeline to switch modes
+const _origRenderPipeline = renderPipeline;
+function renderPipeline() {
+  const isMobile = window.innerWidth < 768;
+  const cardsEl  = document.getElementById('p-cards');
+  const tableWrap = document.querySelector('#view-pipeline .table-wrap');
+  const toolbar   = document.querySelector('#view-pipeline .toolbar');
+  const filterBar = document.querySelector('#view-pipeline .p-filter-bar');
+
+  if (isMobile && cardsEl) {
+    cardsEl.style.display = 'block';
+    if (tableWrap) tableWrap.style.display = 'none';
+    pRenderCards();
+    calcSummary();
+  } else {
+    if (cardsEl) cardsEl.style.display = 'none';
+    if (tableWrap) tableWrap.style.display = '';
+    _origRenderPipeline();
+  }
+}
+
+let _resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    if (_pRows.length) renderPipeline();
+  }, 120);
+});
+
 </script>
 
 <!-- ══════════════════════════════════════════ ADD DEAL FORM PANEL -->
