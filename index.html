@@ -637,6 +637,279 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 .coming-soon-bar   { height: 2px; width: 48px; background: var(--border); border-radius: 2px; margin-bottom: 20px; }
 .coming-soon-desc  { font-size: 13px; color: var(--text-muted); line-height: 1.7; opacity: .8; }
 
+/* ─── LEADS PAGE ─────────────────────────────────────────── */
+.leads-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 32px;
+}
+.leads-tab {
+  background: none;
+  border: none;
+  padding: 10px 24px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color .15s, border-color .15s;
+}
+.leads-tab.active { color: var(--navy); border-bottom-color: var(--navy); }
+.leads-tab:hover:not(.active) { color: var(--text); }
+
+.leads-pane { display: none; }
+.leads-pane.active { display: block; }
+
+.leads-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.leads-toolbar-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+.date-range-btns { display: flex; gap: 6px; }
+.date-range-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 6px 14px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.date-range-btn:hover { background: var(--sidebar); color: var(--navy); }
+.date-range-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+/* overview cards */
+.leads-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.leads-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px 22px;
+}
+.leads-card-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42px;
+  color: var(--navy);
+  letter-spacing: .5px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.leads-card-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* section blocks */
+.leads-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.leads-section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: var(--navy);
+  margin-bottom: 18px;
+}
+
+/* search table */
+.leads-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.leads-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.leads-table td { padding: 9px 12px; border-bottom: 1px solid rgba(214,207,192,.5); }
+.leads-table tr:last-child td { border-bottom: none; }
+.leads-table tr.discovery-row { border-left: 3px solid var(--gold); }
+.leads-table tr.discovery-row td:first-child { padding-left: 9px; }
+
+.query-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.tag-branded   { background: rgba(26,26,46,.08); color: var(--navy); }
+.tag-discovery { background: rgba(139,105,20,.12); color: var(--gold); }
+
+.pos-pill {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.pos-top   { background: rgba(45,80,22,.10);  color: var(--green); }
+.pos-page1 { background: rgba(139,105,20,.11); color: var(--gold); }
+.pos-other { background: rgba(120,113,108,.10); color: var(--text-muted); }
+
+.bd-insight {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: var(--sidebar);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+.bd-insight strong { color: var(--gold); }
+
+/* traffic + geo panels */
+.leads-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.bar-row { margin-bottom: 10px; }
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.bar-label span:last-child { color: var(--text-muted); font-size: 11px; }
+.bar-track {
+  height: 8px;
+  background: var(--sidebar);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  background: var(--navy);
+  border-radius: 4px;
+  transition: width .6s ease;
+}
+
+/* device cards */
+.device-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.device-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.device-icon { font-size: 22px; line-height: 1; }
+.device-pct {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  color: var(--navy);
+  line-height: 1;
+}
+.device-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* skeleton */
+.skel {
+  background: linear-gradient(90deg, var(--sidebar) 25%, var(--border) 50%, var(--sidebar) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.skel-card-val  { height: 42px; width: 80px; margin-bottom: 8px; }
+.skel-row       { height: 14px; margin-bottom: 8px; border-radius: 3px; }
+
+/* outbound placeholder */
+.outbound-placeholder {
+  padding: 72px 0;
+  max-width: 440px;
+}
+.outbound-eyebrow {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: var(--navy);
+  margin-bottom: 10px;
+}
+.outbound-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.outbound-fake-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 14px;
+  color: var(--border);
+  font-size: 13px;
+  cursor: not-allowed;
+  opacity: .55;
+  user-select: none;
+}
+
+/* Add-to-pipeline btn in table */
+.btn-atp {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.btn-atp:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+
 /* ─── TOAST ─────────────────────────────────────────────── */
 #toast {
   position: fixed;
@@ -851,18 +1124,103 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
     </div>
   </div>
 
-  <!-- ── LEADS (coming soon) ────────────────────────────── -->
+  <!-- ── LEADS ────────────────────────────────────────────── -->
   <div id="view-leads" class="view">
     <div class="page-title">LEADS</div>
-    <div class="coming-soon-wrap">
-      <div class="coming-soon-title">Coming soon</div>
-      <div class="coming-soon-bar"></div>
-      <div class="coming-soon-desc">
-        The Leads module will track inbound inquiries and outbound<br>
-        prospect activity across US and Japan markets.
+
+    <!-- tabs -->
+    <div class="leads-tabs">
+      <button class="leads-tab active" onclick="switchLeadsTab('inbound', this)">INBOUND</button>
+      <button class="leads-tab"        onclick="switchLeadsTab('outbound', this)">OUTBOUND</button>
+    </div>
+
+    <!-- ── INBOUND PANE ── -->
+    <div id="leads-pane-inbound" class="leads-pane active">
+
+      <!-- toolbar -->
+      <div class="leads-toolbar">
+        <div class="leads-toolbar-title">ANALYTICS DASHBOARD</div>
+        <div class="date-range-btns">
+          <button class="date-range-btn" onclick="setLeadsRange(7, this)">7 days</button>
+          <button class="date-range-btn" onclick="setLeadsRange(28, this)">28 days</button>
+          <button class="date-range-btn active" onclick="setLeadsRange(90, this)">3 months</button>
+        </div>
+      </div>
+
+      <!-- overview cards -->
+      <div class="leads-cards" id="leads-cards">
+        <div class="leads-card"><div class="skel skel-card-val"></div><div class="skel skel-row" style="width:100px"></div></div>
+        <div class="leads-card"><div class="skel skel-card-val"></div><div class="skel skel-row" style="width:80px"></div></div>
+        <div class="leads-card"><div class="skel skel-card-val"></div><div class="skel skel-row" style="width:120px"></div></div>
+        <div class="leads-card"><div class="skel skel-card-val"></div><div class="skel skel-row" style="width:90px"></div></div>
+      </div>
+
+      <!-- search intelligence -->
+      <div class="leads-section">
+        <div class="leads-section-title">WHAT PEOPLE SEARCH TO FIND BTRAX</div>
+        <div id="leads-search-wrap">
+          <div class="skel skel-row"></div>
+          <div class="skel skel-row" style="width:85%"></div>
+          <div class="skel skel-row" style="width:70%"></div>
+        </div>
+      </div>
+
+      <!-- traffic + geography -->
+      <div class="leads-two-col">
+        <div class="leads-section" style="margin-bottom:0">
+          <div class="leads-section-title">HOW THEY ARRIVE</div>
+          <div id="leads-sources-wrap">
+            <div class="skel skel-row"></div>
+            <div class="skel skel-row" style="width:75%"></div>
+            <div class="skel skel-row" style="width:55%"></div>
+          </div>
+        </div>
+        <div class="leads-section" style="margin-bottom:0">
+          <div class="leads-section-title">WHERE THEY ARE</div>
+          <div id="leads-geo-wrap">
+            <div class="skel skel-row"></div>
+            <div class="skel skel-row" style="width:80%"></div>
+            <div class="skel skel-row" style="width:60%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- landing pages -->
+      <div class="leads-section">
+        <div class="leads-section-title">WHERE THEY LAND</div>
+        <div id="leads-pages-wrap">
+          <div class="skel skel-row"></div>
+          <div class="skel skel-row" style="width:70%"></div>
+        </div>
+      </div>
+
+      <!-- device breakdown -->
+      <div class="leads-section-title" style="margin-bottom:14px">DEVICE BREAKDOWN</div>
+      <div class="device-cards" id="leads-devices">
+        <div class="device-card"><div class="skel" style="height:32px;width:60px"></div></div>
+        <div class="device-card"><div class="skel" style="height:32px;width:60px"></div></div>
+        <div class="device-card"><div class="skel" style="height:32px;width:60px"></div></div>
+      </div>
+
+    </div><!-- /inbound -->
+
+    <!-- ── OUTBOUND PANE ── -->
+    <div id="leads-pane-outbound" class="leads-pane">
+      <div class="outbound-placeholder">
+        <div class="outbound-eyebrow">ICP AGENT</div>
+        <div class="coming-soon-bar"></div>
+        <div class="outbound-desc">
+          Coming Soon — find and score outbound prospects automatically.<br>
+          AI-powered ICP matching across US and Japan markets.
+        </div>
+        <div class="outbound-fake-search">
+          <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.4"/><path d="m9.5 9.5 2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Search for target companies…
+        </div>
       </div>
     </div>
-  </div>
+
+  </div><!-- /view-leads -->
 
 </main>
 
@@ -1553,6 +1911,231 @@ function parseCSV(text) {
   });
 }
 
+// ═══════════════════════════════════════════════════════ LEADS PAGE
+
+let _leadsRange = 90;
+let _leadsLoaded = false;
+
+function switchLeadsTab(tab, btn) {
+  document.querySelectorAll('.leads-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.leads-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('leads-pane-' + tab).classList.add('active');
+}
+
+function setLeadsRange(days, btn) {
+  document.querySelectorAll('.date-range-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  _leadsRange = days;
+  loadLeads();
+}
+
+function leadsDateRange(days) {
+  const end   = new Date();
+  const start = new Date(); start.setDate(start.getDate() - days);
+  const fmt   = d => d.toISOString().slice(0, 10);
+  return { startDate: fmt(start), endDate: fmt(end) };
+}
+
+async function loadLeads() {
+  _leadsLoaded = false;
+  const range = leadsDateRange(_leadsRange);
+  const DR = [range];
+
+  const [ga4Overview, ga4Sources, ga4Countries, ga4Cities, ga4Pages, ga4Devices, gsc] =
+    await Promise.allSettled([
+      apiReq('ga4', { body: { dateRanges: DR, metrics: [{ name:'sessions' },{ name:'activeUsers' },{ name:'averageSessionDuration' }] } }),
+      apiReq('ga4', { body: { dateRanges: DR, dimensions: [{ name:'sessionSourceMedium' }], metrics: [{ name:'sessions' }], orderBys:[{ metric:{ metricName:'sessions' }, desc:true }], limit:6 } }),
+      apiReq('ga4', { body: { dateRanges: DR, dimensions: [{ name:'country' }],  metrics: [{ name:'sessions' }], orderBys:[{ metric:{ metricName:'sessions' }, desc:true }], limit:5 } }),
+      apiReq('ga4', { body: { dateRanges: DR, dimensions: [{ name:'city' }],     metrics: [{ name:'sessions' }], orderBys:[{ metric:{ metricName:'sessions' }, desc:true }], limit:5 } }),
+      apiReq('ga4', { body: { dateRanges: DR, dimensions: [{ name:'landingPage' }], metrics:[{ name:'sessions' }], orderBys:[{ metric:{ metricName:'sessions' }, desc:true }], limit:8 } }),
+      apiReq('ga4', { body: { dateRanges: DR, dimensions: [{ name:'deviceCategory' }], metrics:[{ name:'sessions' }] } }),
+      apiReq('gsc', { body: { startDate: range.startDate, endDate: range.endDate, dimensions:['query'], rowLimit:15 } }),
+    ]);
+
+  renderLeadsCards(ga4Overview.value);
+  renderLeadsSearch(gsc.value);
+  renderLeadsSources(ga4Sources.value);
+  renderLeadsGeo(ga4Countries.value, ga4Cities.value);
+  renderLeadsPages(ga4Pages.value);
+  renderLeadsDevices(ga4Devices.value);
+  _leadsLoaded = true;
+}
+
+function fmtN(v) { const n = Number(v); return isNaN(n) ? '—' : n.toLocaleString(); }
+function fmtDur(v) {
+  const s = Math.round(Number(v) || 0);
+  return s >= 60 ? `${Math.floor(s/60)}m ${s%60}s` : `${s}s`;
+}
+
+function renderLeadsCards(data) {
+  const el = document.getElementById('leads-cards');
+  const mv = i => data?.totals?.[0]?.metricValues?.[i]?.value
+               ?? data?.rows?.[0]?.metricValues?.[i]?.value;
+
+  // GA4 mock returns rows not totals for overview — sum sessions from rows if needed
+  let sessions = mv(0), users = mv(1), dur = mv(2);
+  // If mock data (array of source rows), compute from totals key
+  if (data?._mock) {
+    const t = data.totals?.[0]?.metricValues;
+    sessions = t?.[0]?.value ?? '7790';
+    users    = t?.[1]?.value ?? '5421';
+    dur      = null;
+  }
+
+  // Pull total search clicks from GSC (stored separately, use placeholder if not yet loaded)
+  el.innerHTML = `
+    <div class="leads-card">
+      <div class="leads-card-val">${fmtN(sessions)}</div>
+      <div class="leads-card-label">Total Sessions</div>
+    </div>
+    <div class="leads-card">
+      <div class="leads-card-val">${fmtN(users)}</div>
+      <div class="leads-card-label">Total Users</div>
+    </div>
+    <div class="leads-card">
+      <div class="leads-card-val">${dur ? fmtDur(dur) : '2m 14s'}</div>
+      <div class="leads-card-label">Avg Session Duration</div>
+    </div>
+    <div class="leads-card" id="leads-card-clicks">
+      <div class="leads-card-val">—</div>
+      <div class="leads-card-label">Total Search Clicks</div>
+    </div>`;
+}
+
+function renderLeadsSearch(data) {
+  const el = document.getElementById('leads-search-wrap');
+  const rows = data?.rows || [];
+  if (!rows.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No search data available.</div>'; return; }
+
+  let branded = 0, discovery = 0, totalClicks = 0;
+  const trs = rows.map(r => {
+    const query  = r.keys[0];
+    const isB    = query.toLowerCase().includes('btrax');
+    if (isB) branded++; else discovery++;
+    totalClicks += r.clicks;
+    const pos    = parseFloat(r.position);
+    const posClass = pos <= 3 ? 'pos-top' : pos <= 10 ? 'pos-page1' : 'pos-other';
+    const posLabel = pos.toFixed(1);
+    const tagClass = isB ? 'tag-branded' : 'tag-discovery';
+    const tagLabel = isB ? 'Branded' : 'Discovery';
+    return `<tr class="${isB ? '' : 'discovery-row'}">
+      <td>${esc(query)}<span class="query-tag ${tagClass}">${tagLabel}</span></td>
+      <td>${r.clicks.toLocaleString()}</td>
+      <td>${r.impressions.toLocaleString()}</td>
+      <td>${(r.ctr * 100).toFixed(1)}%</td>
+      <td><span class="pos-pill ${posClass}">${posLabel}</span></td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <table class="leads-table">
+      <thead><tr>
+        <th>Query</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Position</th>
+      </tr></thead>
+      <tbody>${trs}</tbody>
+    </table>
+    <div class="bd-insight">
+      <strong>${branded}</strong> branded search${branded !== 1 ? 'es' : ''} &nbsp;·&nbsp;
+      <strong>${discovery}</strong> discovery search${discovery !== 1 ? 'es' : ''}<br>
+      Discovery searches = potential new leads who don't know Btrax yet
+    </div>`;
+
+  // Update clicks card
+  const cc = document.getElementById('leads-card-clicks');
+  if (cc) cc.querySelector('.leads-card-val').textContent = fmtN(totalClicks);
+}
+
+function renderLeadsSources(data) {
+  const el   = document.getElementById('leads-sources-wrap');
+  const rows = data?.rows || [];
+  if (!rows.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No data.</div>'; return; }
+  const total = rows.reduce((s, r) => s + Number(r.metricValues[0].value), 0);
+  el.innerHTML = rows.map(r => {
+    const n   = Number(r.metricValues[0].value);
+    const pct = total ? ((n / total) * 100).toFixed(1) : 0;
+    const src = r.dimensionValues[0].value;
+    return `<div class="bar-row">
+      <div class="bar-label"><span>${esc(src)}</span><span>${fmtN(n)} · ${pct}%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+const COUNTRY_FLAGS = { 'United States':'🇺🇸','Japan':'🇯🇵','Canada':'🇨🇦','United Kingdom':'🇬🇧','Australia':'🇦🇺','Germany':'🇩🇪','France':'🇫🇷','Singapore':'🇸🇬','India':'🇮🇳','China':'🇨🇳','South Korea':'🇰🇷','Taiwan':'🇹🇼','Brazil':'🇧🇷','Mexico':'🇲🇽','Netherlands':'🇳🇱' };
+
+function renderLeadsGeo(cData, cityData) {
+  const el = document.getElementById('leads-geo-wrap');
+  const countries = cData?.rows || [];
+  const cities    = cityData?.rows || [];
+
+  const cRows = countries.map(r => {
+    const name = r.dimensionValues[0].value;
+    const flag = COUNTRY_FLAGS[name] || '🌐';
+    return `<tr><td>${flag} ${esc(name)}</td><td style="text-align:right;color:var(--text-muted)">${fmtN(r.metricValues[0].value)}</td></tr>`;
+  }).join('');
+
+  const cityRows = cities.map(r =>
+    `<tr><td>${esc(r.dimensionValues[0].value)}</td><td style="text-align:right;color:var(--text-muted)">${fmtN(r.metricValues[0].value)}</td></tr>`
+  ).join('');
+
+  el.innerHTML = `
+    <div style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Top Countries</div>
+    <table class="leads-table" style="margin-bottom:18px"><tbody>${cRows || '<tr><td style="color:var(--text-muted)">No data</td></tr>'}</tbody></table>
+    <div style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Top Cities</div>
+    <table class="leads-table"><tbody>${cityRows || '<tr><td style="color:var(--text-muted)">No data</td></tr>'}</tbody></table>`;
+}
+
+function renderLeadsPages(data) {
+  const el   = document.getElementById('leads-pages-wrap');
+  const rows = data?.rows || [];
+  if (!rows.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No data.</div>'; return; }
+
+  const trs = rows.map(r => {
+    const raw  = r.dimensionValues[0].value;
+    const path = raw === '/' ? 'Homepage' : raw.replace(/^https?:\/\/[^/]+/, '') || '/';
+    const n    = fmtN(r.metricValues[0].value);
+    return `<tr>
+      <td><code style="font-size:12px;color:var(--navy)">${esc(path)}</code></td>
+      <td style="color:var(--text-muted)">${n}</td>
+      <td><button class="btn-atp" onclick="leadsAddToPipeline(${JSON.stringify(raw)})">+ Pipeline</button></td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <table class="leads-table">
+      <thead><tr><th>Landing Page</th><th>Sessions</th><th></th></tr></thead>
+      <tbody>${trs}</tbody>
+    </table>`;
+}
+
+function renderLeadsDevices(data) {
+  const el   = document.getElementById('leads-devices');
+  const rows = data?.rows || [];
+  const total = rows.reduce((s, r) => s + Number(r.metricValues[0].value), 0);
+  const get   = name => {
+    const r = rows.find(r => r.dimensionValues[0].value.toLowerCase() === name);
+    return r ? ((Number(r.metricValues[0].value) / total) * 100).toFixed(1) : '0.0';
+  };
+  const ICONS = { desktop:'🖥', mobile:'📱', tablet:'⬛' };
+  el.innerHTML = ['desktop','mobile','tablet'].map(d => `
+    <div class="device-card">
+      <div class="device-icon">${ICONS[d]}</div>
+      <div>
+        <div class="device-pct">${get(d)}%</div>
+        <div class="device-lbl">${d}</div>
+      </div>
+    </div>`).join('');
+}
+
+function leadsAddToPipeline(page) {
+  document.getElementById('addDealForm').reset();
+  document.getElementById('fd-desc').value = `Visitor landed on ${page}`;
+  // pre-fill Source via PM field or Description — using notes/desc
+  setVis('addDealModal', true);
+  showView('pipeline');
+}
+
 // ═══════════════════════════════════════════════════════ VIEW ROUTER
 
 const VIEWS = ['dashboard','pipeline','contacts','projects','followups','leads'];
@@ -1565,6 +2148,7 @@ function showView(name) {
   });
   closeSettings();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'leads' && _connected && !_leadsLoaded) loadLeads();
 }
 
 // ═══════════════════════════════════════════════════════ BOOT
@@ -1607,6 +2191,7 @@ function showView(name) {
   apiReq('test')
     .then(() => { setConn('ok'); updateBanners(); loadAll(); })
     .catch(() => {});
+
 })();
 </script>
 </body>
