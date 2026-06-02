@@ -703,15 +703,6 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       autocomplete="off"
       onkeydown="if(event.key==='Enter')saveSettings()" />
   </div>
-  <hr style="border:none;border-top:1px solid var(--border);margin:16px 0 14px;">
-  <div style="font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:1px;color:var(--text-muted);margin-bottom:12px;">GOOGLE ANALYTICS</div>
-  <div class="field">
-    <label>GA4 API KEY</label>
-    <input type="password" id="s-ga4key"
-      placeholder="AIza…"
-      autocomplete="off"
-      onkeydown="if(event.key==='Enter')saveSettings()" />
-  </div>
   <div class="settings-actions">
     <button class="btn-sm btn-sm-navy" onclick="saveSettings()">Save</button>
     <button class="btn-sm" onclick="testConnection()">Connect &amp; Test</button>
@@ -968,9 +959,8 @@ const SHEET_ID     = '1qVTWgyorlomQiesFbDf7-RmPcQ2lwXtFno6UClZk210';
 const PIPELINE_TAB = 'Pipeline';
 const CONTACTS_TAB = 'Contacts';
 const LS_KEY       = 'btrax_client_id';
-const LS_GA4_KEY   = 'ga4_api_key';
 const GA4_PROPERTY = '260384621';
-const SCOPES       = 'https://www.googleapis.com/auth/spreadsheets';
+const SCOPES       = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/analytics.readonly';
 
 // Pipeline columns (must match sheet header row exactly)
 const P_COLS = [
@@ -1016,7 +1006,6 @@ const C_COL_W_DEFAULT = [140,160,130,190,120,90,90,220];
 // ═══════════════════════════════════════════════════════ STATE
 
 let _clientId    = localStorage.getItem(LS_KEY) || '';
-let _ga4ApiKey   = localStorage.getItem(LS_GA4_KEY) || '';
 let _token       = null;
 let _tokenClient = null;
 let _pRows   = [];   // pipeline data rows (no header)
@@ -1093,7 +1082,7 @@ function onToken(resp) {
     res.className = 'test-result err';
     res.style.background = '';
     res.style.color = '';
-    res.textContent = '✗ Google Sheets: Auth failed — ' + resp.error;
+    res.textContent = '✗ Auth failed: ' + resp.error;
     return;
   }
   _token = resp.access_token;
@@ -1101,13 +1090,11 @@ function onToken(resp) {
   updateBanners();
   loadAll();
 
-  if (window._pendingGA4Test && _ga4ApiKey) {
-    window._pendingGA4Test = false;
+  if (res.style.display === 'block') {
     res.style.background = 'var(--sidebar)';
     res.style.color = 'var(--text-muted)';
-    res.style.display = 'block';
     res.innerHTML = '✓ Google Sheets connected<br>Testing GA4…';
-    testGA4(_ga4ApiKey).then(() => {
+    testGA4(_token).then(() => {
       res.className = 'test-result ok';
       res.style.background = '';
       res.style.color = '';
@@ -1118,12 +1105,6 @@ function onToken(resp) {
       res.style.color = '';
       res.innerHTML = '✓ Google Sheets connected<br>✗ GA4: ' + esc(err.message);
     });
-  } else {
-    window._pendingGA4Test = false;
-    res.className = 'test-result ok';
-    res.style.background = '';
-    res.style.color = '';
-    res.textContent = '✓ Google Sheets connected';
   }
 }
 
@@ -1143,9 +1124,9 @@ function toggleSettings() {
   btn.classList.toggle('panel-open', open);
   if (open) {
     document.getElementById('s-clientid').value = _clientId;
-    document.getElementById('s-ga4key').value = _ga4ApiKey;
-    document.getElementById('testResult').className = 'test-result';
-    document.getElementById('testResult').style.display = 'none';
+    const res = document.getElementById('testResult');
+    res.className = 'test-result';
+    res.style.display = 'none';
   }
 }
 
@@ -1165,12 +1146,9 @@ document.addEventListener('click', e => {
 
 function saveSettings() {
   const cid = document.getElementById('s-clientid').value.trim();
-  const ga4 = document.getElementById('s-ga4key').value.trim();
   if (!cid) { toast('Client ID cannot be empty', 'err'); return; }
   _clientId = cid;
-  _ga4ApiKey = ga4;
   localStorage.setItem(LS_KEY, _clientId);
-  localStorage.setItem(LS_GA4_KEY, _ga4ApiKey);
   if (window.google) initGIS(_clientId);
   setConn('none');
   updateBanners();
@@ -1179,7 +1157,6 @@ function saveSettings() {
 
 function testConnection() {
   const cid = document.getElementById('s-clientid').value.trim();
-  const ga4 = document.getElementById('s-ga4key').value.trim();
   const res = document.getElementById('testResult');
   res.className = 'test-result';
   res.innerHTML = '';
@@ -1197,14 +1174,9 @@ function testConnection() {
     return;
   }
 
-  // Save if changed
   if (cid !== _clientId) {
     _clientId = cid;
     localStorage.setItem(LS_KEY, _clientId);
-  }
-  if (ga4 !== _ga4ApiKey) {
-    _ga4ApiKey = ga4;
-    localStorage.setItem(LS_GA4_KEY, _ga4ApiKey);
   }
 
   res.style.display = 'block';
@@ -1213,21 +1185,19 @@ function testConnection() {
   res.style.color = 'var(--text-muted)';
   res.textContent = 'Waiting for Google sign-in…';
 
-  // GA4 test will run after OAuth completes (flag it)
-  window._pendingGA4Test = !!ga4;
   initGIS(_clientId);
   _tokenClient.requestAccessToken({ prompt: '' });
 }
 
-async function testGA4(apiKey) {
-  const url = `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY}:runReport?key=${encodeURIComponent(apiKey)}`;
+async function testGA4(token) {
+  const url = `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY}:runReport`;
   const body = {
     dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }],
     metrics: [{ name: 'sessions' }]
   };
   const resp = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify(body)
   });
   if (!resp.ok) {
