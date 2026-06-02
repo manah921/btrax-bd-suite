@@ -689,25 +689,11 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 <div id="settingsPanel" class="settings-panel">
   <h4>⚙ Settings</h4>
   <div class="settings-hint">
-    Paste your <strong>Google Service Account</strong> credentials from
-    <code>console.cloud.google.com</code> →
-    IAM &amp; Admin → Service Accounts → Keys.
-  </div>
-  <div class="field">
-    <label>Service Account Email</label>
-    <input type="text" id="s-sa-email"
-      placeholder="name@project.iam.gserviceaccount.com"
-      autocomplete="off" />
-  </div>
-  <div class="field">
-    <label>Private Key</label>
-    <textarea id="s-sa-key"
-      placeholder="-----BEGIN RSA PRIVATE KEY-----"
-      autocomplete="off"
-      style="height:90px;resize:vertical;font-size:10px"></textarea>
+    Google API credentials are configured as
+    <strong>Vercel environment variables</strong> —
+    no keys stored in the browser.
   </div>
   <div class="settings-actions">
-    <button class="btn-sm btn-sm-navy" onclick="saveSettings()">Save</button>
     <button class="btn-sm" onclick="testConnection()">Connect &amp; Test</button>
   </div>
   <div id="testResult" class="test-result"></div>
@@ -961,15 +947,7 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 const SHEET_ID     = '1qVTWgyorlomQiesFbDf7-RmPcQ2lwXtFno6UClZk210';
 const PIPELINE_TAB = 'Pipeline';
 const CONTACTS_TAB = 'Contacts';
-const LS_SA_EMAIL  = 'sa_email';
-const LS_SA_KEY    = 'sa_private_key';
 const GA4_PROPERTY = '260384621';
-const GSC_SITE     = 'https://btrax.com/';
-const SA_SCOPES    = [
-  'https://www.googleapis.com/auth/spreadsheets',
-  'https://www.googleapis.com/auth/analytics.readonly',
-  'https://www.googleapis.com/auth/webmasters.readonly',
-].join(' ');
 
 // Pipeline columns (must match sheet header row exactly)
 const P_COLS = [
@@ -1014,10 +992,7 @@ const C_COL_W_DEFAULT = [140,160,130,190,120,90,90,220];
 
 // ═══════════════════════════════════════════════════════ STATE
 
-let _saEmail     = localStorage.getItem(LS_SA_EMAIL) || '';
-let _saKey       = localStorage.getItem(LS_SA_KEY)   || '';
-let _token       = null;
-let _tokenExpiry = 0;
+let _connected = false;
 let _pRows   = [];   // pipeline data rows (no header)
 let _cRows   = [];   // contact data rows (no header)
 let _cCols   = C_COLS_DEFAULT.slice();  // contact column names
@@ -1056,112 +1031,43 @@ function toast(msg, type) {
 // ═══════════════════════════════════════════════════════ CONNECTION STATUS
 
 function setConn(state) {
+  _connected = state === 'ok';
   const el    = document.getElementById('connStatus');
   const label = document.getElementById('connLabel');
   el.className = 'conn-status ' + (state === 'ok' ? 'ok' : state === 'err' ? 'err' : '');
   label.textContent = state === 'ok'  ? 'Connected ✓'
                     : state === 'err' ? 'Connection error — click to retry'
-                    : _saEmail       ? 'Click to connect'
-                    :                  'No credentials';
+                    :                  'Click to connect';
 }
 
 function updateBanners() {
-  const show = !_token;
+  const show = !_connected;
   setVis('pipeline-banner', show);
   setVis('contacts-banner', show);
 }
 
-// ═══════════════════════════════════════════════════════ SERVICE ACCOUNT JWT
+// ═══════════════════════════════════════════════════════ API PROXY
 
-async function makeJWT(email, privateKey) {
-  const cleanKey = privateKey
-    .replace(/\\n/g, '\n')
-    .trim();
-
-  const header = btoa(JSON.stringify({
-    alg: 'RS256', typ: 'JWT'
-  })).replace(/=/g, '').replace(/\+/g, '-')
-     .replace(/\//g, '_');
-
-  const now = Math.floor(Date.now() / 1000);
-  const payload = btoa(JSON.stringify({
-    iss: email,
-    scope: [
-      'https://www.googleapis.com/auth/spreadsheets',
-      'https://www.googleapis.com/auth/analytics.readonly',
-      'https://www.googleapis.com/auth/webmasters.readonly'
-    ].join(' '),
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: now + 3600,
-    iat: now
-  })).replace(/=/g, '').replace(/\+/g, '-')
-     .replace(/\//g, '_');
-
-  const pemContents = cleanKey
-    .replace(/-----BEGIN PRIVATE KEY-----/, '')
-    .replace(/-----END PRIVATE KEY-----/, '')
-    .replace(/-----BEGIN RSA PRIVATE KEY-----/, '')
-    .replace(/-----END RSA PRIVATE KEY-----/, '')
-    .replace(/\s/g, '');
-
-  const binaryKey = Uint8Array.from(
-    atob(pemContents), c => c.charCodeAt(0)
-  );
-
-  const cryptoKey = await crypto.subtle.importKey(
-    'pkcs8',
-    binaryKey.buffer,
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-
-  const signingInput = `${header}.${payload}`;
-  const signature = await crypto.subtle.sign(
-    'RSASSA-PKCS1-v1_5',
-    cryptoKey,
-    new TextEncoder().encode(signingInput)
-  );
-
-  const encodedSig = btoa(
-    String.fromCharCode(...new Uint8Array(signature))
-  ).replace(/=/g, '').replace(/\+/g, '-')
-   .replace(/\//g, '_');
-
-  return `${signingInput}.${encodedSig}`;
-}
-
-async function exchangeJWT(jwt) {
-  const resp = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+async function apiReq(action, params = {}) {
+  const res = await fetch('/api/google', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ action, ...params }),
   });
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error_description || data.error || `HTTP ${resp.status}`);
-  return data;
-}
-
-async function getToken() {
-  if (_token && Date.now() < _tokenExpiry - 60_000) return _token;
-  if (!_saEmail || !_saKey) throw new Error('No credentials — open Settings and add your service account');
-  const jwt  = await makeJWT(_saEmail, _saKey);
-  const data = await exchangeJWT(jwt);
-  _token       = data.access_token;
-  _tokenExpiry = Date.now() + (data.expires_in || 3600) * 1000;
-  return _token;
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    if (res.status === 401 || res.status === 403) { setConn('err'); updateBanners(); }
+    throw new Error(e.error || `HTTP ${res.status}`);
+  }
+  return res.json();
 }
 
 async function connectFromStatus() {
-  if (!_saEmail || !_saKey) { toggleSettings(); return; }
   try {
-    await getToken();
-    setConn('ok');
-    updateBanners();
-    loadAll();
+    await apiReq('test');
+    setConn('ok'); updateBanners(); loadAll();
   } catch (e) {
-    setConn('err');
-    toast(e.message, 'err');
+    setConn('err'); toast(e.message, 'err');
   }
 }
 
@@ -1173,10 +1079,8 @@ function toggleSettings() {
   const open  = panel.classList.toggle('open');
   btn.classList.toggle('panel-open', open);
   if (open) {
-    document.getElementById('s-sa-email').value = _saEmail;
-    document.getElementById('s-sa-key').value   = _saKey;
     const res = document.getElementById('testResult');
-    res.className    = 'test-result';
+    res.className     = 'test-result';
     res.style.display = 'none';
   }
 }
@@ -1195,177 +1099,62 @@ document.addEventListener('click', e => {
   }
 });
 
-function saveSettings() {
-  const email = document.getElementById('s-sa-email').value.trim();
-  const key   = document.getElementById('s-sa-key').value.trim();
-  if (!email) { toast('Service account email cannot be empty', 'err'); return; }
-  if (!key)   { toast('Private key cannot be empty', 'err'); return; }
-  _saEmail = email; _saKey = key;
-  _token = null; _tokenExpiry = 0;
-  localStorage.setItem(LS_SA_EMAIL, _saEmail);
-  localStorage.setItem(LS_SA_KEY,   _saKey);
-  setConn('none');
-  updateBanners();
-  toast('Settings saved', 'ok');
-}
-
 async function testConnection() {
-  const email = document.getElementById('s-sa-email').value.trim();
-  const key   = document.getElementById('s-sa-key').value.trim();
-  const res   = document.getElementById('testResult');
-
-  if (!email || !key) {
-    res.className = 'test-result err';
-    res.textContent = '✗ Enter service account email and private key';
-    res.style.display = 'block';
-    return;
-  }
-
-  // Save if changed
-  if (email !== _saEmail || key !== _saKey) {
-    _saEmail = email; _saKey = key;
-    _token = null; _tokenExpiry = 0;
-    localStorage.setItem(LS_SA_EMAIL, _saEmail);
-    localStorage.setItem(LS_SA_KEY,   _saKey);
-  }
-
+  const res = document.getElementById('testResult');
   res.className = 'test-result';
   res.style.background = 'var(--sidebar)';
   res.style.color = 'var(--text-muted)';
   res.style.display = 'block';
-  res.textContent = 'Generating JWT…';
+  res.textContent = 'Testing connections…';
 
-  let token;
   try {
-    token = await getToken();
+    const data = await apiReq('test');
+    setConn('ok'); updateBanners(); loadAll();
+    const lines = [
+      (data.sheets?.ok ? '✓' : '✗') + ' Google Sheets'  + (data.sheets?.error ? ': ' + data.sheets.error : ''),
+      (data.ga4?.ok    ? '✓' : '✗') + ' GA4'            + (data.ga4?.error    ? ': ' + data.ga4.error    : ''),
+      (data.gsc?.ok    ? '✓' : '✗') + ' Search Console' + (data.gsc?.error    ? ': ' + data.gsc.error    : ''),
+    ];
+    const allOk = data.sheets?.ok && data.ga4?.ok && data.gsc?.ok;
+    res.className = allOk ? 'test-result ok' : 'test-result err';
+    res.style.background = ''; res.style.color = '';
+    res.innerHTML = lines.join('<br>');
   } catch (e) {
     res.className = 'test-result err';
     res.style.background = ''; res.style.color = '';
-    res.textContent = '✗ Auth: ' + e.message;
+    res.textContent = '✗ ' + e.message;
     setConn('err');
-    return;
   }
-
-  setConn('ok');
-  updateBanners();
-  loadAll();
-
-  // Test all three in parallel, show results as they land
-  const lines = { sheets: '⏳ Sheets…', ga4: '⏳ GA4…', gsc: '⏳ Search Console…' };
-  const render = () => {
-    res.innerHTML = Object.values(lines).join('<br>');
-  };
-  render();
-
-  await Promise.allSettled([
-    // Sheets
-    (async () => {
-      try {
-        await fetch(
-          `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(PIPELINE_TAB + '!A1')}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        ).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); });
-        lines.sheets = '✓ Google Sheets connected';
-      } catch (e) {
-        lines.sheets = '✗ Sheets: ' + e.message;
-      }
-      render();
-    })(),
-
-    // GA4
-    (async () => {
-      try {
-        const r = await fetch(
-          `https://analyticsdata.googleapis.com/v1beta/properties/${GA4_PROPERTY}:runReport`,
-          { method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ dateRanges: [{ startDate: '7daysAgo', endDate: 'today' }], metrics: [{ name: 'sessions' }] }) }
-        );
-        if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || `HTTP ${r.status}`); }
-        lines.ga4 = '✓ GA4 connected';
-      } catch (e) {
-        lines.ga4 = '✗ GA4: ' + e.message;
-      }
-      render();
-    })(),
-
-    // GSC
-    (async () => {
-      const end   = new Date(); end.setDate(end.getDate() - 3);
-      const start = new Date(end); start.setDate(start.getDate() - 7);
-      const fmt   = d => d.toISOString().slice(0, 10);
-      try {
-        const r = await fetch(
-          `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(GSC_SITE)}/searchAnalytics/query`,
-          { method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ startDate: fmt(start), endDate: fmt(end), dimensions: ['query'], rowLimit: 3 }) }
-        );
-        if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || `HTTP ${r.status}`); }
-        lines.gsc = '✓ Search Console connected';
-      } catch (e) {
-        lines.gsc = '✗ Search Console: ' + e.message;
-      }
-      render();
-    })(),
-  ]);
-
-  const allOk = Object.values(lines).every(l => l.startsWith('✓'));
-  res.className = allOk ? 'test-result ok' : 'test-result err';
-  res.style.background = ''; res.style.color = '';
 }
 
 // ═══════════════════════════════════════════════════════ SHEETS API
 
-async function sheetsReq(path, opts) {
-  const token = await getToken();
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/${path}`;
-  const res = await fetch(url, {
-    ...opts,
-    headers: { Authorization: `Bearer ${token}`, ...(opts?.headers || {}) }
-  });
-  if (res.status === 401) {
-    _token = null; _tokenExpiry = 0; setConn('none'); updateBanners();
-    throw new Error('Auth failed — check your service account has Sheets access');
-  }
-  if (!res.ok) {
-    const e = await res.json().catch(() => ({}));
-    throw new Error(e.error?.message || `HTTP ${res.status}`);
-  }
-  return res.json();
-}
-
 async function sheetsGet(range) {
-  return sheetsReq(`values/${encodeURIComponent(range)}`);
+  return apiReq('sheets', { path: `values/${encodeURIComponent(range)}`, method: 'GET' });
 }
 
 async function sheetsPut(range, value) {
-  return sheetsReq(
-    `values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,
-    {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ range, values: [[value]] })
-    }
-  );
+  return apiReq('sheets', {
+    path:   `values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,
+    method: 'PUT',
+    body:   { range, values: [[value]] },
+  });
 }
 
 async function sheetsAppend(tab, rows) {
   const range = `${tab}!A1`;
-  return sheetsReq(
-    `values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values: rows })
-    }
-  );
+  return apiReq('sheets', {
+    path:   `values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+    method: 'POST',
+    body:   { values: rows },
+  });
 }
+
 
 // ═══════════════════════════════════════════════════════ LOAD ALL
 
 async function loadAll() {
-  if (!_token) return;
+  if (!_connected) return;
   await Promise.allSettled([loadPipeline(), loadContacts()]);
 }
 
@@ -1814,12 +1603,10 @@ function showView(name) {
   updateBanners();
   setConn('none');
 
-  // Auto-connect if credentials already stored
-  if (_saEmail && _saKey) {
-    getToken()
-      .then(token => { _token = token; setConn('ok'); updateBanners(); loadAll(); })
-      .catch(() => setConn('none'));
-  }
+  // Auto-connect: test API on load
+  apiReq('test')
+    .then(() => { setConn('ok'); updateBanners(); loadAll(); })
+    .catch(() => {});
 })();
 </script>
 </body>
