@@ -1456,19 +1456,18 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 }
 
 /* ── Dashboard drag-and-drop ───────────────────────────────── */
-#dash-sections-container { position: relative; }
-.ds-wrap      { position: relative; }
-.ds-handle    {
-  position: absolute; top: 50%; left: -22px; transform: translateY(-50%);
-  width: 18px; cursor: grab; color: var(--border); font-size: 16px;
-  line-height: 1; display: none; user-select: none; z-index: 10;
-  transition: color .15s;
+#dashboard-sections { position: relative; }
+[data-section-id]   { position: relative; }
+.dnd-handle {
+  position: absolute; top: 10px; left: 10px;
+  cursor: grab; color: var(--border); font-size: 17px;
+  line-height: 1; display: none; user-select: none; z-index: 20;
+  transition: color .12s;
 }
-.ds-wrap:hover .ds-handle { display: block; }
-.ds-wrap:hover .ds-handle:hover { color: var(--primary); }
-.ds-wrap.ds-dragging { opacity: .35; pointer-events: none; }
-.ds-wrap.ds-over-top    { border-top: 2px dashed var(--primary); }
-.ds-wrap.ds-over-bottom { border-bottom: 2px dashed var(--primary); }
+[data-section-id]:hover .dnd-handle { display: block; }
+.dnd-handle:hover { color: var(--primary); }
+[data-section-id].dnd-over-top    { border-top: 3px solid var(--primary); }
+[data-section-id].dnd-over-bottom { border-bottom: 3px solid var(--primary); }
 .dash-wrapper { overflow: visible; }
 .reset-dash-link { font-size:11px; color:var(--text-muted); cursor:pointer;
   text-decoration:underline; margin-top:14px; display:inline-block; }
@@ -1621,9 +1620,9 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       </div>
 
 
-      <div id="dash-sections-container">
-      <div class="ds-wrap" data-key="kpi" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
-        <div class="ds-handle" title="Drag to reorder">⠿</div>
+      <div id="dashboard-sections">
+      <div data-section-id="kpi-cards" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
+        <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="dash-kpi-row" id="dash-kpi-row">
         <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-goal">—</div><div class="dash-kpi-lbl">Annual Goal</div></div>
         <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-ytd-actual">—</div><div class="dash-kpi-lbl" id="kpi-ytd-actual-lbl">YTD Actual</div></div>
@@ -1631,8 +1630,8 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
         <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-att">—</div><div class="dash-kpi-lbl">Attainment</div></div>
       </div>
       </div>
-      <div class="ds-wrap" data-key="monthly" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
-        <div class="ds-handle" title="Drag to reorder">⠿</div>
+      <div data-section-id="monthly-performance" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
+        <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
         <div class="dash-section-title">MONTHLY PERFORMANCE</div>
         <div id="dash-monthly">
@@ -1643,8 +1642,8 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
         </div>
       </div>
       </div>
-      <div class="ds-wrap" data-key="service" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
-        <div class="ds-handle" title="Drag to reorder">⠿</div>
+      <div data-section-id="service-breakdown" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
+        <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
         <div class="dash-section-title">SERVICE OFFERING BREAKDOWN</div>
         <div id="dash-service">
@@ -1655,8 +1654,8 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
         </div>
       </div>
       </div>
-      <div class="ds-wrap" data-key="client" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
-        <div class="ds-handle" title="Drag to reorder">⠿</div>
+      <div data-section-id="client-revenue" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
+        <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
         <div class="dash-section-title">CLIENT REVENUE BREAKDOWN</div>
         <div id="dash-client-wrap">
@@ -1665,8 +1664,8 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
         <div id="p-donut-tooltip" class="donut-tooltip hidden"></div>
       </div>
       </div>
-      <div class="ds-wrap" data-key="office" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
-        <div class="ds-handle" title="Drag to reorder">⠿</div>
+      <div data-section-id="office-breakdown" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
+        <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="summary-row">
         <div class="summary-card">
           <div class="summary-office">🇺🇸 US Office</div>
@@ -1680,15 +1679,15 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
         </div>
       </div>
       </div>
-      <div class="ds-wrap" data-key="stages" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
-        <div class="ds-handle" title="Drag to reorder">⠿</div>
+      <div data-section-id="pipeline-stages" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
+        <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
         <div class="dash-section-title">PIPELINE BY STAGE</div>
         <div id="dash-stages" style="padding:4px 0"></div>
       </div>
       </div>
-      <span class="reset-dash-link" onclick="resetDashLayout()">Reset layout</span>
-      </div><!-- /dash-sections-container -->
+      <span class="reset-dash-link" id="dash-reset-btn" onclick="dndReset()">Reset layout</span>
+      </div><!-- /dashboard-sections -->
     </div><!-- /dash-wrapper -->
   </div>
 
@@ -4207,7 +4206,7 @@ function showView(name) {
   closeSettings();
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (name === 'leads' && _connected && !_leadsLoaded) loadLeads();
-  if (name === 'pdash') { dashLoadOrder(); renderDashboard(); }
+  if (name === 'pdash') { dndLoadOrder(); renderDashboard(); }
 }
 
 // ═══════════════════════════════════════════════════════ BOOT
@@ -4248,7 +4247,7 @@ function showView(name) {
   setConn('none');
 
   // Init year selector
-  dashLoadOrder();
+  dndLoadOrder();
   const _yrEl = document.getElementById('dash-year');
   if (_yrEl) _yrEl.value = new Date().getFullYear();
 
@@ -4368,81 +4367,84 @@ window.addEventListener('resize', () => {
 
 // ═══════════════════════════════════════════════════════ DASHBOARD DRAG & DROP
 
-const DASH_DEFAULT_ORDER = ['kpi','monthly','service','client','office','stages'];
-let _dashDragSrc = null;
+// ── Dashboard section drag-and-drop ──────────────────────────
+const DND_DEFAULT_ORDER = ['kpi-cards','monthly-performance','service-breakdown',
+                           'client-revenue','office-breakdown','pipeline-stages'];
+let _dndSrc = null;
 
-function dashDragStart(e, el) {
-  _dashDragSrc = el;
-  el.classList.add('ds-dragging');
+function dndStart(e) {
+  _dndSrc = e.currentTarget;
+  // Defer opacity so the ghost image captures the full element first
+  requestAnimationFrame(() => { if (_dndSrc) _dndSrc.style.opacity = '0.4'; });
   e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', el.dataset.key);
+  e.dataTransfer.setData('text/plain', _dndSrc.dataset.sectionId);
 }
 
-function dashDragOver(e, el) {
+function dndEnd(e) {
+  if (_dndSrc) { _dndSrc.style.opacity = ''; }
+  document.querySelectorAll('[data-section-id]').forEach(s => {
+    s.classList.remove('dnd-over-top','dnd-over-bottom');
+  });
+  _dndSrc = null;
+}
+
+function dndOver(e) {
   e.preventDefault();
-  if (!_dashDragSrc || _dashDragSrc === el) return;
   e.dataTransfer.dropEffect = 'move';
-  const container = document.getElementById('dash-sections-container');
-  container.querySelectorAll('.ds-wrap').forEach(w => {
-    w.classList.remove('ds-over-top','ds-over-bottom');
+  const target = e.currentTarget;
+  if (!_dndSrc || target === _dndSrc) return;
+  document.querySelectorAll('[data-section-id]').forEach(s => {
+    s.classList.remove('dnd-over-top','dnd-over-bottom');
   });
-  const rect   = el.getBoundingClientRect();
-  const midY   = rect.top + rect.height / 2;
-  el.classList.add(e.clientY < midY ? 'ds-over-top' : 'ds-over-bottom');
+  const rect = target.getBoundingClientRect();
+  target.classList.add(e.clientY < rect.top + rect.height / 2 ? 'dnd-over-top' : 'dnd-over-bottom');
 }
 
-function dashDragLeave(el) {
-  el.classList.remove('ds-over-top','ds-over-bottom');
+function dndLeave(e) {
+  const target = e.currentTarget;
+  // Only clear when truly leaving (not entering a child element)
+  if (!target.contains(e.relatedTarget)) {
+    target.classList.remove('dnd-over-top','dnd-over-bottom');
+  }
 }
 
-function dashDrop(e, el) {
+function dndDrop(e) {
   e.preventDefault();
-  el.classList.remove('ds-over-top','ds-over-bottom');
-  if (!_dashDragSrc || _dashDragSrc === el) return;
-  const container = document.getElementById('dash-sections-container');
-  const rect   = el.getBoundingClientRect();
+  const target = e.currentTarget;
+  target.classList.remove('dnd-over-top','dnd-over-bottom');
+  if (!_dndSrc || _dndSrc === target) return;
+  const container = document.getElementById('dashboard-sections');
+  const rect   = target.getBoundingClientRect();
   const before = e.clientY < rect.top + rect.height / 2;
-  container.insertBefore(_dashDragSrc, before ? el : el.nextSibling);
-  dashSaveOrder();
+  container.insertBefore(_dndSrc, before ? target : target.nextElementSibling);
+  dndSaveOrder();
 }
 
-function dashDragEnd(el) {
-  el.classList.remove('ds-dragging');
-  document.querySelectorAll('.ds-over-top,.ds-over-bottom').forEach(e => {
-    e.classList.remove('ds-over-top','ds-over-bottom');
-  });
-  _dashDragSrc = null;
-}
-
-function dashSaveOrder() {
-  const container = document.getElementById('dash-sections-container');
+function dndSaveOrder() {
+  const container = document.getElementById('dashboard-sections');
   if (!container) return;
-  const order = [...container.querySelectorAll('.ds-wrap[data-key]')].map(el => el.dataset.key);
+  const order = [...container.querySelectorAll('[data-section-id]')]
+    .map(el => el.dataset.sectionId);
   localStorage.setItem('dash_section_order', JSON.stringify(order));
 }
 
-function dashLoadOrder() {
-  const container = document.getElementById('dash-sections-container');
+function dndLoadOrder() {
+  const container = document.getElementById('dashboard-sections');
   if (!container) return;
   try {
     const saved = JSON.parse(localStorage.getItem('dash_section_order'));
-    if (!Array.isArray(saved) || saved.length !== DASH_DEFAULT_ORDER.length) return;
-    saved.forEach(key => {
-      const el = container.querySelector(`[data-key="${key}"]`);
-      if (el) container.insertBefore(el, container.querySelector('.reset-dash-link'));
+    if (!Array.isArray(saved) || !saved.length) return;
+    const resetBtn = document.getElementById('dash-reset-btn');
+    saved.forEach(id => {
+      const el = container.querySelector(`[data-section-id="${id}"]`);
+      if (el) container.insertBefore(el, resetBtn);
     });
   } catch {}
 }
 
-function resetDashLayout() {
-  const container = document.getElementById('dash-sections-container');
-  if (!container) return;
-  const resetLink = container.querySelector('.reset-dash-link');
-  DASH_DEFAULT_ORDER.forEach(key => {
-    const el = container.querySelector(`[data-key="${key}"]`);
-    if (el) container.insertBefore(el, resetLink);
-  });
+function dndReset() {
   localStorage.removeItem('dash_section_order');
+  location.reload();
 }
 
 
