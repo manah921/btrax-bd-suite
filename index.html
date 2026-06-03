@@ -1454,6 +1454,66 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
   pointer-events: none; white-space: nowrap;
   box-shadow: 0 4px 16px rgba(0,0,0,.2);
 }
+
+/* ── Dashboard drag-and-drop ───────────────────────────────── */
+#dash-sections-container { position: relative; }
+.ds-wrap      { position: relative; }
+.ds-handle    {
+  position: absolute; top: 50%; left: -22px; transform: translateY(-50%);
+  width: 18px; cursor: grab; color: var(--border); font-size: 16px;
+  line-height: 1; display: none; user-select: none; z-index: 10;
+  transition: color .15s;
+}
+.ds-wrap:hover .ds-handle { display: block; }
+.ds-wrap:hover .ds-handle:hover { color: var(--primary); }
+.ds-wrap.ds-dragging { opacity: .35; pointer-events: none; }
+.ds-wrap.ds-over-top    { border-top: 2px dashed var(--primary); }
+.ds-wrap.ds-over-bottom { border-bottom: 2px dashed var(--primary); }
+.dash-wrapper { overflow: visible; }
+.reset-dash-link { font-size:11px; color:var(--text-muted); cursor:pointer;
+  text-decoration:underline; margin-top:14px; display:inline-block; }
+.reset-dash-link:hover { color:var(--alert); }
+
+/* ── ? help button ─────────────────────────────────────────── */
+.dash-help-btn { background:none; border:1px solid var(--border);
+  border-radius:50%; width:26px; height:26px; cursor:pointer;
+  font-size:12px; font-weight:700; color:var(--text-muted);
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s; flex-shrink:0; }
+.dash-help-btn:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
+
+/* ── Docs page ─────────────────────────────────────────────── */
+.docs-wrap { max-width: 780px; }
+.docs-section { margin-bottom: 36px; }
+.docs-section-title {
+  font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:1.2px;
+  color:var(--navy); margin-bottom:14px; padding-bottom:8px;
+  border-bottom:2px solid var(--primary); }
+.docs-body  { font-size:13px; color:var(--text); line-height:1.8; margin-bottom:10px; }
+.docs-ol    { font-size:13px; color:var(--text); line-height:1.8; padding-left:20px; margin-bottom:10px; }
+.docs-metric { background:var(--surface); border:1px solid var(--border);
+  border-left:3px solid var(--primary); border-radius:var(--r-sm);
+  padding:14px 18px; margin-bottom:12px; }
+.docs-metric-name { font-weight:700; color:var(--primary); font-size:13px; margin-bottom:4px; }
+.docs-metric-desc { font-size:13px; color:var(--text); line-height:1.7; margin-bottom:8px; }
+.docs-code  { font-family:monospace; font-size:11px; background:#1A1A2E;
+  color:#00BCD4; padding:10px 14px; border-radius:var(--r-sm);
+  margin:0; overflow-x:auto; white-space:pre; display:block; }
+.docs-table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:16px; }
+.docs-table th { background:var(--bg); padding:9px 14px; text-align:left;
+  font-size:10px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+  color:var(--text-muted); border-bottom:2px solid var(--border); }
+.docs-table td { padding:10px 14px; border-bottom:1px solid var(--border); }
+.docs-table tr:last-child td { border-bottom:none; }
+.docs-sheet-btn { display:inline-flex; align-items:center; gap:6px;
+  background:var(--primary); color:#fff; border:none; border-radius:var(--r-sm);
+  padding:9px 18px; font-family:'Open Sans',sans-serif; font-size:13px;
+  font-weight:600; cursor:pointer; text-decoration:none; margin-top:6px; }
+.docs-sheet-btn:hover { background:#0097A7; }
+.docs-built { background:var(--navy); color:#fff; border-radius:var(--r);
+  padding:20px 24px; font-size:13px; line-height:1.8; }
+.docs-built strong { color:var(--primary); }
+
 </style>
 </head>
 <body>
@@ -1476,6 +1536,8 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
     <button class="nav-link" data-view="followups" onclick="showView('followups')"><span class="nav-icon" aria-hidden="true">↺</span><span class="nav-text">Follow Ups</span></button>
     <div class="nav-section">Coming Soon</div>
     <button class="nav-link" data-view="leads" onclick="showView('leads')"><span class="nav-icon" aria-hidden="true">↗</span><span class="nav-text">Leads</span></button>
+    <div class="nav-section" style="margin-top:auto">Help</div>
+    <button class="nav-link" data-view="docs" onclick="showView('docs')"><span class="nav-icon" aria-hidden="true">📖</span><span class="nav-text">Docs</span></button>
   </nav>
   <div class="sidebar-footer">Btrax BD Suite · v0.3</div>
 </aside>
@@ -1555,17 +1617,22 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
           <option value="2027">2027</option>
           <option value="2028">2028</option>
         </select>
+        <button class="dash-help-btn" title="Documentation" onclick="showView('docs')">?</button>
       </div>
 
-      <!-- Row 1: KPI cards -->
+
+      <div id="dash-sections-container">
+      <div class="ds-wrap" data-key="kpi" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
+        <div class="ds-handle" title="Drag to reorder">⠿</div>
       <div class="dash-kpi-row" id="dash-kpi-row">
         <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-goal">—</div><div class="dash-kpi-lbl">Annual Goal</div></div>
         <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-ytd-actual">—</div><div class="dash-kpi-lbl" id="kpi-ytd-actual-lbl">YTD Actual</div></div>
         <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-ytd-target">—</div><div class="dash-kpi-lbl" id="kpi-ytd-target-lbl">YTD Target</div></div>
         <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-att">—</div><div class="dash-kpi-lbl">Attainment</div></div>
       </div>
-
-      <!-- Row 2: Monthly performance -->
+      </div>
+      <div class="ds-wrap" data-key="monthly" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
+        <div class="ds-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
         <div class="dash-section-title">MONTHLY PERFORMANCE</div>
         <div id="dash-monthly">
@@ -1575,8 +1642,9 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
           </table>
         </div>
       </div>
-
-      <!-- Row 3: Service breakdown -->
+      </div>
+      <div class="ds-wrap" data-key="service" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
+        <div class="ds-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
         <div class="dash-section-title">SERVICE OFFERING BREAKDOWN</div>
         <div id="dash-service">
@@ -1586,8 +1654,9 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
           </table>
         </div>
       </div>
-
-      <!-- Client Revenue Breakdown -->
+      </div>
+      <div class="ds-wrap" data-key="client" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
+        <div class="ds-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
         <div class="dash-section-title">CLIENT REVENUE BREAKDOWN</div>
         <div id="dash-client-wrap">
@@ -1595,8 +1664,9 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
         </div>
         <div id="p-donut-tooltip" class="donut-tooltip hidden"></div>
       </div>
-
-      <!-- Row 4: Office breakdown -->
+      </div>
+      <div class="ds-wrap" data-key="office" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
+        <div class="ds-handle" title="Drag to reorder">⠿</div>
       <div class="summary-row">
         <div class="summary-card">
           <div class="summary-office">🇺🇸 US Office</div>
@@ -1609,14 +1679,165 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
           <div class="summary-sub" id="summaryJPY-sub">Active deal value · JPY</div>
         </div>
       </div>
-
-      <!-- Row 5: Pipeline by stage -->
+      </div>
+      <div class="ds-wrap" data-key="stages" draggable="true" ondragstart="dashDragStart(event,this)" ondragover="dashDragOver(event,this)" ondragleave="dashDragLeave(this)" ondrop="dashDrop(event,this)" ondragend="dashDragEnd(this)">
+        <div class="ds-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
         <div class="dash-section-title">PIPELINE BY STAGE</div>
         <div id="dash-stages" style="padding:4px 0"></div>
       </div>
-
+      </div>
+      <span class="reset-dash-link" onclick="resetDashLayout()">Reset layout</span>
+      </div><!-- /dash-sections-container -->
     </div><!-- /dash-wrapper -->
+  </div>
+
+
+  <!-- ── DOCS ─────────────────────────────────────────────── -->
+  <div id="view-docs" class="view">
+    <div class="page-title">DOCUMENTATION</div>
+    <div class="docs-wrap">
+
+      <div class="docs-section">
+        <div class="docs-section-title">How This Tool Works</div>
+        <p class="docs-body">The Btrax BD Suite is a sales pipeline and analytics tool built for the BD team. Data flows in three steps:</p>
+        <ol class="docs-ol">
+          <li>Raw data lives in Google Sheets (Pipeline, Goals, Contacts tabs)</li>
+          <li>Vercel server fetches data securely from Google Sheets on demand</li>
+          <li>This app calculates and displays everything in your browser</li>
+        </ol>
+        <p class="docs-body">Data refreshes every 60 seconds when connected.</p>
+      </div>
+
+      <div class="docs-section">
+        <div class="docs-section-title">Data Sources</div>
+        <table class="docs-table">
+          <thead><tr><th>Tab</th><th>What it stores</th><th>Who updates it</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Pipeline</strong></td><td>Every deal, one row per deal</td><td>BD Team</td></tr>
+            <tr><td><strong>Goals</strong></td><td>Annual targets per service offering</td><td>BD Lead (once per year)</td></tr>
+            <tr><td><strong>Contacts</strong></td><td>Client and prospect contacts</td><td>BD Team</td></tr>
+          </tbody>
+        </table>
+        <a class="docs-sheet-btn" href="https://docs.google.com/spreadsheets/d/1qVTWgyorlomQiesFbDf7-RmPcQ2lwXtFno6UClZk210" target="_blank" rel="noopener">
+          Open Google Sheet ↗
+        </a>
+      </div>
+
+      <div class="docs-section">
+        <div class="docs-section-title">How Each Number Is Calculated</div>
+
+        <div class="docs-metric">
+          <div class="docs-metric-name">ANNUAL GOAL</div>
+          <div class="docs-metric-desc">Sum of "Annual Goal" column in the Goals tab for the selected Fiscal Year.</div>
+          <code class="docs-code">SUM(Goals[Annual Goal]) WHERE [Fiscal Year] = selectedYear</code>
+        </div>
+
+        <div class="docs-metric">
+          <div class="docs-metric-name">YTD TARGET</div>
+          <div class="docs-metric-desc">Sum of monthly columns Jan → current month in the Goals tab for the selected Fiscal Year.</div>
+          <code class="docs-code">SUM(Goals[Jan:currentMonth]) WHERE [Fiscal Year] = selectedYear</code>
+        </div>
+
+        <div class="docs-metric">
+          <div class="docs-metric-name">YTD ACTUAL</div>
+          <div class="docs-metric-desc">Sum of Deal Value in Pipeline where Status = Won OR Closed, and Fiscal Year = selected year. Closed deals count as actual revenue because they represent completed contracts.</div>
+          <code class="docs-code">SUM(Pipeline[Deal Value])
+WHERE [Status] IN ('Won', 'Closed')
+AND [Fiscal Year] = selectedYear</code>
+        </div>
+
+        <div class="docs-metric">
+          <div class="docs-metric-name">ATTAINMENT %</div>
+          <div class="docs-metric-desc">YTD Actual ÷ YTD Target × 100. Color-coded: green ≥100%, gold 75–99%, red &lt;75%.</div>
+          <code class="docs-code">(YTD Actual / YTD Target) * 100</code>
+        </div>
+
+        <div class="docs-metric">
+          <div class="docs-metric-name">VARIANCE</div>
+          <div class="docs-metric-desc">YTD Actual minus YTD Target. Positive = ahead of target (green). Negative = behind (red).</div>
+          <code class="docs-code">YTD Actual - YTD Target</code>
+        </div>
+
+        <div class="docs-metric">
+          <div class="docs-metric-name">MONTHLY ACTUAL</div>
+          <div class="docs-metric-desc">Sum of the monthly allocation column (e.g. Jan) in Pipeline where Status = Won or Closed and Fiscal Year = selected year. Uses monthly allocation columns — not total deal value — to reflect when revenue was recognized month by month.</div>
+          <code class="docs-code">SUM(Pipeline[Jan]) WHERE [Status] IN ('Won','Closed')
+AND [Fiscal Year] = selectedYear</code>
+        </div>
+
+        <div class="docs-metric">
+          <div class="docs-metric-name">SERVICE OFFERING BREAKDOWN</div>
+          <div class="docs-metric-desc">Groups Pipeline rows by Service Offering. Actual = sum of Deal Value per service where Status = Won or Closed. Target = Annual Goal per service from Goals tab.</div>
+          <code class="docs-code">GROUP BY [Service Offering]
+  Actual = SUM([Deal Value]) WHERE [Status] IN ('Won','Closed')
+  Target = Goals[Annual Goal] WHERE [Service Offering] matches</code>
+        </div>
+
+        <div class="docs-metric">
+          <div class="docs-metric-name">CLIENT REVENUE BREAKDOWN</div>
+          <div class="docs-metric-desc">Groups Won+Closed Pipeline rows by Client Name. Shows each client's % of total revenue. Top 10 clients shown individually; remainder grouped as "Other."</div>
+          <code class="docs-code">GROUP BY [Client Name] WHERE [Status] IN ('Won','Closed')
+  % = client_value / total_value * 100</code>
+        </div>
+
+        <div class="docs-metric">
+          <div class="docs-metric-name">US/JP OFFICE PIPELINE</div>
+          <div class="docs-metric-desc">Filters by Region and Currency. Shows active deals only — excludes Won, Lost, and Closed. Represents potential future revenue.</div>
+          <code class="docs-code">SUM([Deal Value]) WHERE [Status] NOT IN ('Won','Lost','Closed')
+GROUP BY [Currency]  -- USD → US Office, JPY → JP Office</code>
+        </div>
+
+        <div class="docs-metric">
+          <div class="docs-metric-name">PIPELINE BY STAGE</div>
+          <div class="docs-metric-desc">Groups all deals by Status. Shows count and total Deal Value per stage. All 7 stages: Lead, Qualified, Pitch, Negotiation, Won, Lost, Closed.</div>
+          <code class="docs-code">GROUP BY [Status]
+  count = COUNT(*), value = SUM([Deal Value])</code>
+        </div>
+      </div>
+
+      <div class="docs-section">
+        <div class="docs-section-title">Updating Annual Goals</div>
+        <ol class="docs-ol">
+          <li>Open Google Sheet → Goals tab</li>
+          <li>Add new rows with the new Fiscal Year (e.g. 2027) and updated targets</li>
+          <li>Do <em>not</em> delete old rows — keep them for historical reference</li>
+          <li>Select the new year from the year dropdown in BD Suite</li>
+        </ol>
+      </div>
+
+      <div class="docs-section">
+        <div class="docs-section-title">Adding Deals</div>
+        <p class="docs-body"><strong>Option A — In BD Suite:</strong> Pipeline view → click "+ Add Deal" or the form icon 🗒. Saves automatically to Google Sheets.</p>
+        <p class="docs-body"><strong>Option B — Directly in Google Sheets:</strong> Open the Pipeline tab → add a row at the bottom. Follow column headers exactly. BD Suite updates within 60 seconds.</p>
+      </div>
+
+      <div class="docs-section">
+        <div class="docs-section-title">Tech Stack</div>
+        <table class="docs-table">
+          <tbody>
+            <tr><td><strong>Frontend</strong></td><td>index.html · Vanilla JavaScript · No frameworks · Hosted on Vercel</td></tr>
+            <tr><td><strong>Backend</strong></td><td>/api/google.js · Node.js Serverless Function · Handles Google auth</td></tr>
+            <tr><td><strong>Database</strong></td><td>Google Sheets · ID: 1qVTWgyorlomQiesFbDf7-RmPcQ2lwXtFno6UClZk210</td></tr>
+            <tr><td><strong>Auth</strong></td><td>Google Service Account · Credentials in Vercel env vars · Never exposed to browser</td></tr>
+            <tr><td><strong>Hosting</strong></td><td>Vercel (primary)</td></tr>
+            <tr><td><strong>Repo</strong></td><td>github.com/manah921/btrax-bd-suite</td></tr>
+          </tbody>
+        </table>
+        <p class="docs-body">To update the app: edit files using Claude Code, then run <code style="background:var(--bg);padding:2px 6px;border-radius:3px;font-size:12px">vercel --prod</code>. Live in ~30 seconds.</p>
+      </div>
+
+      <div class="docs-section">
+        <div class="docs-section-title">Built By</div>
+        <div class="docs-built">
+          <strong>Built by:</strong> Mana H. (BD, Btrax)<br>
+          <strong>Built with:</strong> Claude Code (Anthropic)<br>
+          <strong>Initial build:</strong> June 2026<br>
+          <strong>Contact:</strong> mana@btrax.com
+        </div>
+      </div>
+
+    </div>
   </div>
 
   <!-- ── PIPELINE ───────────────────────────────────────── -->
@@ -3975,7 +4196,7 @@ function leadsAddToPipeline(page) {
 
 // ═══════════════════════════════════════════════════════ VIEW ROUTER
 
-const VIEWS = ['dashboard','pdash','pipeline','contacts','projects','followups','leads'];
+const VIEWS = ['dashboard','pdash','pipeline','contacts','projects','followups','leads','docs'];
 
 function showView(name) {
   VIEWS.forEach(v => document.getElementById('view-' + v).classList.remove('active'));
@@ -3986,7 +4207,7 @@ function showView(name) {
   closeSettings();
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (name === 'leads' && _connected && !_leadsLoaded) loadLeads();
-  if (name === 'pdash') renderDashboard();
+  if (name === 'pdash') { dashLoadOrder(); renderDashboard(); }
 }
 
 // ═══════════════════════════════════════════════════════ BOOT
@@ -4027,6 +4248,7 @@ function showView(name) {
   setConn('none');
 
   // Init year selector
+  dashLoadOrder();
   const _yrEl = document.getElementById('dash-year');
   if (_yrEl) _yrEl.value = new Date().getFullYear();
 
@@ -4142,6 +4364,87 @@ window.addEventListener('resize', () => {
     if (_pRows.length) renderPipeline();
   }, 120);
 });
+
+
+// ═══════════════════════════════════════════════════════ DASHBOARD DRAG & DROP
+
+const DASH_DEFAULT_ORDER = ['kpi','monthly','service','client','office','stages'];
+let _dashDragSrc = null;
+
+function dashDragStart(e, el) {
+  _dashDragSrc = el;
+  el.classList.add('ds-dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', el.dataset.key);
+}
+
+function dashDragOver(e, el) {
+  e.preventDefault();
+  if (!_dashDragSrc || _dashDragSrc === el) return;
+  e.dataTransfer.dropEffect = 'move';
+  const container = document.getElementById('dash-sections-container');
+  container.querySelectorAll('.ds-wrap').forEach(w => {
+    w.classList.remove('ds-over-top','ds-over-bottom');
+  });
+  const rect   = el.getBoundingClientRect();
+  const midY   = rect.top + rect.height / 2;
+  el.classList.add(e.clientY < midY ? 'ds-over-top' : 'ds-over-bottom');
+}
+
+function dashDragLeave(el) {
+  el.classList.remove('ds-over-top','ds-over-bottom');
+}
+
+function dashDrop(e, el) {
+  e.preventDefault();
+  el.classList.remove('ds-over-top','ds-over-bottom');
+  if (!_dashDragSrc || _dashDragSrc === el) return;
+  const container = document.getElementById('dash-sections-container');
+  const rect   = el.getBoundingClientRect();
+  const before = e.clientY < rect.top + rect.height / 2;
+  container.insertBefore(_dashDragSrc, before ? el : el.nextSibling);
+  dashSaveOrder();
+}
+
+function dashDragEnd(el) {
+  el.classList.remove('ds-dragging');
+  document.querySelectorAll('.ds-over-top,.ds-over-bottom').forEach(e => {
+    e.classList.remove('ds-over-top','ds-over-bottom');
+  });
+  _dashDragSrc = null;
+}
+
+function dashSaveOrder() {
+  const container = document.getElementById('dash-sections-container');
+  if (!container) return;
+  const order = [...container.querySelectorAll('.ds-wrap[data-key]')].map(el => el.dataset.key);
+  localStorage.setItem('dash_section_order', JSON.stringify(order));
+}
+
+function dashLoadOrder() {
+  const container = document.getElementById('dash-sections-container');
+  if (!container) return;
+  try {
+    const saved = JSON.parse(localStorage.getItem('dash_section_order'));
+    if (!Array.isArray(saved) || saved.length !== DASH_DEFAULT_ORDER.length) return;
+    saved.forEach(key => {
+      const el = container.querySelector(`[data-key="${key}"]`);
+      if (el) container.insertBefore(el, container.querySelector('.reset-dash-link'));
+    });
+  } catch {}
+}
+
+function resetDashLayout() {
+  const container = document.getElementById('dash-sections-container');
+  if (!container) return;
+  const resetLink = container.querySelector('.reset-dash-link');
+  DASH_DEFAULT_ORDER.forEach(key => {
+    const el = container.querySelector(`[data-key="${key}"]`);
+    if (el) container.insertBefore(el, resetLink);
+  });
+  localStorage.removeItem('dash_section_order');
+}
+
 
 </script>
 
