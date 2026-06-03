@@ -2017,7 +2017,8 @@ let _activeEdit  = null;        // { td, ri, ci, before }
 let _dragCI      = -1;
 let _pSyncTimer  = null;
 let _pRefreshInt = null;
-let _pRows   = [];   // pipeline data rows (no header)
+let _pRows   = [];   // pipeline data rows (no header) — arrays indexed by P_COLS
+let _pRawRows = [];  // pipeline rows as objects with exact sheet field names
 let _cRows   = [];   // contact data rows (no header)
 let _cCols   = C_COLS_DEFAULT.slice();  // contact column names
 let _cColW   = C_COL_W_DEFAULT.slice(); // contact column widths
@@ -2158,20 +2159,11 @@ async function sheetsGet(range) {
 }
 
 async function sheetsPut(range, value) {
-  return apiReq('sheets', {
-    path:   `values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,
-    method: 'PUT',
-    body:   { range, values: [[value]] },
-  });
+  return apiReq('write', { range, values: [[value]] });
 }
 
 async function sheetsAppend(tab, rows) {
-  const range = `${tab}!A1`;
-  return apiReq('sheets', {
-    path:   `values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
-    method: 'POST',
-    body:   { values: rows },
-  });
+  return apiReq('append', { range: `${tab}!A1`, values: rows });
 }
 
 
@@ -2209,20 +2201,19 @@ async function loadPipeline() {
     renderPipeline(); calcSummary(); renderProjects(); renderFollowUps();
   }
 
-  // Attempt background fetch from Google Sheets
+  // Fetch live data from API
   try {
-    const data = await sheetsGet(`${PIPELINE_TAB}!A:${colLetter(P_COLS.length - 1)}`);
-    const all  = data.values || [];
-    if (all.length > 1) {
-      _pRows = all.slice(1);
+    const result = await apiReq('pipeline');
+    const rows   = result.data || [];
+    if (rows.length) {
+      _pRawRows = rows;
+      _pRows    = rows.map(pipelineObjToArray);
       renderPipeline(); calcSummary(); renderProjects(); renderFollowUps();
       pStartAutoRefresh();
-      // Clear any sample-data notice
       const notice = document.getElementById('p-sample-notice');
       if (notice) notice.remove();
     }
   } catch (err) {
-    // Keep sample data visible; show a subtle notice instead of an error
     setConn('none');
     let notice = document.getElementById('p-sample-notice');
     if (!notice) {
@@ -2234,6 +2225,26 @@ async function loadPipeline() {
       if (dealCount) dealCount.parentNode.insertBefore(notice, dealCount.nextSibling);
     }
   }
+}
+
+// Convert a pipeline row object (exact sheet field names) to a P_COLS-indexed array
+function pipelineObjToArray(obj) {
+  const row = new Array(P_COLS.length).fill('');
+  row[0]  = obj['Owner/AM']         || '';
+  row[1]  = obj['Region']           || '';
+  row[2]  = obj['Status']           || '';
+  row[3]  = obj['Client Name']      || '';
+  row[4]  = obj['Service Offering'] || '';
+  row[8]  = obj['Currency']         || '';
+  row[9]  = obj['Deal Value']       || '';
+  row[10] = obj['GP Estimate %']    || '';
+  row[11] = obj['GP Amount']        || '';
+  row[12] = obj['Start Month']      || '';
+  row[13] = obj['End Month']        || '';
+  ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    .forEach((m, i) => { row[14 + i] = obj[m] || ''; });
+  row[26] = obj['Total']            || '';
+  return row;
 }
 
 function pInitPrefs() {
@@ -3026,12 +3037,42 @@ const MONTH_NAMES = ['January','February','March','April','May','June','July','A
 
 async function loadGoals() {
   try {
-    const data = await apiReq('goals', { year: _selectedYear });
-    _goalsData = data;
-  } catch (e) {
-    console.warn('[Dashboard] Goals fetch failed:', e.message);
+    const result = await apiReq('goals');
+    _goalsData = parseGoalsFromObjects(result.data || [], _selectedYear);
+  } catch {
     _goalsData = { totalGoal: 0, monthlyTargets: new Array(12).fill(0), serviceGoals: {} };
   }
+}
+
+function parseGoalsFromObjects(rows, year) {
+  const yearStr  = String(year);
+  const parseNum = s => parseFloat(String(s||'').replace(/[$,]/g,'')) || 0;
+  let totalGoal  = 0;
+  const monthlyTargets = new Array(12).fill(0);
+  const serviceGoals   = {};
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  rows.forEach(row => {
+    const rowYear = String(row['Fiscal Year']||'').trim();
+    if (rowYear && rowYear !== yearStr) return;
+
+    const goal = parseNum(row['Annual Goal']);
+    const svc  = String(row['Service Offering']||'').trim().toLowerCase();
+
+    if (goal) totalGoal += goal;
+    if (svc && goal) serviceGoals[svc] = (serviceGoals[svc] || 0) + goal;
+
+    MONTHS.forEach((m, i) => {
+      const v = parseNum(row[m]);
+      if (v) monthlyTargets[i] += v;
+    });
+  });
+
+  if (totalGoal > 0 && monthlyTargets.every(t => t === 0)) {
+    const each = totalGoal / 12;
+    for (let i = 0; i < 12; i++) monthlyTargets[i] = each;
+  }
+  return { totalGoal, monthlyTargets, serviceGoals };
 }
 
 function parseGoals(rows, year) {
@@ -3100,16 +3141,30 @@ function renderDashboard() {
   const curMonth = now.getMonth(); // 0-indexed
   const goals    = _goalsData || { totalGoal: 0, monthlyTargets: new Array(12).fill(0), serviceGoals: {} };
 
-  // Won deals for selected year
-  const wonRows = _pRows.filter(r => (r[STATUS_CI]||'').trim().toLowerCase() === 'won');
+  const MONTHS_12 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const parseNum  = s => parseFloat(String(s||'').replace(/[$,]/g,'')) || 0;
+
+  // Use raw row objects (exact field names) for dashboard; fall back to mapped arrays
+  const srcRows = _pRawRows.length ? _pRawRows : _pRows.map(r => ({
+    'Status': r[STATUS_CI], 'Fiscal Year': '', 'Region': r[REGION_CI],
+    'Currency': r[CURRENCY_CI], 'Deal Value': r[VALUE_CI],
+    'Service Offering': r[4],
+    ...Object.fromEntries(MONTHS_12.map((m,i) => [m, r[14+i]])),
+  }));
+
+  const wonRows = srcRows.filter(r =>
+    String(r['Status']||'').trim().toLowerCase() === 'won' &&
+    (!r['Fiscal Year'] || String(r['Fiscal Year']).trim() === '' ||
+     String(r['Fiscal Year']).trim() === String(_selectedYear))
+  );
 
   // YTD Target = sum monthly targets Jan → current month (inclusive)
   const ytdTarget = goals.monthlyTargets.slice(0, curMonth + 1).reduce((s, v) => s + v, 0);
 
-  // YTD Actual = sum of Won deal monthly cols Jan → current month
+  // YTD Actual = sum of Won deal monthly values Jan → current month
   let ytdActual = 0;
   wonRows.forEach(r => {
-    for (let m = 0; m <= curMonth; m++) ytdActual += parseFloat(String(r[14 + m]||'').trim().replace(/[$,]/g,'')) || 0;
+    for (let m = 0; m <= curMonth; m++) ytdActual += parseNum(r[MONTHS_12[m]]);
   });
 
   const attPct = ytdTarget > 0 ? (ytdActual / ytdTarget * 100) : 0;
@@ -3144,7 +3199,7 @@ function renderDashboard() {
       const isFuture = m > curMonth;
       const tgt = goals.monthlyTargets[m] || 0;
       let actual = 0;
-      wonRows.forEach(r => { actual += parseFloat(r[14 + m]) || 0; });
+      wonRows.forEach(r => { actual += parseNum(r[MONTHS_12[m]]); });
       const variance = actual - tgt;
       const att      = tgt > 0 ? (actual / tgt * 100) : 0;
       const varClass = variance >= 0 ? 'dash-var-pos' : 'dash-var-neg';
@@ -3170,8 +3225,8 @@ function renderDashboard() {
     // Collect actuals by service from Won rows
     const svcActuals = {};
     wonRows.forEach(r => {
-      const svc = (r[4] || 'Other').trim().toLowerCase();
-      const v = parseFloat(String(r[VALUE_CI]||'').replace(/[$,]/g,'')) || 0;
+      const svc = String(r['Service Offering']||'Other').trim().toLowerCase();
+      const v = parseNum(r['Deal Value']);
       svcActuals[svc] = (svcActuals[svc] || 0) + v;
     });
 
@@ -3206,11 +3261,11 @@ function renderDashboard() {
 
   // ── Row 4: Office breakdown (USD / JPY totals — all active deals) ──
   let usd = 0, jpy = 0, usdCount = 0, jpyCount = 0;
-  _pRows.forEach(r => {
-    const s = (r[STATUS_CI]||'').trim().toLowerCase();
+  srcRows.forEach(r => {
+    const s = String(r['Status']||'').trim().toLowerCase();
     if (s === 'lost' || s === 'closed') return;
-    const cur = (r[CURRENCY_CI]||'').toUpperCase();
-    const v   = parseFloat(String(r[VALUE_CI]||'').replace(/[$,]/g,'')) || 0;
+    const cur = String(r['Currency']||'').toUpperCase().trim();
+    const v   = parseNum(r['Deal Value']);
     if (cur === 'USD') { usd += v; usdCount++; }
     else if (cur === 'JPY') { jpy += v; jpyCount++; }
   });
@@ -3229,11 +3284,12 @@ function renderDashboard() {
     const ACTIVE_STAGES = ['Lead','Qualified','Pitch','Negotiation'];
     const stageCounts = {}, stageValues = {};
     ACTIVE_STAGES.forEach(s => { stageCounts[s] = 0; stageValues[s] = 0; });
-    _pRows.forEach(r => {
-      const s = (r[STATUS_CI]||'').trim();
-      if (ACTIVE_STAGES.map(x=>x.toLowerCase()).includes(s.toLowerCase())) {
-        stageCounts[s]++;
-        stageValues[s] += parseFloat(String(r[VALUE_CI]||'').replace(/[$,]/g,'')) || 0;
+    srcRows.forEach(r => {
+      const s = String(r['Status']||'').trim();
+      const sk = ACTIVE_STAGES.find(x => x.toLowerCase() === s.toLowerCase());
+      if (sk) {
+        stageCounts[sk]++;
+        stageValues[sk] += parseNum(r['Deal Value']);
       }
     });
     const maxCount = Math.max(...ACTIVE_STAGES.map(s => stageCounts[s]), 1);
