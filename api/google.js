@@ -225,12 +225,16 @@ module.exports = async function handler(req, res) {
   try {
     const token = await getToken();
 
+    console.log('Valid actions: sheets, pipeline, contacts, goals, ga4, gsc, test');
+
     let result;
-    if      (action === 'sheets') result = await handleSheets(token, params);
-    else if (action === 'goals')  result = await handleGoals(token, params);
-    else if (action === 'ga4')    result = handleGA4();
-    else if (action === 'gsc')    result = handleGSC();
-    else if (action === 'test')   result = await handleTest(token);
+    if      (action === 'sheets'   ||
+             action === 'pipeline' ||
+             action === 'contacts')  result = await handleSheets(token, params);
+    else if (action === 'goals')     result = await handleGoals(token, params);
+    else if (action === 'ga4')       result = handleGA4();
+    else if (action === 'gsc')       result = handleGSC();
+    else if (action === 'test')      result = await handleTest(token);
     else return res.status(400).json({ error: `Unknown action: ${action}` });
 
     return res.status(200).json(result);
