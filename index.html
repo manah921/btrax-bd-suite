@@ -1435,15 +1435,16 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
     <div class="brand-name">BD SUITE</div>
   </div>
   <nav class="sidebar-nav">
-    <button class="nav-link active" onclick="showView('dashboard')"><span class="nav-icon" aria-hidden="true">⊟</span><span class="nav-text">Dashboard</span></button>
+    <button class="nav-link active" data-view="dashboard" onclick="showView('dashboard')"><span class="nav-icon" aria-hidden="true">⊟</span><span class="nav-text">Dashboard</span></button>
     <div class="nav-section">Live Data</div>
-    <button class="nav-link" onclick="showView('pipeline')"><span class="nav-icon" aria-hidden="true">≡</span><span class="nav-text">Pipeline</span></button>
-    <button class="nav-link" onclick="showView('contacts')"><span class="nav-icon" aria-hidden="true">◯</span><span class="nav-text">Contacts</span></button>
+    <button class="nav-link" data-view="pdash" onclick="showView('pdash')"><span class="nav-icon" aria-hidden="true">◉</span><span class="nav-text">Dashboard</span></button>
+    <button class="nav-link" data-view="pipeline" onclick="showView('pipeline')"><span class="nav-icon" aria-hidden="true">≡</span><span class="nav-text">Pipeline</span></button>
+    <button class="nav-link" data-view="contacts" onclick="showView('contacts')"><span class="nav-icon" aria-hidden="true">◯</span><span class="nav-text">Contacts</span></button>
     <div class="nav-section">Filtered Views</div>
-    <button class="nav-link" onclick="showView('projects')"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-text">Projects</span></button>
-    <button class="nav-link" onclick="showView('followups')"><span class="nav-icon" aria-hidden="true">↺</span><span class="nav-text">Follow Ups</span></button>
+    <button class="nav-link" data-view="projects" onclick="showView('projects')"><span class="nav-icon" aria-hidden="true">✓</span><span class="nav-text">Projects</span></button>
+    <button class="nav-link" data-view="followups" onclick="showView('followups')"><span class="nav-icon" aria-hidden="true">↺</span><span class="nav-text">Follow Ups</span></button>
     <div class="nav-section">Coming Soon</div>
-    <button class="nav-link" onclick="showView('leads')"><span class="nav-icon" aria-hidden="true">↗</span><span class="nav-text">Leads</span></button>
+    <button class="nav-link" data-view="leads" onclick="showView('leads')"><span class="nav-icon" aria-hidden="true">↗</span><span class="nav-text">Leads</span></button>
   </nav>
   <div class="sidebar-footer">Btrax BD Suite · v0.3</div>
 </aside>
@@ -1485,22 +1486,22 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
     <div class="greeting" id="greeting">GOOD MORNING, MANA.</div>
     <div class="greeting-date" id="today-date"></div>
     <div class="folder-grid">
-      <div class="folder-tile" onclick="showView('pipeline')">
+      <div class="folder-tile" data-view="pipeline" onclick="showView('pipeline')">
         <div class="folder-tile-eyebrow">Live Data</div>
         <div class="folder-tile-title">PIPELINE</div>
         <div class="folder-tile-sub">Track your deals</div>
       </div>
-      <div class="folder-tile" onclick="showView('contacts')">
+      <div class="folder-tile" data-view="contacts" onclick="showView('contacts')">
         <div class="folder-tile-eyebrow">Live Data</div>
         <div class="folder-tile-title">CONTACTS</div>
         <div class="folder-tile-sub">Your network</div>
       </div>
-      <div class="folder-tile" onclick="showView('projects')">
+      <div class="folder-tile" data-view="projects" onclick="showView('projects')">
         <div class="folder-tile-eyebrow">Filtered View</div>
         <div class="folder-tile-title">PROJECTS</div>
         <div class="folder-tile-sub">Won deals</div>
       </div>
-      <div class="folder-tile" onclick="showView('followups')">
+      <div class="folder-tile" data-view="followups" onclick="showView('followups')">
         <div class="folder-tile-eyebrow">Filtered View</div>
         <div class="folder-tile-title">FOLLOW UPS</div>
         <div class="folder-tile-sub">Lost &amp; Closed</div>
@@ -1508,19 +1509,10 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
     </div>
   </div>
 
-  <!-- ── PIPELINE ───────────────────────────────────────── -->
-  <div id="view-pipeline" class="view">
-    <div class="page-title">PIPELINE</div>
 
-    <div id="pipeline-banner" class="sync-banner hidden"
-         onclick="toggleSettings()">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/>
-        <path d="M7 4v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-      </svg>
-      Connect Google Sheets in Settings to sync data
-    </div>
-
+  <!-- ── PIPELINE DASHBOARD ───────────────────────────── -->
+  <div id="view-pdash" class="view">
+    <div class="page-title">PIPELINE DASHBOARD</div>
     <!-- ═══ PIPELINE SUMMARY DASHBOARD ═══ -->
     <div class="dash-wrapper" id="dash-wrapper">
 
@@ -1585,6 +1577,22 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       </div>
 
     </div><!-- /dash-wrapper -->
+  </div>
+
+  <!-- ── PIPELINE ───────────────────────────────────────── -->
+  <div id="view-pipeline" class="view">
+    <div class="page-title">PIPELINE</div>
+
+    <div id="pipeline-banner" class="sync-banner hidden"
+         onclick="toggleSettings()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/>
+        <path d="M7 4v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      Connect Google Sheets in Settings to sync data
+    </div>
+
+
 
     <!-- saved views tabs -->
     <div class="p-views-bar" id="p-views-bar">
@@ -3018,9 +3026,11 @@ const MONTH_NAMES = ['January','February','March','April','May','June','July','A
 
 async function loadGoals() {
   try {
-    const data = await sheetsGet(`${GOALS_TAB}!A:P`);
-    _goalsData = parseGoals(data.values || [], _selectedYear);
-  } catch {
+    const data = await apiReq('goals', { year: _selectedYear });
+    console.log('[Dashboard] Goals received:', data);
+    _goalsData = data;
+  } catch (e) {
+    console.warn('[Dashboard] Goals fetch failed:', e.message);
     _goalsData = { totalGoal: 0, monthlyTargets: new Array(12).fill(0), serviceGoals: {} };
   }
 }
@@ -3100,9 +3110,10 @@ function renderDashboard() {
   // YTD Actual = sum of Won deal monthly cols Jan → current month
   let ytdActual = 0;
   wonRows.forEach(r => {
-    for (let m = 0; m <= curMonth; m++) ytdActual += parseFloat(r[14 + m]) || 0;
+    for (let m = 0; m <= curMonth; m++) ytdActual += parseFloat(String(r[14 + m]||'').replace(/[$,]/g,'')) || 0;
   });
 
+  console.log(`[Dashboard] YTD actual=${ytdActual} target=${ytdTarget} wonRows=${wonRows.length}`);
   const attPct = ytdTarget > 0 ? (ytdActual / ytdTarget * 100) : 0;
 
   // ── Row 1: KPI cards ──────────────────────────────────────
@@ -3162,7 +3173,8 @@ function renderDashboard() {
     const svcActuals = {};
     wonRows.forEach(r => {
       const svc = (r[4] || 'Other').trim();
-      svcActuals[svc] = (svcActuals[svc] || 0) + (parseFloat(r[VALUE_CI]) || 0);
+      const v = parseFloat(String(r[VALUE_CI]||'').replace(/[$,]/g,'')) || 0;
+      svcActuals[svc] = (svcActuals[svc] || 0) + v;
     });
 
     // Merge with goals
@@ -3173,7 +3185,7 @@ function renderDashboard() {
       let html = '';
       allSvcs.forEach(svc => {
         const tgt    = goals.serviceGoals[svc] || 0;
-        const actual = svcActuals[svc]         || 0;
+        const actual = svcActuals[svc] || 0;
         const variance = actual - tgt;
         const att   = tgt > 0 ? Math.min((actual / tgt * 100), 100) : 0;
         const varClass = variance >= 0 ? 'dash-var-pos' : 'dash-var-neg';
@@ -3200,7 +3212,7 @@ function renderDashboard() {
     const s = (r[STATUS_CI]||'').toLowerCase();
     if (s === 'lost' || s === 'closed') return;
     const cur = (r[CURRENCY_CI]||'').toUpperCase();
-    const v   = parseFloat(String(r[VALUE_CI]||'').replace(/[^0-9.-]/g,'')) || 0;
+    const v   = parseFloat(String(r[VALUE_CI]||'').replace(/[$,]/g,'')) || 0;
     if (cur === 'USD') { usd += v; usdCount++; }
     else if (cur === 'JPY') { jpy += v; jpyCount++; }
   });
@@ -3223,7 +3235,7 @@ function renderDashboard() {
       const s = (r[STATUS_CI]||'').trim();
       if (ACTIVE_STAGES.includes(s)) {
         stageCounts[s]++;
-        stageValues[s] += parseFloat(String(r[VALUE_CI]||'').replace(/[^0-9.-]/g,'')) || 0;
+        stageValues[s] += parseFloat(String(r[VALUE_CI]||'').replace(/[$,]/g,'')) || 0;
       }
     });
     const maxCount = Math.max(...ACTIVE_STAGES.map(s => stageCounts[s]), 1);
@@ -3731,17 +3743,18 @@ function leadsAddToPipeline(page) {
 
 // ═══════════════════════════════════════════════════════ VIEW ROUTER
 
-const VIEWS = ['dashboard','pipeline','contacts','projects','followups','leads'];
+const VIEWS = ['dashboard','pdash','pipeline','contacts','projects','followups','leads'];
 
 function showView(name) {
   VIEWS.forEach(v => document.getElementById('view-' + v).classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   document.querySelectorAll('.nav-link').forEach(b => {
-    b.classList.toggle('active', b.textContent.trim().toLowerCase() === name);
+    b.classList.toggle('active', b.dataset.view === name);
   });
   closeSettings();
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (name === 'leads' && _connected && !_leadsLoaded) loadLeads();
+  if (name === 'pdash') renderDashboard();
 }
 
 // ═══════════════════════════════════════════════════════ BOOT
