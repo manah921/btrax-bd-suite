@@ -3027,7 +3027,6 @@ const MONTH_NAMES = ['January','February','March','April','May','June','July','A
 async function loadGoals() {
   try {
     const data = await apiReq('goals', { year: _selectedYear });
-    console.log('[Dashboard] Goals received:', data);
     _goalsData = data;
   } catch (e) {
     console.warn('[Dashboard] Goals fetch failed:', e.message);
@@ -3102,7 +3101,7 @@ function renderDashboard() {
   const goals    = _goalsData || { totalGoal: 0, monthlyTargets: new Array(12).fill(0), serviceGoals: {} };
 
   // Won deals for selected year
-  const wonRows = _pRows.filter(r => (r[STATUS_CI]||'').toLowerCase() === 'won');
+  const wonRows = _pRows.filter(r => (r[STATUS_CI]||'').trim().toLowerCase() === 'won');
 
   // YTD Target = sum monthly targets Jan → current month (inclusive)
   const ytdTarget = goals.monthlyTargets.slice(0, curMonth + 1).reduce((s, v) => s + v, 0);
@@ -3110,10 +3109,9 @@ function renderDashboard() {
   // YTD Actual = sum of Won deal monthly cols Jan → current month
   let ytdActual = 0;
   wonRows.forEach(r => {
-    for (let m = 0; m <= curMonth; m++) ytdActual += parseFloat(String(r[14 + m]||'').replace(/[$,]/g,'')) || 0;
+    for (let m = 0; m <= curMonth; m++) ytdActual += parseFloat(String(r[14 + m]||'').trim().replace(/[$,]/g,'')) || 0;
   });
 
-  console.log(`[Dashboard] YTD actual=${ytdActual} target=${ytdTarget} wonRows=${wonRows.length}`);
   const attPct = ytdTarget > 0 ? (ytdActual / ytdTarget * 100) : 0;
 
   // ── Row 1: KPI cards ──────────────────────────────────────
@@ -3172,19 +3170,19 @@ function renderDashboard() {
     // Collect actuals by service from Won rows
     const svcActuals = {};
     wonRows.forEach(r => {
-      const svc = (r[4] || 'Other').trim();
+      const svc = (r[4] || 'Other').trim().toLowerCase();
       const v = parseFloat(String(r[VALUE_CI]||'').replace(/[$,]/g,'')) || 0;
       svcActuals[svc] = (svcActuals[svc] || 0) + v;
     });
 
     // Merge with goals
-    const allSvcs = new Set([...Object.keys(goals.serviceGoals), ...Object.keys(svcActuals)]);
+    const allSvcs = new Set([...Object.keys(goals.serviceGoals).map(k => k.trim().toLowerCase()), ...Object.keys(svcActuals)]);
     if (!allSvcs.size) {
       tbody3.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted);padding:16px 12px">No service data yet</td></tr>';
     } else {
       let html = '';
       allSvcs.forEach(svc => {
-        const tgt    = goals.serviceGoals[svc] || 0;
+        const tgt    = goals.serviceGoals[svc.trim().toLowerCase()] || 0;
         const actual = svcActuals[svc] || 0;
         const variance = actual - tgt;
         const att   = tgt > 0 ? Math.min((actual / tgt * 100), 100) : 0;
@@ -3209,7 +3207,7 @@ function renderDashboard() {
   // ── Row 4: Office breakdown (USD / JPY totals — all active deals) ──
   let usd = 0, jpy = 0, usdCount = 0, jpyCount = 0;
   _pRows.forEach(r => {
-    const s = (r[STATUS_CI]||'').toLowerCase();
+    const s = (r[STATUS_CI]||'').trim().toLowerCase();
     if (s === 'lost' || s === 'closed') return;
     const cur = (r[CURRENCY_CI]||'').toUpperCase();
     const v   = parseFloat(String(r[VALUE_CI]||'').replace(/[$,]/g,'')) || 0;
@@ -3233,7 +3231,7 @@ function renderDashboard() {
     ACTIVE_STAGES.forEach(s => { stageCounts[s] = 0; stageValues[s] = 0; });
     _pRows.forEach(r => {
       const s = (r[STATUS_CI]||'').trim();
-      if (ACTIVE_STAGES.includes(s)) {
+      if (ACTIVE_STAGES.map(x=>x.toLowerCase()).includes(s.toLowerCase())) {
         stageCounts[s]++;
         stageValues[s] += parseFloat(String(r[VALUE_CI]||'').replace(/[$,]/g,'')) || 0;
       }

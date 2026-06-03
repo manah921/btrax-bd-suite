@@ -132,36 +132,29 @@ async function handleGoals(token, { year }) {
   if (!resp.ok) throw new Error(data.error?.message || `HTTP ${resp.status}`);
 
   const rows = data.values || [];
-  console.log(`[Goals] Raw rows fetched: ${rows.length}`);
-
-  if (!rows.length) {
-    console.log('[Goals] Tab empty or missing');
-    return { totalGoal: 0, monthlyTargets: new Array(12).fill(0), serviceGoals: {} };
-  }
+  if (!rows.length) return { totalGoal: 0, monthlyTargets: new Array(12).fill(0), serviceGoals: {} };
 
   // Headers: "Fiscal Year | Service Offering | Annual Goal | Jan | Feb | ... | Dec"
   const headers = rows[0].map(h => String(h || '').trim());
-  console.log(`[Goals] Headers: ${JSON.stringify(headers)}`);
 
   const yearCI   = headers.findIndex(h => /year|fiscal/i.test(h));
   const svcCI    = headers.findIndex(h => /service/i.test(h));
   const goalCI   = headers.findIndex(h => /annual|goal/i.test(h));
   const monthCIs = MONTHS.map(m => headers.findIndex(h => h.toLowerCase() === m.toLowerCase()));
-  console.log(`[Goals] Col indices — year:${yearCI} service:${svcCI} goal:${goalCI} months:${JSON.stringify(monthCIs)}`);
 
   let totalGoal = 0;
   const monthlyTargets = new Array(12).fill(0);
   const serviceGoals   = {};
 
-  rows.slice(1).forEach((row, ri) => {
+  rows.slice(1).forEach(row => {
     if (!row.some(c => c)) return;
-    const rowYear = yearCI >= 0 ? parseInt(row[yearCI]) : targetYear;
-    if (rowYear && rowYear !== targetYear) return;
+    // Normalize year: compare as trimmed strings
+    const rowYearStr = String(row[yearCI] || '').trim();
+    if (yearCI >= 0 && rowYearStr && rowYearStr !== String(targetYear).trim()) return;
 
     const goal = goalCI >= 0 ? parseNum(row[goalCI]) : 0;
-    const svc  = svcCI  >= 0 ? String(row[svcCI] || '').trim() : '';
-
-    console.log(`[Goals] Row ${ri + 1}: year=${rowYear} service="${svc}" goal=${goal}`);
+    // Normalize service key to lowercase for case-insensitive matching
+    const svc  = svcCI  >= 0 ? String(row[svcCI] || '').trim().toLowerCase() : '';
 
     if (goal) totalGoal += goal;
     if (svc && goal) serviceGoals[svc] = (serviceGoals[svc] || 0) + goal;
@@ -175,12 +168,7 @@ async function handleGoals(token, { year }) {
   if (totalGoal > 0 && monthlyTargets.every(t => t === 0)) {
     const each = totalGoal / 12;
     for (let i = 0; i < 12; i++) monthlyTargets[i] = each;
-    console.log(`[Goals] No monthly breakdown — distributing evenly: ${each}/month`);
   }
-
-  console.log(`[Goals] Parsed total: ${totalGoal}`);
-  console.log(`[Goals] Monthly targets: ${JSON.stringify(monthlyTargets)}`);
-  console.log(`[Goals] Service goals: ${JSON.stringify(serviceGoals)}`);
 
   return { totalGoal, monthlyTargets, serviceGoals };
 }
