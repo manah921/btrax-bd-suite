@@ -1423,6 +1423,12 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
   .dash-section { padding: 16px; }
 }
 
+
+/* ── Client Revenue Donut ─────────────────────────────────── */
+.dash-donut-item { display:flex; align-items:center; gap:8px; padding:4px 0; font-size:12px; }
+.dash-donut-dot  { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+/* coloured stage fills handled via inline style */
+
 </style>
 </head>
 <body>
@@ -1554,6 +1560,12 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
             <tbody id="dash-service-body"><tr><td colspan="5" style="color:var(--text-muted);padding:16px 12px">Loading…</td></tr></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Client Revenue Breakdown -->
+      <div class="dash-section">
+        <div class="dash-section-title">CLIENT REVENUE BREAKDOWN</div>
+        <div id="dash-client-section"><div style="color:var(--text-muted);font-size:13px">Loading…</div></div>
       </div>
 
       <!-- Row 4: Office breakdown -->
@@ -3129,6 +3141,7 @@ function dashSetYear(y) {
 }
 
 function fmtUSD(v) { return '$' + Math.round(v).toLocaleString('en-US'); }
+function toTitleCase(s) { return String(s||'').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()); }
 function attClass(pct) {
   return pct >= 100 ? 'dash-att-green' : pct >= 75 ? 'dash-att-gold' : 'dash-att-red';
 }
@@ -3152,8 +3165,9 @@ function renderDashboard() {
     ...Object.fromEntries(MONTHS_12.map((m,i) => [m, r[14+i]])),
   }));
 
-  const wonRows = srcRows.filter(r =>
-    String(r['Status']||'').trim().toLowerCase() === 'won' &&
+  const isActual = r => ['won','closed'].includes(String(r['Status']||'').trim().toLowerCase());
+  const actualRows = srcRows.filter(r =>
+    isActual(r) &&
     (!r['Fiscal Year'] || String(r['Fiscal Year']).trim() === '' ||
      String(r['Fiscal Year']).trim() === String(_selectedYear))
   );
@@ -3161,9 +3175,9 @@ function renderDashboard() {
   // YTD Target = sum monthly targets Jan → current month (inclusive)
   const ytdTarget = goals.monthlyTargets.slice(0, curMonth + 1).reduce((s, v) => s + v, 0);
 
-  // YTD Actual = sum of Won deal monthly values Jan → current month
+  // YTD Actual = sum of Won+Closed monthly values Jan → current month
   let ytdActual = 0;
-  wonRows.forEach(r => {
+  actualRows.forEach(r => {
     for (let m = 0; m <= curMonth; m++) ytdActual += parseNum(r[MONTHS_12[m]]);
   });
 
@@ -3199,7 +3213,7 @@ function renderDashboard() {
       const isFuture = m > curMonth;
       const tgt = goals.monthlyTargets[m] || 0;
       let actual = 0;
-      wonRows.forEach(r => { actual += parseNum(r[MONTHS_12[m]]); });
+      actualRows.forEach(r => { actual += parseNum(r[MONTHS_12[m]]); });
       const variance = actual - tgt;
       const att      = tgt > 0 ? (actual / tgt * 100) : 0;
       const varClass = variance >= 0 ? 'dash-var-pos' : 'dash-var-neg';
@@ -3222,9 +3236,9 @@ function renderDashboard() {
   // ── Row 3: Service breakdown ──────────────────────────────
   const tbody3 = document.getElementById('dash-service-body');
   if (tbody3) {
-    // Collect actuals by service from Won rows
+    // Collect actuals by service from Won+Closed rows
     const svcActuals = {};
-    wonRows.forEach(r => {
+    actualRows.forEach(r => {
       const svc = String(r['Service Offering']||'Other').trim().toLowerCase();
       const v = parseNum(r['Deal Value']);
       svcActuals[svc] = (svcActuals[svc] || 0) + v;
@@ -3246,7 +3260,7 @@ function renderDashboard() {
         const attStr   = tgt > 0 ? `<span class="${attClass(att < 0 ? 0 : att)}">${att.toFixed(0)}%</span>` : '—';
         html += `<tr>
           <td>
-            <div style="font-weight:600">${esc(svc)}</div>
+            <div style="font-weight:600">${esc(toTitleCase(svc))}</div>
             <div class="dash-svc-bar-wrap"><div class="dash-svc-bar" style="width:${Math.max(2,att)}%"></div></div>
           </td>
           <td>${tgt ? fmtUSD(tgt) : '—'}</td>
@@ -3259,11 +3273,9 @@ function renderDashboard() {
     }
   }
 
-  // ── Row 4: Office breakdown (USD / JPY totals — all active deals) ──
+  // ── Row 4: Office breakdown (Won + Closed deals) ──
   let usd = 0, jpy = 0, usdCount = 0, jpyCount = 0;
-  srcRows.forEach(r => {
-    const s = String(r['Status']||'').trim().toLowerCase();
-    if (s === 'lost' || s === 'closed') return;
+  actualRows.forEach(r => {
     const cur = String(r['Currency']||'').toUpperCase().trim();
     const v   = parseNum(r['Deal Value']);
     if (cur === 'USD') { usd += v; usdCount++; }
@@ -3281,29 +3293,94 @@ function renderDashboard() {
   // ── Row 5: Pipeline by stage ──────────────────────────────
   const stagesEl = document.getElementById('dash-stages');
   if (stagesEl) {
-    const ACTIVE_STAGES = ['Lead','Qualified','Pitch','Negotiation'];
+    const ALL_STAGES = ['Lead','Qualified','Pitch','Negotiation','Won','Lost','Closed'];
+    const STAGE_COLORS = {'lead':'#00BCD4','qualified':'#00BCD4','pitch':'#00BCD4','negotiation':'#00BCD4','won':'#2ECC40','lost':'#F0285A','closed':'#4A4A4A'};
     const stageCounts = {}, stageValues = {};
-    ACTIVE_STAGES.forEach(s => { stageCounts[s] = 0; stageValues[s] = 0; });
+    ALL_STAGES.forEach(s => { stageCounts[s] = 0; stageValues[s] = 0; });
     srcRows.forEach(r => {
-      const s = String(r['Status']||'').trim();
-      const sk = ACTIVE_STAGES.find(x => x.toLowerCase() === s.toLowerCase());
-      if (sk) {
-        stageCounts[sk]++;
-        stageValues[sk] += parseNum(r['Deal Value']);
-      }
+      const s  = String(r['Status']||'').trim();
+      const sk = ALL_STAGES.find(x => x.toLowerCase() === s.toLowerCase());
+      if (sk) { stageCounts[sk]++; stageValues[sk] += parseNum(r['Deal Value']); }
     });
-    const maxCount = Math.max(...ACTIVE_STAGES.map(s => stageCounts[s]), 1);
-    stagesEl.innerHTML = ACTIVE_STAGES.map(stage => {
+    const maxCount = Math.max(...ALL_STAGES.map(s => stageCounts[s]), 1);
+    stagesEl.innerHTML = ALL_STAGES.map(stage => {
       const count = stageCounts[stage], val = stageValues[stage];
       const pct   = (count / maxCount * 100).toFixed(1);
+      const color = STAGE_COLORS[stage.toLowerCase()] || '#00BCD4';
       const pill  = STATUS_CSS[stage.toLowerCase()] || '';
       return `<div class="dash-stage-row">
         <div class="dash-stage-lbl"><span class="st-pill" style="${pill}">${esc(stage)}</span></div>
-        <div class="dash-stage-track"><div class="dash-stage-fill" style="width:${pct}%"></div></div>
+        <div class="dash-stage-track"><div class="dash-stage-fill" style="width:${pct}%;background:${color}"></div></div>
         <div class="dash-stage-meta">${count} deal${count!==1?'s':''} · ${fmtUSD(val)}</div>
       </div>`;
     }).join('');
   }
+  renderClientDonut(actualRows);
+}
+
+
+function renderClientDonut(actualRows) {
+  const el = document.getElementById('dash-client-section');
+  if (!el) return;
+
+  const clients = {};
+  actualRows.forEach(r => {
+    const client = String(r['Client Name']||'Unknown').trim() || 'Unknown';
+    clients[client] = (clients[client] || 0) + parseNum(r['Deal Value']);
+  });
+
+  const sorted = Object.entries(clients).sort((a, b) => b[1] - a[1]);
+  const total  = sorted.reduce((s, [, v]) => s + v, 0);
+
+  if (!total) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:8px 0">No Won / Closed deals for selected year</div>';
+    return;
+  }
+
+  const TOP     = 10;
+  const top     = sorted.slice(0, TOP);
+  const otherV  = sorted.slice(TOP).reduce((s, [, v]) => s + v, 0);
+  if (otherV > 0) top.push(['Other', otherV]);
+
+  const COLORS  = ['#00BCD4','#F5A623','#F0285A','#2ECC40','#1A1A2E','#9B59B6','#E67E22','#1ABC9C','#E74C3C','#3498DB','#95A5A6'];
+
+  // SVG donut — r=15.9155 → circumference≈100, start at 12 o'clock (offset=25)
+  let segs = '', offset = 25;
+  top.forEach(([, val], i) => {
+    const pct = val / total * 100;
+    segs += `<circle cx="21" cy="21" r="15.9155" fill="none"
+      stroke="${COLORS[i % COLORS.length]}" stroke-width="5.5"
+      stroke-dasharray="${pct.toFixed(3)} ${(100 - pct).toFixed(3)}"
+      stroke-dashoffset="${offset.toFixed(3)}"/>`;
+    offset -= pct;
+  });
+
+  const totalFmt = total >= 1000000
+    ? '$' + (total / 1000000).toFixed(1) + 'M'
+    : fmtUSD(total);
+
+  const legend = top.map(([name, val], i) => {
+    const pct = (val / total * 100).toFixed(1);
+    return `<div class="dash-donut-item">
+      <div class="dash-donut-dot" style="background:${COLORS[i % COLORS.length]}"></div>
+      <span style="flex:1">${esc(name)}</span>
+      <span style="color:var(--text-muted);margin-left:8px">${pct}%</span>
+      <span style="font-weight:600;margin-left:8px;min-width:72px;text-align:right">${fmtUSD(val)}</span>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div style="display:flex;gap:36px;align-items:flex-start;flex-wrap:wrap">
+    <svg width="180" height="180" viewBox="0 0 42 42" style="flex-shrink:0">
+      <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--bg)" stroke-width="5.5"/>
+      ${segs}
+      <circle cx="21" cy="21" r="12" fill="var(--surface)"/>
+      <text x="21" y="19.5" text-anchor="middle"
+        style="font-family:'Bebas Neue',sans-serif;font-size:4px;fill:var(--navy)">${totalFmt}</text>
+      <text x="21" y="23.5" text-anchor="middle"
+        style="font-family:'Open Sans',sans-serif;font-size:2px;fill:var(--text-muted)">TOTAL REVENUE</text>
+    </svg>
+    <div style="flex:1;min-width:220px">${legend}</div>
+  </div>`;
 }
 
 // ─── Summary cards ───────────────────────────────────────────
