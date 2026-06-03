@@ -1423,6 +1423,37 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
   .dash-section { padding: 16px; }
 }
 
+/* ── Donut chart ──────────────────────────────────────────── */
+.donut-legend-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 24px;
+  min-width: 280px;
+  align-content: start;
+}
+.donut-legend-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0;
+  font-size: 12px;
+  cursor: default;
+  border-radius: 4px;
+  transition: background .1s;
+}
+.donut-legend-item:hover { background: var(--bg); }
+.donut-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.donut-legend-name  { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; }
+.donut-legend-val   { font-weight: 600; color: var(--navy); white-space: nowrap; }
+.donut-legend-pct   { color: var(--text-muted); font-size: 11px; white-space: nowrap; min-width: 36px; text-align: right; }
+.donut-segment      { transition: opacity .15s; cursor: pointer; }
+.donut-segment:hover { opacity: .75; }
+.donut-tooltip {
+  position: fixed; z-index: 9500;
+  background: var(--navy); color: #fff;
+  padding: 8px 12px; border-radius: var(--r-sm);
+  font-size: 12px; line-height: 1.5;
+  pointer-events: none; white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+}
 </style>
 </head>
 <body>
@@ -1554,6 +1585,15 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
             <tbody id="dash-service-body"><tr><td colspan="5" style="color:var(--text-muted);padding:16px 12px">Loading…</td></tr></tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Client Revenue Breakdown -->
+      <div class="dash-section">
+        <div class="dash-section-title">CLIENT REVENUE BREAKDOWN</div>
+        <div id="dash-client-wrap">
+          <div id="dash-donut-chart" style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap"></div>
+        </div>
+        <div id="p-donut-tooltip" class="donut-tooltip hidden"></div>
       </div>
 
       <!-- Row 4: Office breakdown -->
@@ -3304,6 +3344,144 @@ function renderDashboard() {
       </div>`;
     }).join('');
   }
+
+  // ── Client Revenue Donut ──────────────────────────────────
+  renderClientDonut(srcRows, _selectedYear);
+}
+
+// ─── Client Revenue Donut ────────────────────────────────────
+
+function renderClientDonut(srcRows, selectedYear) {
+  const el = document.getElementById('dash-donut-chart');
+  if (!el) return;
+
+  const yearStr  = String(selectedYear);
+  const parseNum = s => parseFloat(String(s||'').replace(/[$,]/g,'')) || 0;
+  const COLORS   = ['#00BCD4','#F5A623','#F0285A','#2ECC40','#5C6BC0',
+                    '#9B59B6','#E67E22','#1ABC9C','#E74C3C','#3498DB','#95A5A6'];
+
+  // Filter Won + Closed for selected year
+  const rows = srcRows.filter(r => {
+    const status = String(r['Status']||'').trim().toLowerCase();
+    const yr     = String(r['Fiscal Year']||'').trim();
+    return ['won','closed'].includes(status) && (!yr || yr === yearStr);
+  });
+
+  const retryEl = document.getElementById('dash-donut-chart');
+  if (!rows.length) {
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:8px 0">No completed deals for selected year</div>';
+    // Retry after 2s in case data is still loading
+    setTimeout(() => {
+      if (document.getElementById('dash-donut-chart')?.textContent.includes('No completed')) {
+        renderClientDonut((_pRawRows.length ? _pRawRows : _pRows.map(r => ({
+          'Status': r[STATUS_CI], 'Fiscal Year': '', 'Client Name': r[3], 'Deal Value': r[9]
+        }))), selectedYear);
+      }
+    }, 2000);
+    return;
+  }
+
+  // Aggregate by client
+  const clients = {};
+  rows.forEach(r => {
+    const name = String(r['Client Name']||'Unknown').trim() || 'Unknown';
+    clients[name] = (clients[name] || 0) + parseNum(r['Deal Value']);
+  });
+
+  const sorted   = Object.entries(clients).sort((a, b) => b[1] - a[1]);
+  const total    = sorted.reduce((s, [, v]) => s + v, 0);
+  const top      = sorted.slice(0, 10);
+  const otherVal = sorted.slice(10).reduce((s, [, v]) => s + v, 0);
+  if (otherVal > 0) top.push(['Other', otherVal]);
+
+  // ── SVG donut (viewBox 42×42, r=15.9155 → circ≈100, start at 12 o'clock) ──
+  const CX = 21, CY = 21, R = 15.9155;
+  let segs = '', offset = 25, cumulPct = 0;
+  const segData = [];
+
+  top.forEach(([name, val], i) => {
+    const pct  = val / total * 100;
+    const dash = pct;
+    const gap  = 100 - pct;
+    const color = COLORS[i % COLORS.length];
+    const startPct = cumulPct;
+    segs += `<circle class="donut-segment"
+      data-name="${name.replace(/"/g,'&quot;')}"
+      data-val="${val}" data-pct="${pct.toFixed(1)}"
+      cx="${CX}" cy="${CY}" r="${R}"
+      fill="none" stroke="${color}" stroke-width="6.5"
+      stroke-dasharray="${dash.toFixed(3)} ${gap.toFixed(3)}"
+      stroke-dashoffset="${offset.toFixed(3)}"/>`;
+    segData.push({ name, val, pct, color });
+    offset    -= pct;
+    cumulPct  += pct;
+  });
+
+  const totalFmt = total >= 1e6
+    ? '$' + (total / 1e6).toFixed(1) + 'M'
+    : fmtUSD(total);
+
+  // ── Two-column legend ──
+  const legendItems = segData.map(({ name, val, pct, color }, i) =>
+    `<div class="donut-legend-item"
+       onmouseenter="donutHighlight(${i},true,event)"
+       onmouseleave="donutHighlight(${i},false,event)">
+      <div class="donut-dot" style="background:${color}"></div>
+      <span class="donut-legend-name" title="${esc(name)}">${esc(name)}</span>
+      <span class="donut-legend-val">${fmtUSD(val)}</span>
+      <span class="donut-legend-pct">${pct.toFixed(1)}%</span>
+    </div>`
+  ).join('');
+
+  el.innerHTML = `
+    <div style="position:relative;flex-shrink:0;width:180px;height:180px">
+      <svg id="dash-donut-svg" width="180" height="180" viewBox="0 0 42 42">
+        <circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="var(--bg)" stroke-width="6.5"/>
+        ${segs}
+        <circle cx="${CX}" cy="${CY}" r="11.5" fill="var(--surface)"/>
+        <text x="${CX}" y="${CY - 1}" text-anchor="middle"
+          style="font-family:'Bebas Neue',sans-serif;font-size:4px;fill:var(--navy)">${totalFmt}</text>
+        <text x="${CX}" y="${CY + 3.5}" text-anchor="middle"
+          style="font-family:'Open Sans',sans-serif;font-size:2px;fill:var(--text-muted)">TOTAL</text>
+      </svg>
+    </div>
+    <div class="donut-legend-grid">${legendItems}</div>`;
+
+  // Wire hover on SVG segments
+  el.querySelectorAll('.donut-segment').forEach((seg, i) => {
+    seg.addEventListener('mouseenter', e => donutHighlight(i, true, e));
+    seg.addEventListener('mouseleave', e => donutHighlight(i, false, e));
+    seg.addEventListener('mousemove',  e => donutMoveTooltip(e));
+  });
+}
+
+function donutHighlight(idx, on, e) {
+  const tt  = document.getElementById('p-donut-tooltip');
+  const svg = document.getElementById('dash-donut-svg');
+  if (!svg || !tt) return;
+
+  const segs = svg.querySelectorAll('.donut-segment');
+  segs.forEach((s, i) => { s.style.opacity = on ? (i === idx ? '1' : '.3') : '1'; });
+
+  if (on && e) {
+    const seg = segs[idx];
+    if (!seg) return;
+    const name = seg.dataset.name;
+    const val  = parseFloat(seg.dataset.val);
+    const pct  = parseFloat(seg.dataset.pct);
+    tt.innerHTML = `<strong>${esc(name)}</strong><br>${fmtUSD(val)} &nbsp;·&nbsp; ${pct.toFixed(1)}%`;
+    tt.classList.remove('hidden');
+    donutMoveTooltip(e);
+  } else {
+    tt.classList.add('hidden');
+  }
+}
+
+function donutMoveTooltip(e) {
+  const tt = document.getElementById('p-donut-tooltip');
+  if (!tt || tt.classList.contains('hidden')) return;
+  tt.style.left = (e.clientX + 14) + 'px';
+  tt.style.top  = (e.clientY - 10) + 'px';
 }
 
 // ─── Summary cards ───────────────────────────────────────────
