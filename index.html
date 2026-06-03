@@ -1552,6 +1552,31 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 .dash-section-title { display: flex; align-items: center; gap: 6px; }
 .summary-office { display: flex; align-items: center; gap: 5px; }
 
+
+/* ── Leads KPI row (5 cards) ─────────────────────────────── */
+.leads-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.leads-kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:18px 20px; }
+.leads-kpi-val  { font-family:'Bebas Neue',sans-serif; font-size:36px; color:var(--navy); letter-spacing:.5px; line-height:1; margin-bottom:4px; }
+.leads-kpi-val.kv-green { color:#1B5E20; }
+.leads-kpi-val.kv-gold  { color:#F57F17; }
+.leads-kpi-val.kv-red   { color:var(--alert); }
+.leads-kpi-lbl-row { display:flex; align-items:center; gap:5px; }
+.leads-kpi-lbl  { font-size:10px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--text-muted); }
+
+/* ── Leads section drag handles ──────────────────────────── */
+[data-leads-section] { position:relative; }
+[data-leads-section]:hover .dnd-handle { display:block; }
+[data-leads-section].dnd-over-top    { border-top:3px solid var(--primary); }
+[data-leads-section].dnd-over-bottom { border-bottom:3px solid var(--primary); }
+
+@media (max-width:1024px) { .leads-kpi-row { grid-template-columns:repeat(3,1fr); } }
+@media (max-width:767px)  { .leads-kpi-row { grid-template-columns:repeat(2,1fr); } }
+
 </style>
 </head>
 <body>
@@ -2073,60 +2098,62 @@ GROUP BY [Currency]  -- USD → US Office, JPY → JP Office</code>
         </div>
       </div>
 
-      <!-- overview cards -->
-      <div class="leads-cards" id="leads-cards">
-        <div class="leads-card"><div class="skel skel-card-val"></div><div class="skel skel-row" style="width:100px"></div></div>
-        <div class="leads-card"><div class="skel skel-card-val"></div><div class="skel skel-row" style="width:80px"></div></div>
-        <div class="leads-card"><div class="skel skel-card-val"></div><div class="skel skel-row" style="width:120px"></div></div>
-        <div class="leads-card"><div class="skel skel-card-val"></div><div class="skel skel-row" style="width:90px"></div></div>
+      <!-- 5 KPI cards (locked — no drag) -->
+      <div class="leads-kpi-row" id="leads-kpi-row">
+        <div class="leads-kpi-card"><div class="leads-kpi-val" id="lkpi-sessions">—</div><div class="leads-kpi-lbl-row"><span class="leads-kpi-lbl">Total Sessions</span><span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Total number of visits to btrax.com in the selected period. One person visiting 3 times = 3 sessions.</div></span></div></div>
+        <div class="leads-kpi-card"><div class="leads-kpi-val" id="lkpi-users">—</div><div class="leads-kpi-lbl-row"><span class="leads-kpi-lbl">Total Users</span><span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Unique visitors to btrax.com. One person visiting 3 times = 1 user.</div></span></div></div>
+        <div class="leads-kpi-card"><div class="leads-kpi-val" id="lkpi-dur">—</div><div class="leads-kpi-lbl-row"><span class="leads-kpi-lbl">Avg Session Duration</span><span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Average time a visitor spends on btrax.com per visit.</div></span></div></div>
+        <div class="leads-kpi-card"><div class="leads-kpi-val" id="lkpi-clicks">—</div><div class="leads-kpi-lbl-row"><span class="leads-kpi-lbl">Total Search Clicks</span><span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">How many times someone clicked a btrax.com link in Google search results.</div></span></div></div>
+        <div class="leads-kpi-card"><div class="leads-kpi-val" id="lkpi-pos">—</div><div class="leads-kpi-lbl-row"><span class="leads-kpi-lbl">Avg Search Position</span><span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Average position btrax.com appears in Google search results. 1 = top result. Lower is better.</div></span></div></div>
       </div>
 
-      <!-- search intelligence -->
-      <div class="leads-section">
-        <div class="leads-section-title">WHAT PEOPLE SEARCH TO FIND BTRAX</div>
-        <div id="leads-search-wrap">
-          <div class="skel skel-row"></div>
-          <div class="skel skel-row" style="width:85%"></div>
-          <div class="skel skel-row" style="width:70%"></div>
-        </div>
-      </div>
+      <!-- draggable sections -->
+      <div id="leads-sections">
 
-      <!-- traffic + geography -->
-      <div class="leads-two-col">
-        <div class="leads-section" style="margin-bottom:0">
-          <div class="leads-section-title">HOW THEY ARRIVE</div>
-          <div id="leads-sources-wrap">
-            <div class="skel skel-row"></div>
-            <div class="skel skel-row" style="width:75%"></div>
-            <div class="skel skel-row" style="width:55%"></div>
+        <div data-leads-section="leads-search" draggable="true" ondragstart="lDndStart(event)" ondragover="lDndOver(event)" ondragleave="lDndLeave(event)" ondrop="lDndDrop(event)" ondragend="lDndEnd(event)">
+          <div class="dnd-handle" title="Drag to reorder">⠿</div>
+          <div class="leads-section">
+            <div class="leads-section-title">WHAT PEOPLE SEARCH TO FIND BTRAX</div>
+            <div id="leads-search-wrap"><div class="skel skel-row"></div><div class="skel skel-row" style="width:85%"></div></div>
           </div>
         </div>
-        <div class="leads-section" style="margin-bottom:0">
-          <div class="leads-section-title">WHERE THEY ARE</div>
-          <div id="leads-geo-wrap">
-            <div class="skel skel-row"></div>
-            <div class="skel skel-row" style="width:80%"></div>
-            <div class="skel skel-row" style="width:60%"></div>
+
+        <div data-leads-section="leads-geo" draggable="true" ondragstart="lDndStart(event)" ondragover="lDndOver(event)" ondragleave="lDndLeave(event)" ondrop="lDndDrop(event)" ondragend="lDndEnd(event)">
+          <div class="dnd-handle" title="Drag to reorder">⠿</div>
+          <div class="leads-two-col">
+            <div class="leads-section" style="margin-bottom:0">
+              <div class="leads-section-title">HOW THEY ARRIVE</div>
+              <div id="leads-sources-wrap"><div class="skel skel-row"></div><div class="skel skel-row" style="width:75%"></div></div>
+            </div>
+            <div class="leads-section" style="margin-bottom:0">
+              <div class="leads-section-title">WHERE THEY ARE</div>
+              <div id="leads-geo-wrap"><div class="skel skel-row"></div><div class="skel skel-row" style="width:80%"></div></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- landing pages -->
-      <div class="leads-section">
-        <div class="leads-section-title">WHERE THEY LAND</div>
-        <div id="leads-pages-wrap">
-          <div class="skel skel-row"></div>
-          <div class="skel skel-row" style="width:70%"></div>
+        <div data-leads-section="leads-pages" draggable="true" ondragstart="lDndStart(event)" ondragover="lDndOver(event)" ondragleave="lDndLeave(event)" ondrop="lDndDrop(event)" ondragend="lDndEnd(event)">
+          <div class="dnd-handle" title="Drag to reorder">⠿</div>
+          <div class="leads-section">
+            <div class="leads-section-title">WHERE THEY LAND</div>
+            <div id="leads-pages-wrap"><div class="skel skel-row"></div><div class="skel skel-row" style="width:70%"></div></div>
+          </div>
         </div>
-      </div>
 
-      <!-- device breakdown -->
-      <div class="leads-section-title" style="margin-bottom:14px">DEVICE BREAKDOWN</div>
-      <div class="device-cards" id="leads-devices">
-        <div class="device-card"><div class="skel" style="height:32px;width:60px"></div></div>
-        <div class="device-card"><div class="skel" style="height:32px;width:60px"></div></div>
-        <div class="device-card"><div class="skel" style="height:32px;width:60px"></div></div>
-      </div>
+        <div data-leads-section="leads-devices" draggable="true" ondragstart="lDndStart(event)" ondragover="lDndOver(event)" ondragleave="lDndLeave(event)" ondrop="lDndDrop(event)" ondragend="lDndEnd(event)">
+          <div class="dnd-handle" title="Drag to reorder">⠿</div>
+          <div>
+            <div class="leads-section-title" style="margin-bottom:14px">DEVICE BREAKDOWN</div>
+            <div class="device-cards" id="leads-devices">
+              <div class="device-card"><div class="skel" style="height:32px;width:60px"></div></div>
+              <div class="device-card"><div class="skel" style="height:32px;width:60px"></div></div>
+              <div class="device-card"><div class="skel" style="height:32px;width:60px"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <span class="reset-dash-link" id="leads-reset-btn" onclick="leadsDndReset()">Reset layout</span>
+      </div><!-- /leads-sections -->
 
     </div><!-- /inbound -->
 
@@ -4037,100 +4064,62 @@ function leadsDateRange(days) {
 
 async function loadLeads() {
   _leadsLoaded = false;
-  const range = leadsDateRange(_leadsRange);
-  const DR = [range];
-
-  const [ga4Overview, ga4Sources, ga4Countries, ga4Cities, ga4Pages, ga4Devices, gsc] =
-    await Promise.allSettled([
-      apiReq('ga4', { body: { dateRanges: DR, metrics: [{ name:'sessions' },{ name:'activeUsers' },{ name:'averageSessionDuration' }] } }),
-      apiReq('ga4', { body: { dateRanges: DR, dimensions: [{ name:'sessionSourceMedium' }], metrics: [{ name:'sessions' }], orderBys:[{ metric:{ metricName:'sessions' }, desc:true }], limit:6 } }),
-      apiReq('ga4', { body: { dateRanges: DR, dimensions: [{ name:'country' }],  metrics: [{ name:'sessions' }], orderBys:[{ metric:{ metricName:'sessions' }, desc:true }], limit:5 } }),
-      apiReq('ga4', { body: { dateRanges: DR, dimensions: [{ name:'city' }],     metrics: [{ name:'sessions' }], orderBys:[{ metric:{ metricName:'sessions' }, desc:true }], limit:5 } }),
-      apiReq('ga4', { body: { dateRanges: DR, dimensions: [{ name:'landingPage' }], metrics:[{ name:'sessions' }], orderBys:[{ metric:{ metricName:'sessions' }, desc:true }], limit:8 } }),
-      apiReq('ga4', { body: { dateRanges: DR, dimensions: [{ name:'deviceCategory' }], metrics:[{ name:'sessions' }] } }),
-      apiReq('gsc', { body: { startDate: range.startDate, endDate: range.endDate, dimensions:['query'], rowLimit:15 } }),
-    ]);
-
-  renderLeadsCards(ga4Overview.value);
-  renderLeadsSearch(gsc.value);
-  renderLeadsSources(ga4Sources.value);
-  renderLeadsGeo(ga4Countries.value, ga4Cities.value);
-  renderLeadsPages(ga4Pages.value);
-  renderLeadsDevices(ga4Devices.value);
+  const [ga4Result, gscResult] = await Promise.allSettled([
+    apiReq('ga4'),
+    apiReq('gsc'),
+  ]);
+  const ga4 = ga4Result.value?.data || {};
+  const gsc = gscResult.value?.data || {};
+  renderLeadsKPIs(ga4, gsc);
+  renderLeadsSearch(gsc);
+  renderLeadsSources(ga4);
+  renderLeadsGeo(ga4);
+  renderLeadsPages(ga4);
+  renderLeadsDevices(ga4);
   _leadsLoaded = true;
 }
 
 function fmtN(v) { const n = Number(v); return isNaN(n) ? '—' : n.toLocaleString(); }
-function fmtDur(v) {
-  const s = Math.round(Number(v) || 0);
-  return s >= 60 ? `${Math.floor(s/60)}m ${s%60}s` : `${s}s`;
-}
 
-function renderLeadsCards(data) {
-  const el = document.getElementById('leads-cards');
-  const mv = i => data?.totals?.[0]?.metricValues?.[i]?.value
-               ?? data?.rows?.[0]?.metricValues?.[i]?.value;
-
-  // GA4 mock returns rows not totals for overview — sum sessions from rows if needed
-  let sessions = mv(0), users = mv(1), dur = mv(2);
-  // If mock data (array of source rows), compute from totals key
-  if (data?._mock) {
-    const t = data.totals?.[0]?.metricValues;
-    sessions = t?.[0]?.value ?? '7790';
-    users    = t?.[1]?.value ?? '5421';
-    dur      = null;
+function renderLeadsKPIs(ga4, gsc) {
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '—'; };
+  set('lkpi-sessions', fmtN(ga4.sessions));
+  set('lkpi-users',    fmtN(ga4.users));
+  set('lkpi-dur',      ga4.avgSessionDuration || '—');
+  set('lkpi-clicks',   fmtN(gsc.totalClicks));
+  const pos   = parseFloat(gsc.avgPosition) || 0;
+  const posEl = document.getElementById('lkpi-pos');
+  if (posEl) {
+    posEl.textContent = pos ? pos.toFixed(1) : '—';
+    posEl.className   = 'leads-kpi-val ' + (pos === 0 ? '' : pos < 5 ? 'kv-green' : pos <= 10 ? 'kv-gold' : 'kv-red');
   }
-
-  // Pull total search clicks from GSC (stored separately, use placeholder if not yet loaded)
-  el.innerHTML = `
-    <div class="leads-card">
-      <div class="leads-card-val">${fmtN(sessions)}</div>
-      <div class="leads-card-label">Total Sessions</div>
-    </div>
-    <div class="leads-card">
-      <div class="leads-card-val">${fmtN(users)}</div>
-      <div class="leads-card-label">Total Users</div>
-    </div>
-    <div class="leads-card">
-      <div class="leads-card-val">${dur ? fmtDur(dur) : '2m 14s'}</div>
-      <div class="leads-card-label">Avg Session Duration</div>
-    </div>
-    <div class="leads-card" id="leads-card-clicks">
-      <div class="leads-card-val">—</div>
-      <div class="leads-card-label">Total Search Clicks</div>
-    </div>`;
 }
 
-function renderLeadsSearch(data) {
-  const el = document.getElementById('leads-search-wrap');
-  const rows = data?.rows || [];
-  if (!rows.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No search data available.</div>'; return; }
+function renderLeadsSearch(gsc) {
+  const el      = document.getElementById('leads-search-wrap');
+  const queries = gsc.topQueries || [];
+  if (!queries.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No search data available.</div>'; return; }
 
-  let branded = 0, discovery = 0, totalClicks = 0;
-  const trs = rows.map(r => {
-    const query  = r.keys[0];
-    const isB    = query.toLowerCase().includes('btrax');
+  let branded = 0, discovery = 0;
+  const trs = queries.map(r => {
+    const query    = r.query;
+    const isB      = query.toLowerCase().includes('btrax');
     if (isB) branded++; else discovery++;
-    totalClicks += r.clicks;
-    const pos    = parseFloat(r.position);
+    const pos      = parseFloat(r.position);
     const posClass = pos <= 3 ? 'pos-top' : pos <= 10 ? 'pos-page1' : 'pos-other';
-    const posLabel = pos.toFixed(1);
     const tagClass = isB ? 'tag-branded' : 'tag-discovery';
-    const tagLabel = isB ? 'Branded' : 'Discovery';
     return `<tr class="${isB ? '' : 'discovery-row'}">
-      <td>${esc(query)}<span class="query-tag ${tagClass}">${tagLabel}</span></td>
+      <td>${esc(query)}<span class="query-tag ${tagClass}">${isB ? 'Branded' : 'Discovery'}</span></td>
       <td>${r.clicks.toLocaleString()}</td>
       <td>${r.impressions.toLocaleString()}</td>
-      <td>${(r.ctr * 100).toFixed(1)}%</td>
-      <td><span class="pos-pill ${posClass}">${posLabel}</span></td>
+      <td>${r.ctr.toFixed(1)}%</td>
+      <td><span class="pos-pill ${posClass}">${pos.toFixed(1)}</span></td>
     </tr>`;
   }).join('');
 
   el.innerHTML = `
     <table class="leads-table">
-      <thead><tr>
-        <th>Query</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Position</th>
-      </tr></thead>
+      <thead><tr><th>Query</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Position</th></tr></thead>
       <tbody>${trs}</tbody>
     </table>
     <div class="bd-insight">
@@ -4138,23 +4127,17 @@ function renderLeadsSearch(data) {
       <strong>${discovery}</strong> discovery search${discovery !== 1 ? 'es' : ''}<br>
       Discovery searches = potential new leads who don't know Btrax yet
     </div>`;
-
-  // Update clicks card
-  const cc = document.getElementById('leads-card-clicks');
-  if (cc) cc.querySelector('.leads-card-val').textContent = fmtN(totalClicks);
 }
 
-function renderLeadsSources(data) {
-  const el   = document.getElementById('leads-sources-wrap');
-  const rows = data?.rows || [];
-  if (!rows.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No data.</div>'; return; }
-  const total = rows.reduce((s, r) => s + Number(r.metricValues[0].value), 0);
-  el.innerHTML = rows.map(r => {
-    const n   = Number(r.metricValues[0].value);
-    const pct = total ? ((n / total) * 100).toFixed(1) : 0;
-    const src = r.dimensionValues[0].value;
+function renderLeadsSources(ga4) {
+  const el      = document.getElementById('leads-sources-wrap');
+  const sources = ga4.topSources || [];
+  if (!sources.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No data.</div>'; return; }
+  const total = sources.reduce((s, r) => s + r.sessions, 0);
+  el.innerHTML = sources.map(r => {
+    const pct = total ? ((r.sessions / total) * 100).toFixed(1) : 0;
     return `<div class="bar-row">
-      <div class="bar-label"><span>${esc(src)}</span><span>${fmtN(n)} · ${pct}%</span></div>
+      <div class="bar-label"><span>${esc(r.source)}</span><span>${fmtN(r.sessions)} · ${pct}%</span></div>
       <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
     </div>`;
   }).join('');
@@ -4162,19 +4145,18 @@ function renderLeadsSources(data) {
 
 const COUNTRY_FLAGS = { 'United States':'🇺🇸','Japan':'🇯🇵','Canada':'🇨🇦','United Kingdom':'🇬🇧','Australia':'🇦🇺','Germany':'🇩🇪','France':'🇫🇷','Singapore':'🇸🇬','India':'🇮🇳','China':'🇨🇳','South Korea':'🇰🇷','Taiwan':'🇹🇼','Brazil':'🇧🇷','Mexico':'🇲🇽','Netherlands':'🇳🇱' };
 
-function renderLeadsGeo(cData, cityData) {
-  const el = document.getElementById('leads-geo-wrap');
-  const countries = cData?.rows || [];
-  const cities    = cityData?.rows || [];
+function renderLeadsGeo(ga4) {
+  const el        = document.getElementById('leads-geo-wrap');
+  const countries = ga4.topCountries || [];
+  const cities    = ga4.topCities    || [];
 
   const cRows = countries.map(r => {
-    const name = r.dimensionValues[0].value;
-    const flag = COUNTRY_FLAGS[name] || '🌐';
-    return `<tr><td>${flag} ${esc(name)}</td><td style="text-align:right;color:var(--text-muted)">${fmtN(r.metricValues[0].value)}</td></tr>`;
+    const flag = COUNTRY_FLAGS[r.country] || '🌐';
+    return `<tr><td>${flag} ${esc(r.country)}</td><td style="text-align:right;color:var(--text-muted)">${fmtN(r.sessions)}</td></tr>`;
   }).join('');
 
   const cityRows = cities.map(r =>
-    `<tr><td>${esc(r.dimensionValues[0].value)}</td><td style="text-align:right;color:var(--text-muted)">${fmtN(r.metricValues[0].value)}</td></tr>`
+    `<tr><td>${esc(r.city)}</td><td style="text-align:right;color:var(--text-muted)">${fmtN(r.sessions)}</td></tr>`
   ).join('');
 
   el.innerHTML = `
@@ -4184,19 +4166,17 @@ function renderLeadsGeo(cData, cityData) {
     <table class="leads-table"><tbody>${cityRows || '<tr><td style="color:var(--text-muted)">No data</td></tr>'}</tbody></table>`;
 }
 
-function renderLeadsPages(data) {
-  const el   = document.getElementById('leads-pages-wrap');
-  const rows = data?.rows || [];
-  if (!rows.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No data.</div>'; return; }
+function renderLeadsPages(ga4) {
+  const el    = document.getElementById('leads-pages-wrap');
+  const pages = ga4.topPages || [];
+  if (!pages.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px">No data.</div>'; return; }
 
-  const trs = rows.map(r => {
-    const raw  = r.dimensionValues[0].value;
-    const path = raw === '/' ? 'Homepage' : raw.replace(/^https?:\/\/[^/]+/, '') || '/';
-    const n    = fmtN(r.metricValues[0].value);
+  const trs = pages.map(r => {
+    const path = r.page === '/' ? 'Homepage' : r.page;
     return `<tr>
       <td><code style="font-size:12px;color:var(--navy)">${esc(path)}</code></td>
-      <td style="color:var(--text-muted)">${n}</td>
-      <td><button class="btn-atp" onclick="leadsAddToPipeline(${JSON.stringify(raw)})">+ Pipeline</button></td>
+      <td style="color:var(--text-muted)">${fmtN(r.sessions)}</td>
+      <td><button class="btn-atp" onclick="leadsAddToPipeline(${JSON.stringify(r.page)})">+ Pipeline</button></td>
     </tr>`;
   }).join('');
 
@@ -4207,20 +4187,15 @@ function renderLeadsPages(data) {
     </table>`;
 }
 
-function renderLeadsDevices(data) {
-  const el   = document.getElementById('leads-devices');
-  const rows = data?.rows || [];
-  const total = rows.reduce((s, r) => s + Number(r.metricValues[0].value), 0);
-  const get   = name => {
-    const r = rows.find(r => r.dimensionValues[0].value.toLowerCase() === name);
-    return r ? ((Number(r.metricValues[0].value) / total) * 100).toFixed(1) : '0.0';
-  };
+function renderLeadsDevices(ga4) {
+  const el  = document.getElementById('leads-devices');
+  const dev = ga4.devices || { desktop: 0, mobile: 0, tablet: 0 };
   const ICONS = { desktop:'🖥', mobile:'📱', tablet:'⬛' };
   el.innerHTML = ['desktop','mobile','tablet'].map(d => `
     <div class="device-card">
       <div class="device-icon">${ICONS[d]}</div>
       <div>
-        <div class="device-pct">${get(d)}%</div>
+        <div class="device-pct">${dev[d] || 0}%</div>
         <div class="device-lbl">${d}</div>
       </div>
     </div>`).join('');
@@ -4247,6 +4222,7 @@ function showView(name) {
   closeSettings();
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (name === 'leads' && _connected && !_leadsLoaded) loadLeads();
+  if (name === 'leads') lDndLoad();
   if (name === 'pdash') { dndLoadOrder(); renderDashboard(); }
 }
 
@@ -4548,6 +4524,71 @@ function initTooltips() {
   document.addEventListener('click', () => {
     document.querySelectorAll('.dtip.visible').forEach(t => t.classList.remove('visible'));
   });
+}
+
+
+// ── Leads section drag-and-drop ──────────────────────────────
+const LEADS_DEFAULT_ORDER = ['leads-search','leads-geo','leads-pages','leads-devices'];
+
+function lDndStart(e) {
+  _dndSrc = e.currentTarget;
+  requestAnimationFrame(() => { if (_dndSrc) _dndSrc.style.opacity = '0.4'; });
+  e.dataTransfer.effectAllowed = 'move';
+}
+function lDndEnd(e) {
+  if (_dndSrc) _dndSrc.style.opacity = '';
+  document.querySelectorAll('[data-leads-section]').forEach(s =>
+    s.classList.remove('dnd-over-top','dnd-over-bottom'));
+  _dndSrc = null;
+}
+function lDndOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const target = e.currentTarget;
+  if (!_dndSrc || target === _dndSrc) return;
+  document.querySelectorAll('[data-leads-section]').forEach(s =>
+    s.classList.remove('dnd-over-top','dnd-over-bottom'));
+  const rect = target.getBoundingClientRect();
+  target.classList.add(e.clientY < rect.top + rect.height / 2 ? 'dnd-over-top' : 'dnd-over-bottom');
+}
+function lDndLeave(e) {
+  if (!e.currentTarget.contains(e.relatedTarget))
+    e.currentTarget.classList.remove('dnd-over-top','dnd-over-bottom');
+}
+function lDndDrop(e) {
+  e.preventDefault();
+  const target = e.currentTarget;
+  target.classList.remove('dnd-over-top','dnd-over-bottom');
+  if (!_dndSrc || _dndSrc === target) return;
+  const container = document.getElementById('leads-sections');
+  const rect   = target.getBoundingClientRect();
+  const before = e.clientY < rect.top + rect.height / 2;
+  container.insertBefore(_dndSrc, before ? target : target.nextElementSibling);
+  lDndSave();
+}
+function lDndSave() {
+  const container = document.getElementById('leads-sections');
+  if (!container) return;
+  const order = [...container.querySelectorAll('[data-leads-section]')]
+    .map(el => el.dataset.leadsSection);
+  localStorage.setItem('leads-section-order', JSON.stringify(order));
+}
+function lDndLoad() {
+  const container = document.getElementById('leads-sections');
+  if (!container) return;
+  try {
+    const saved = JSON.parse(localStorage.getItem('leads-section-order'));
+    if (!Array.isArray(saved) || !saved.length) return;
+    const resetBtn = document.getElementById('leads-reset-btn');
+    saved.forEach(id => {
+      const el = container.querySelector(`[data-leads-section="${id}"]`);
+      if (el) container.insertBefore(el, resetBtn);
+    });
+  } catch {}
+}
+function leadsDndReset() {
+  localStorage.removeItem('leads-section-order');
+  location.reload();
 }
 
 </script>

@@ -85,10 +85,36 @@ async function appendSheet(token, range, values) {
 function getMockGA4() {
   return {
     sessions: 3842, users: 2917, avgSessionDuration: '2m 34s',
-    topSources:   [{ source: 'google / organic', sessions: 1840 }, { source: 'direct / none', sessions: 892 }, { source: 'linkedin / referral', sessions: 341 }],
-    topCountries: [{ country: 'United States', sessions: 1923 }, { country: 'Japan', sessions: 1124 }],
-    topCities:    [{ city: 'San Francisco', sessions: 687 }, { city: 'Tokyo', sessions: 542 }],
-    devices:      { desktop: 61, mobile: 34, tablet: 5 },
+    totalSearchClicks: 660,
+    topSources: [
+      { source: 'google / organic', sessions: 1840 },
+      { source: 'direct / none', sessions: 892 },
+      { source: 'linkedin / referral', sessions: 341 },
+      { source: 'google / cpc', sessions: 287 },
+      { source: 'twitter / referral', sessions: 124 }
+    ],
+    topCountries: [
+      { country: 'United States', sessions: 1923 },
+      { country: 'Japan', sessions: 1124 },
+      { country: 'United Kingdom', sessions: 187 },
+      { country: 'Canada', sessions: 143 },
+      { country: 'Australia', sessions: 98 }
+    ],
+    topCities: [
+      { city: 'San Francisco', country: 'US', sessions: 687 },
+      { city: 'Tokyo', country: 'JP', sessions: 542 },
+      { city: 'New York', country: 'US', sessions: 312 },
+      { city: 'Osaka', country: 'JP', sessions: 198 },
+      { city: 'Los Angeles', country: 'US', sessions: 187 }
+    ],
+    topPages: [
+      { page: '/', sessions: 1243 },
+      { page: '/our-services', sessions: 487 },
+      { page: '/our-work', sessions: 392 },
+      { page: '/about-us', sessions: 287 },
+      { page: '/blog', sessions: 241 }
+    ],
+    devices: { desktop: 61, mobile: 34, tablet: 5 }
   };
 }
 
@@ -96,10 +122,22 @@ function getMockGSC() {
   return {
     totalClicks: 1610, totalImpressions: 17000, avgCTR: 9.4, avgPosition: 7.9,
     topQueries: [
-      { query: 'btrax',                        clicks: 782, impressions: 1463, ctr: 53.4, position: 1.2 },
-      { query: 'btrax japan',                  clicks:  57, impressions:   99, ctr: 57.6, position: 2.1 },
-      { query: 'japan market entry design',    clicks:  24, impressions:  412, ctr:  5.8, position: 8.4 },
+      { query: 'btrax',                             clicks: 782, impressions: 1463, ctr: 53.4, position: 1.2 },
+      { query: 'btrax japan',                       clicks:  57, impressions:   99, ctr: 57.6, position: 2.1 },
+      { query: 'japan market entry design',         clicks:  24, impressions:  412, ctr:  5.8, position: 8.4 },
+      { query: 'ux design agency japan',            clicks:  18, impressions:  334, ctr:  5.4, position: 9.2 },
+      { query: 'cross cultural design agency',      clicks:  14, impressions:  287, ctr:  4.9, position: 11.3 },
+      { query: 'japan localization agency',         clicks:  11, impressions:  198, ctr:  5.6, position: 7.8 },
+      { query: 'design agency san francisco japan', clicks:   9, impressions:  167, ctr:  5.4, position: 8.9 },
+      { query: 'japan ux research',                 clicks:   7, impressions:  143, ctr:  4.9, position: 12.1 }
     ],
+    topCountries: [
+      { country: 'USA', clicks: 892 },
+      { country: 'Japan', clicks: 487 },
+      { country: 'UK', clicks: 87 },
+      { country: 'Canada', clicks: 54 },
+      { country: 'Australia', clicks: 43 }
+    ]
   };
 }
 
