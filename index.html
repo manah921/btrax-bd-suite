@@ -1513,6 +1513,45 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
   padding:20px 24px; font-size:13px; line-height:1.8; }
 .docs-built strong { color:var(--primary); }
 
+
+/* ── Info tooltips ─────────────────────────────────────────── */
+.dtip-wrap { position: relative; display: inline-flex; align-items: center; }
+.dtip-btn  {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #E0E0E0; color: #4A4A4A;
+  font-size: 11px; font-weight: 700; line-height: 1;
+  cursor: help; border: none; display: inline-flex;
+  align-items: center; justify-content: center;
+  flex-shrink: 0; padding: 0; font-family: 'Open Sans', sans-serif;
+  transition: background .12s;
+}
+.dtip-btn:hover { background: var(--primary); color: #fff; }
+.dtip {
+  position: fixed; z-index: 9800;
+  background: #1A1A1A; color: #fff;
+  border-radius: 8px; padding: 12px 16px;
+  max-width: 280px; width: max-content;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12px; line-height: 1.6;
+  pointer-events: none; display: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+}
+.dtip::after {
+  content: ''; position: absolute;
+  top: 100%; left: 16px;
+  border: 6px solid transparent;
+  border-top-color: #1A1A1A;
+}
+.dtip.tip-up::after   { top: 100%; border-top-color: #1A1A1A; border-bottom-color: transparent; }
+.dtip.tip-down        { }
+.dtip.tip-down::after { bottom: 100%; top: auto; border-top-color: transparent; border-bottom-color: #1A1A1A; }
+.dtip.visible { display: block; }
+
+/* KPI card lbl row */
+.dash-kpi-lbl-row { display: flex; align-items: center; gap: 5px; margin-top: 6px; }
+.dash-section-title { display: flex; align-items: center; gap: 6px; }
+.summary-office { display: flex; align-items: center; gap: 5px; }
+
 </style>
 </head>
 <body>
@@ -1624,16 +1663,16 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       <div data-section-id="kpi-cards" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
         <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="dash-kpi-row" id="dash-kpi-row">
-        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-goal">—</div><div class="dash-kpi-lbl">Annual Goal</div></div>
-        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-ytd-actual">—</div><div class="dash-kpi-lbl" id="kpi-ytd-actual-lbl">YTD Actual</div></div>
-        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-ytd-target">—</div><div class="dash-kpi-lbl" id="kpi-ytd-target-lbl">YTD Target</div></div>
-        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-att">—</div><div class="dash-kpi-lbl">Attainment</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-goal">—</div><div class="dash-kpi-lbl-row"><span class="dash-kpi-lbl">Annual Goal</span><span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Total revenue target for the selected fiscal year. Sum of all service offering goals from the Goals tab in Google Sheets.</div></span></div></div>
+        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-ytd-actual">—</div><div class="dash-kpi-lbl-row"><span class="dash-kpi-lbl" id="kpi-ytd-actual-lbl">YTD Actual</span><span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Total revenue recognized year-to-date. Sum of Deal Value for all Won and Closed deals in the Pipeline tab for the selected fiscal year. Closed deals are included as they represent completed contracts.</div></span></div></div>
+        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-ytd-target">—</div><div class="dash-kpi-lbl-row"><span class="dash-kpi-lbl" id="kpi-ytd-target-lbl">YTD Target</span><span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">The revenue you should have hit by now. Sum of monthly targets from January through the current month in the Goals tab.</div></span></div></div>
+        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-att">—</div><div class="dash-kpi-lbl-row"><span class="dash-kpi-lbl">Attainment</span><span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">How close you are to your YTD target.<br>Calculated as: YTD Actual ÷ YTD Target × 100.<br>Green = at or above target (≥100%)<br>Gold = close to target (75–99%)<br>Red = behind target (&lt;75%)</div></span></div></div>
       </div>
       </div>
       <div data-section-id="monthly-performance" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
         <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
-        <div class="dash-section-title">MONTHLY PERFORMANCE</div>
+        <div class="dash-section-title">MONTHLY PERFORMANCE <span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Month by month comparison of target vs actual revenue. Target comes from the Goals tab monthly columns. Actual comes from the monthly allocation columns in the Pipeline tab for Won and Closed deals only. Future months are grayed out.</div></span></div>
         <div id="dash-monthly">
           <table class="dash-table">
             <thead><tr><th>Month</th><th>Target</th><th>Actual</th><th>Variance</th><th>Attainment</th></tr></thead>
@@ -1645,7 +1684,7 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       <div data-section-id="service-breakdown" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
         <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
-        <div class="dash-section-title">SERVICE OFFERING BREAKDOWN</div>
+        <div class="dash-section-title">SERVICE OFFERING BREAKDOWN <span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Revenue performance per service line. Target = Annual Goal per service from Goals tab. Actual = sum of Deal Value for Won and Closed deals grouped by Service Offering. Progress bar shows attainment % visually.</div></span></div>
         <div id="dash-service">
           <table class="dash-table">
             <thead><tr><th>Service Offering</th><th>Target</th><th>Actual</th><th>Variance</th><th>Attainment</th></tr></thead>
@@ -1657,7 +1696,7 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       <div data-section-id="client-revenue" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
         <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
-        <div class="dash-section-title">CLIENT REVENUE BREAKDOWN</div>
+        <div class="dash-section-title">CLIENT REVENUE BREAKDOWN <span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Share of total revenue by client. Only includes Won and Closed deals for the selected year. Top 10 clients shown individually, remainder grouped as Other. Hover a segment to see exact values.</div></span></div>
         <div id="dash-client-wrap">
           <div id="dash-donut-chart" style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap"></div>
         </div>
@@ -1668,7 +1707,7 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
         <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="summary-row">
         <div class="summary-card">
-          <div class="summary-office">🇺🇸 US Office</div>
+          <div class="summary-office">🇺🇸 US Office <span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Active pipeline value per office. Shows deals in Lead, Qualified, Pitch, and Negotiation stages only — not Won, Lost, or Closed. Represents potential future revenue. US Office = USD deals, JP Office = JPY deals.</div></span></div>
           <div class="summary-total" id="summaryUSD">—</div>
           <div class="summary-sub" id="summaryUSD-sub">Active deal value · USD</div>
         </div>
@@ -1682,7 +1721,7 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       <div data-section-id="pipeline-stages" draggable="true" ondragstart="dndStart(event)" ondragover="dndOver(event)" ondragleave="dndLeave(event)" ondrop="dndDrop(event)" ondragend="dndEnd(event)">
         <div class="dnd-handle" title="Drag to reorder">⠿</div>
       <div class="dash-section">
-        <div class="dash-section-title">PIPELINE BY STAGE</div>
+        <div class="dash-section-title">PIPELINE BY STAGE <span class="dtip-wrap"><button class="dtip-btn" aria-label="More info">?</button><div class="dtip">Deal count and total value at each stage of the sales process for the selected fiscal year. All 7 stages shown. Active stages (Lead through Negotiation) show teal bars. Won = green. Lost = red. Closed = gray.</div></span></div>
         <div id="dash-stages" style="padding:4px 0"></div>
       </div>
       </div>
@@ -4250,6 +4289,7 @@ function showView(name) {
 
   // Init year selector
   dndLoadOrder();
+  initTooltips();
   const _yrEl = document.getElementById('dash-year');
   if (_yrEl) _yrEl.value = new Date().getFullYear();
 
@@ -4449,6 +4489,66 @@ function dndReset() {
   location.reload();
 }
 
+
+
+// ── Info tooltip engine ──────────────────────────────────────
+function initTooltips() {
+  document.querySelectorAll('.dtip-wrap').forEach(wrap => {
+    const btn = wrap.querySelector('.dtip-btn');
+    const tip = wrap.querySelector('.dtip');
+    if (!btn || !tip) return;
+
+    let hideT;
+
+    function position() {
+      const r = btn.getBoundingClientRect();
+      const tW = 280, tH = 120; // approx
+      let left = r.left + r.width / 2 - 16; // align arrow to button
+      let top  = r.top - tH - 14;
+      const below = top < 8;
+      if (below) {
+        top = r.bottom + 10;
+        tip.classList.add('tip-down');
+        tip.classList.remove('tip-up');
+      } else {
+        tip.classList.add('tip-up');
+        tip.classList.remove('tip-down');
+      }
+      // Keep within viewport horizontally
+      if (left + tW > window.innerWidth - 8) left = window.innerWidth - tW - 8;
+      if (left < 8) left = 8;
+      tip.style.left = left + 'px';
+      tip.style.top  = top + 'px';
+    }
+
+    function show() {
+      clearTimeout(hideT);
+      document.querySelectorAll('.dtip.visible').forEach(t => {
+        if (t !== tip) t.classList.remove('visible');
+      });
+      position();
+      tip.classList.add('visible');
+    }
+    function hide() { hideT = setTimeout(() => tip.classList.remove('visible'), 120); }
+
+    btn.addEventListener('mouseenter', show);
+    btn.addEventListener('mouseleave', hide);
+    tip.addEventListener('mouseenter', () => clearTimeout(hideT));
+    tip.addEventListener('mouseleave', hide);
+
+    // Mobile tap
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (tip.classList.contains('visible')) { tip.classList.remove('visible'); }
+      else { show(); }
+    });
+  });
+
+  // Close all on outside tap
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dtip.visible').forEach(t => t.classList.remove('visible'));
+  });
+}
 
 </script>
 
