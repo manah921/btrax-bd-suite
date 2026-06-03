@@ -1,243 +1,150 @@
-const crypto = require('crypto');
+const SHEET_ID = process.env.GOOGLE_SHEET_ID;
+const SA_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+const SA_KEY   = process.env.GOOGLE_PRIVATE_KEY;
 
-// ── Token cache (persists across warm lambda invocations) ────────────────────
-let _cachedToken = null;
-let _tokenExpiry  = 0;
-
-const ALLOWED_ORIGINS = [
-  'https://btrax-bd-suite.vercel.app',
-  'https://manah921.github.io',
-];
-
-// ── CORS ─────────────────────────────────────────────────────────────────────
-function setCORS(req, res) {
-  const origin = req.headers.origin;
-  if (ALLOWED_ORIGINS.includes(origin)) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Vary', 'Origin');
+function base64url(input) {
+  const buf = Buffer.isBuffer(input)
+    ? input
+    : Buffer.from(typeof input === 'string' ? input : JSON.stringify(input));
+  return buf.toString('base64')
+    .replace(/=/g, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
 }
 
-// ── JWT + token exchange ──────────────────────────────────────────────────────
-function makeJWT(email, privateKey) {
-  const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url');
-  const now    = Math.floor(Date.now() / 1000);
-  const payload = Buffer.from(JSON.stringify({
-    iss:   email,
-    scope: [
-      'https://www.googleapis.com/auth/spreadsheets',
-      'https://www.googleapis.com/auth/analytics.readonly',
-      'https://www.googleapis.com/auth/webmasters.readonly',
-    ].join(' '),
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: now + 3600,
-    iat: now,
-  })).toString('base64url');
+async function getAccessToken() {
+  const crypto = require('crypto');
+  const key = SA_KEY.replace(/\\n/g, '\n');
+  const now = Math.floor(Date.now() / 1000);
+
+  const header  = base64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const payload = base64url(JSON.stringify({
+    iss:   SA_EMAIL,
+    scope: 'https://www.googleapis.com/auth/spreadsheets',
+    aud:   'https://oauth2.googleapis.com/token',
+    exp:   now + 3600,
+    iat:   now,
+  }));
 
   const signingInput = `${header}.${payload}`;
   const sign = crypto.createSign('RSA-SHA256');
   sign.update(signingInput);
-  return `${signingInput}.${sign.sign(privateKey, 'base64url')}`;
-}
+  const signature  = sign.sign(key);
+  const encodedSig = base64url(signature);
+  const jwt = `${signingInput}.${encodedSig}`;
 
-async function getToken() {
-  if (_cachedToken && Date.now() < _tokenExpiry - 60_000) return _cachedToken;
-
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const raw   = process.env.GOOGLE_PRIVATE_KEY;
-  if (!email || !raw) throw new Error('GOOGLE_SERVICE_ACCOUNT_EMAIL and GOOGLE_PRIVATE_KEY env vars required');
-
-  const privateKey = raw.replace(/\\n/g, '\n');
-  const jwt  = makeJWT(email, privateKey);
-  const resp = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
+  const response = await fetch('https://oauth2.googleapis.com/token', {
+    method:  'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body:    `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+    body:    `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
   });
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error_description || data.error || `Token exchange failed HTTP ${resp.status}`);
 
-  _cachedToken = data.access_token;
-  _tokenExpiry = Date.now() + (data.expires_in || 3600) * 1000;
-  return _cachedToken;
+  const data = await response.json();
+  if (!data.access_token) throw new Error('Token failed: ' + JSON.stringify(data));
+  return data.access_token;
 }
 
-// ── Action handlers ───────────────────────────────────────────────────────────
-async function handleSheets(token, { path, method = 'GET', body }) {
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  if (!sheetId) throw new Error('GOOGLE_SHEET_ID env var required');
+async function readSheet(token, range) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}`;
+  const res  = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const data = await res.json();
+  if (!data.values) return { headers: [], rows: [] };
+  const headers = data.values[0];
+  const rows = data.values.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => { obj[h.trim()] = row[i] || ''; });
+    return obj;
+  });
+  return { headers, rows };
+}
 
-  const url  = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/${path}`;
-  const opts = { method, headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } };
-  if (body && method !== 'GET') opts.body = JSON.stringify(body);
-
-  const resp = await fetch(url, opts);
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error?.message || `HTTP ${resp.status}`);
+async function writeSheet(token, range, values) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+  const res  = await fetch(url, {
+    method:  'PUT',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ range, values }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
   return data;
 }
 
-// TODO: replace with live GA4/GSC data once
-// service account permissions resolved
-function handleGA4() {
-  return {
-    rows: [
-      { dimensionValues: [{ value: 'google / organic' }],   metricValues: [{ value: '3842' }] },
-      { dimensionValues: [{ value: 'direct / none' }],      metricValues: [{ value: '2105' }] },
-      { dimensionValues: [{ value: 'linkedin / social' }],  metricValues: [{ value: '984' }] },
-      { dimensionValues: [{ value: 'referral / btrax.com' }], metricValues: [{ value: '541' }] },
-      { dimensionValues: [{ value: 'email / newsletter' }], metricValues: [{ value: '318' }] },
-    ],
-    totals: [{ metricValues: [{ value: '7790' }, { value: '5421' }] }],
-    rowCount: 5,
-    _mock: true,
-  };
-}
-
-function handleGSC() {
-  return {
-    rows: [
-      { keys: ['ux design agency japan'],         clicks: 142, impressions: 4820, ctr: 0.029, position: 3.2 },
-      { keys: ['design thinking consulting'],     clicks: 98,  impressions: 3105, ctr: 0.032, position: 4.7 },
-      { keys: ['btrax san francisco'],            clicks: 87,  impressions: 1240, ctr: 0.070, position: 2.1 },
-      { keys: ['japan market entry strategy'],    clicks: 74,  impressions: 2890, ctr: 0.026, position: 5.3 },
-      { keys: ['cross cultural design'],          clicks: 61,  impressions: 1680, ctr: 0.036, position: 6.8 },
-      { keys: ['ui ux consulting firm'],          clicks: 53,  impressions: 2240, ctr: 0.024, position: 7.1 },
-      { keys: ['innovation consulting tokyo'],    clicks: 47,  impressions: 1560, ctr: 0.030, position: 4.4 },
-      { keys: ['service design agency'],          clicks: 39,  impressions: 1890, ctr: 0.021, position: 8.2 },
-      { keys: ['bilingual design team'],          clicks: 31,  impressions: 920,  ctr: 0.034, position: 5.9 },
-      { keys: ['japan us business consulting'],   clicks: 28,  impressions: 1340, ctr: 0.021, position: 9.4 },
-    ],
-    responseAggregationType: 'byPage',
-    _mock: true,
-  };
-}
-
-async function handleGoals(token, { year }) {
-  const sheetId    = process.env.GOOGLE_SHEET_ID;
-  if (!sheetId) throw new Error('GOOGLE_SHEET_ID env var required');
-
-  const targetYear = parseInt(year) || new Date().getFullYear();
-  const parseNum   = s => parseFloat(String(s || '').replace(/[$,\s]/g, '')) || 0;
-  const MONTHS     = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-  // Fetch Goals tab
-  const resp = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Goals!A:P`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error?.message || `HTTP ${resp.status}`);
-
-  const rows = data.values || [];
-  if (!rows.length) return { totalGoal: 0, monthlyTargets: new Array(12).fill(0), serviceGoals: {} };
-
-  // Headers: "Fiscal Year | Service Offering | Annual Goal | Jan | Feb | ... | Dec"
-  const headers = rows[0].map(h => String(h || '').trim());
-
-  const yearCI   = headers.findIndex(h => /year|fiscal/i.test(h));
-  const svcCI    = headers.findIndex(h => /service/i.test(h));
-  const goalCI   = headers.findIndex(h => /annual|goal/i.test(h));
-  const monthCIs = MONTHS.map(m => headers.findIndex(h => h.toLowerCase() === m.toLowerCase()));
-
-  let totalGoal = 0;
-  const monthlyTargets = new Array(12).fill(0);
-  const serviceGoals   = {};
-
-  rows.slice(1).forEach(row => {
-    if (!row.some(c => c)) return;
-    // Normalize year: compare as trimmed strings
-    const rowYearStr = String(row[yearCI] || '').trim();
-    if (yearCI >= 0 && rowYearStr && rowYearStr !== String(targetYear).trim()) return;
-
-    const goal = goalCI >= 0 ? parseNum(row[goalCI]) : 0;
-    // Normalize service key to lowercase for case-insensitive matching
-    const svc  = svcCI  >= 0 ? String(row[svcCI] || '').trim().toLowerCase() : '';
-
-    if (goal) totalGoal += goal;
-    if (svc && goal) serviceGoals[svc] = (serviceGoals[svc] || 0) + goal;
-
-    monthCIs.forEach((ci, mi) => {
-      if (ci >= 0 && row[ci]) monthlyTargets[mi] += parseNum(row[ci]);
-    });
+async function appendSheet(token, range, values) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+  const res  = await fetch(url, {
+    method:  'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ values }),
   });
-
-  // If monthly targets all zero, distribute annual goal evenly
-  if (totalGoal > 0 && monthlyTargets.every(t => t === 0)) {
-    const each = totalGoal / 12;
-    for (let i = 0; i < 12; i++) monthlyTargets[i] = each;
-  }
-
-  return { totalGoal, monthlyTargets, serviceGoals };
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+  return data;
 }
 
-async function handleTest(token) {
-  const sheetId = process.env.GOOGLE_SHEET_ID;
-  const authHdr = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
-
-  const sheetsResult = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A1`,
-    { headers: authHdr }
-  ).then(r => r.ok ? { ok: true } : r.json().then(e => { throw new Error(e.error?.message || `HTTP ${r.status}`); }))
-   .catch(e => ({ ok: false, error: e.message }));
-
+function getMockGA4() {
   return {
-    sheets: sheetsResult,
-    ga4:    { ok: true, mock: true },
-    gsc:    { ok: true, mock: true },
+    sessions: 3842, users: 2917, avgSessionDuration: '2m 34s',
+    topSources:   [{ source: 'google / organic', sessions: 1840 }, { source: 'direct / none', sessions: 892 }, { source: 'linkedin / referral', sessions: 341 }],
+    topCountries: [{ country: 'United States', sessions: 1923 }, { country: 'Japan', sessions: 1124 }],
+    topCities:    [{ city: 'San Francisco', sessions: 687 }, { city: 'Tokyo', sessions: 542 }],
+    devices:      { desktop: 61, mobile: 34, tablet: 5 },
   };
 }
 
-// ── Main handler ──────────────────────────────────────────────────────────────
+function getMockGSC() {
+  return {
+    totalClicks: 1610, totalImpressions: 17000, avgCTR: 9.4, avgPosition: 7.9,
+    topQueries: [
+      { query: 'btrax',                        clicks: 782, impressions: 1463, ctr: 53.4, position: 1.2 },
+      { query: 'btrax japan',                  clicks:  57, impressions:   99, ctr: 57.6, position: 2.1 },
+      { query: 'japan market entry design',    clicks:  24, impressions:  412, ctr:  5.8, position: 8.4 },
+    ],
+  };
+}
+
 module.exports = async function handler(req, res) {
-  setCORS(req, res);
+  res.setHeader('Access-Control-Allow-Origin',  '*');
+  res.setHeader('Access-Control-Allow-Methods', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Debug logging
-  console.log('Method:', req.method);
-  console.log('Body:', req.body);
-  console.log('Query:', req.query);
-
-  // Ensure body is parsed (Vercel may deliver it as a string)
   if (typeof req.body === 'string') {
     try { req.body = JSON.parse(req.body); } catch { req.body = {}; }
   }
 
-  // Accept action from POST body or GET query string
-  const body   = req.body   || {};
-  const query  = req.query  || {};
-  const action = body.action || query.action;
-  const params = { ...body, ...query };
-  delete params.action;
-
-  // Quick connectivity test — no auth required
-  if (action === 'test' || req.method === 'GET' && !action) {
-    return res.status(200).json({ ok: true, message: 'API is working' });
-  }
-
-  if (!action) return res.status(400).json({ error: 'Missing action parameter' });
-
-  // All other actions require POST
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  const action = req.query?.action || req.body?.action;
+  if (action === 'test') return res.json({ ok: true });
+  if (!action)           return res.status(400).json({ error: 'Missing action parameter' });
 
   try {
-    const token = await getToken();
+    const token = await getAccessToken();
 
-    console.log('Valid actions: sheets, pipeline, contacts, goals, ga4, gsc, test');
+    if (action === 'pipeline') {
+      const { rows } = await readSheet(token, 'Pipeline!A1:AB1000');
+      return res.json({ data: rows });
+    }
+    if (action === 'goals') {
+      const { rows } = await readSheet(token, 'Goals!A1:P100');
+      return res.json({ data: rows });
+    }
+    if (action === 'contacts') {
+      const { rows } = await readSheet(token, 'Contacts!A1:H1000');
+      return res.json({ data: rows });
+    }
+    if (action === 'write') {
+      const result = await writeSheet(token, req.body.range, req.body.values);
+      return res.json(result);
+    }
+    if (action === 'append') {
+      const result = await appendSheet(token, req.body.range, req.body.values);
+      return res.json(result);
+    }
+    if (action === 'ga4') return res.json({ data: getMockGA4() });
+    if (action === 'gsc') return res.json({ data: getMockGSC() });
 
-    let result;
-    if      (action === 'sheets'   ||
-             action === 'pipeline' ||
-             action === 'contacts')  result = await handleSheets(token, params);
-    else if (action === 'goals')     result = await handleGoals(token, params);
-    else if (action === 'ga4')       result = handleGA4();
-    else if (action === 'gsc')       result = handleGSC();
-    else if (action === 'test')      result = await handleTest(token);
-    else return res.status(400).json({ error: `Unknown action: ${action}` });
+    return res.status(400).json({ error: 'Unknown action: ' + action });
 
-    return res.status(200).json(result);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
