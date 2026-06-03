@@ -194,9 +194,33 @@ async function handleTest(token) {
 module.exports = async function handler(req, res) {
   setCORS(req, res);
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
 
-  const { action, ...params } = req.body || {};
+  // Debug logging
+  console.log('Method:', req.method);
+  console.log('Body:', req.body);
+  console.log('Query:', req.query);
+
+  // Ensure body is parsed (Vercel may deliver it as a string)
+  if (typeof req.body === 'string') {
+    try { req.body = JSON.parse(req.body); } catch { req.body = {}; }
+  }
+
+  // Accept action from POST body or GET query string
+  const body   = req.body   || {};
+  const query  = req.query  || {};
+  const action = body.action || query.action;
+  const params = { ...body, ...query };
+  delete params.action;
+
+  // Quick connectivity test — no auth required
+  if (action === 'test' || req.method === 'GET' && !action) {
+    return res.status(200).json({ ok: true, message: 'API is working' });
+  }
+
+  if (!action) return res.status(400).json({ error: 'Missing action parameter' });
+
+  // All other actions require POST
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     const token = await getToken();
