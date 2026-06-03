@@ -1296,6 +1296,133 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
   transition: width .18s ease, min-width .18s ease;
 }
 
+
+/* ═══════════════════════════════════════════════════════
+   PIPELINE SUMMARY DASHBOARD
+═══════════════════════════════════════════════════════ */
+.dash-wrapper { margin-bottom: 32px; }
+
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.dash-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  color: var(--navy);
+}
+.dash-year-sel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 6px 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+.dash-year-sel:focus { outline: none; border-color: var(--primary); }
+
+/* Row 1: KPI cards */
+.dash-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.dash-kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px 22px;
+}
+.dash-kpi-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: .5px;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.dash-kpi-val.kpi-green { color: #1B5E20; }
+.dash-kpi-val.kpi-gold  { color: #F57F17; }
+.dash-kpi-val.kpi-red   { color: var(--alert); }
+.dash-kpi-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Rows 2, 3, 5: section blocks */
+.dash-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.dash-section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+
+/* Monthly table */
+.dash-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.dash-table th {
+  text-align: left;
+  padding: 7px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.dash-table td { padding: 8px 12px; border-bottom: 1px solid rgba(224,224,224,.5); }
+.dash-table tr:last-child td { border-bottom: none; }
+.dash-table tr.dash-cur-month td { border-left: 3px solid var(--primary); }
+.dash-table tr.dash-cur-month td:first-child { padding-left: 9px; }
+.dash-table tr.dash-future td  { color: var(--text-muted); opacity: .55; }
+.dash-var-pos { color: #1B5E20; font-weight: 600; }
+.dash-var-neg { color: var(--alert); font-weight: 600; }
+.dash-att-green { color: #1B5E20; font-weight: 700; }
+.dash-att-gold  { color: #F57F17; font-weight: 700; }
+.dash-att-red   { color: var(--alert); font-weight: 700; }
+
+/* Service breakdown progress bar */
+.dash-svc-bar-wrap { height: 5px; background: var(--bg); border-radius: 3px; margin-top: 5px; overflow: hidden; }
+.dash-svc-bar      { height: 100%; background: var(--primary); border-radius: 3px; transition: width .5s ease; }
+
+/* Stage bars */
+.dash-stage-row  { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.dash-stage-row:last-child { margin-bottom: 0; }
+.dash-stage-lbl  { width: 110px; font-size: 12px; font-weight: 600; color: var(--text); flex-shrink: 0; }
+.dash-stage-track { flex: 1; height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; }
+.dash-stage-fill  { height: 100%; background: var(--primary); border-radius: 5px; transition: width .5s ease; }
+.dash-stage-meta  { font-size: 11px; color: var(--text-muted); white-space: nowrap; min-width: 120px; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .dash-kpi-row { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 767px) {
+  .dash-kpi-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dash-section { padding: 16px; }
+}
+
 </style>
 </head>
 <body>
@@ -1394,18 +1521,70 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
       Connect Google Sheets in Settings to sync data
     </div>
 
-    <div class="summary-row">
-      <div class="summary-card">
-        <div class="summary-office">🇺🇸 US Office</div>
-        <div class="summary-total" id="summaryUSD">—</div>
-        <div class="summary-sub">Active deal value · USD</div>
+    <!-- ═══ PIPELINE SUMMARY DASHBOARD ═══ -->
+    <div class="dash-wrapper" id="dash-wrapper">
+
+      <!-- header + year selector -->
+      <div class="dash-header">
+        <span class="dash-title">PIPELINE OVERVIEW</span>
+        <select id="dash-year" class="dash-year-sel" onchange="dashSetYear(+this.value)">
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
+        </select>
       </div>
-      <div class="summary-card">
-        <div class="summary-office">🇯🇵 JP Office</div>
-        <div class="summary-total" id="summaryJPY">—</div>
-        <div class="summary-sub">Active deal value · JPY</div>
+
+      <!-- Row 1: KPI cards -->
+      <div class="dash-kpi-row" id="dash-kpi-row">
+        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-goal">—</div><div class="dash-kpi-lbl">Annual Goal</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-ytd-actual">—</div><div class="dash-kpi-lbl" id="kpi-ytd-actual-lbl">YTD Actual</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-ytd-target">—</div><div class="dash-kpi-lbl" id="kpi-ytd-target-lbl">YTD Target</div></div>
+        <div class="dash-kpi"><div class="dash-kpi-val" id="kpi-att">—</div><div class="dash-kpi-lbl">Attainment</div></div>
       </div>
-    </div>
+
+      <!-- Row 2: Monthly performance -->
+      <div class="dash-section">
+        <div class="dash-section-title">MONTHLY PERFORMANCE</div>
+        <div id="dash-monthly">
+          <table class="dash-table">
+            <thead><tr><th>Month</th><th>Target</th><th>Actual</th><th>Variance</th><th>Attainment</th></tr></thead>
+            <tbody id="dash-monthly-body"><tr><td colspan="5" style="color:var(--text-muted);padding:16px 12px">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Row 3: Service breakdown -->
+      <div class="dash-section">
+        <div class="dash-section-title">SERVICE OFFERING BREAKDOWN</div>
+        <div id="dash-service">
+          <table class="dash-table">
+            <thead><tr><th>Service Offering</th><th>Target</th><th>Actual</th><th>Variance</th><th>Attainment</th></tr></thead>
+            <tbody id="dash-service-body"><tr><td colspan="5" style="color:var(--text-muted);padding:16px 12px">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Row 4: Office breakdown -->
+      <div class="summary-row">
+        <div class="summary-card">
+          <div class="summary-office">🇺🇸 US Office</div>
+          <div class="summary-total" id="summaryUSD">—</div>
+          <div class="summary-sub" id="summaryUSD-sub">Active deal value · USD</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-office">🇯🇵 JP Office</div>
+          <div class="summary-total" id="summaryJPY">—</div>
+          <div class="summary-sub" id="summaryJPY-sub">Active deal value · JPY</div>
+        </div>
+      </div>
+
+      <!-- Row 5: Pipeline by stage -->
+      <div class="dash-section">
+        <div class="dash-section-title">PIPELINE BY STAGE</div>
+        <div id="dash-stages" style="padding:4px 0"></div>
+      </div>
+
+    </div><!-- /dash-wrapper -->
 
     <!-- saved views tabs -->
     <div class="p-views-bar" id="p-views-bar">
@@ -1744,6 +1923,7 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 
 const SHEET_ID     = '1qVTWgyorlomQiesFbDf7-RmPcQ2lwXtFno6UClZk210';
 const PIPELINE_TAB = 'Pipeline';
+const GOALS_TAB    = 'Goals';
 const CONTACTS_TAB = 'Contacts';
 const GA4_PROPERTY = '260384621';
 
@@ -1823,6 +2003,8 @@ let _pView       = 'summary';   // 'summary' | 'full'
 let _pFilters    = [];          // [{ci,cond,val}] custom filter conditions
 let _pSavedViews = [];          // [{name, filters, filterSt, filterReg, search}]
 let _pFpState    = { region:'US', currency:'USD', alloc:'auto', source:'outbound' }; // form panel state
+let _selectedYear = new Date().getFullYear();
+let _goalsData    = null;  // parsed goals: { totalGoal, monthlyTargets[], serviceGoals{} }
 let _activeEdit  = null;        // { td, ri, ci, before }
 let _dragCI      = -1;
 let _pSyncTimer  = null;
@@ -2005,6 +2187,13 @@ const SAMPLE_ROWS = [
 
 async function loadPipeline() {
   if (!_pColW.length) pInitPrefs();
+
+  // Sync year selector to current state
+  const yrSel = document.getElementById('dash-year');
+  if (yrSel) yrSel.value = _selectedYear;
+
+  // Ensure goals are loaded
+  if (!_goalsData) await loadGoals();
 
   // Show sample data immediately so the table is never blank
   if (!_pRows.length) {
@@ -2821,29 +3010,240 @@ async function onCellBlur(el) {
   finally { el.classList.remove('saving'); }
 }
 
-// ─── Summary cards ───────────────────────────────────────────
 
-function calcSummary() {
-  const rows = pGetFilteredRows().map(({r}) => r);
+// ═══════════════════════════════════════════════════════ GOALS + DASHBOARD
+
+const MONTHS_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+async function loadGoals() {
+  try {
+    const data = await sheetsGet(`${GOALS_TAB}!A:P`);
+    _goalsData = parseGoals(data.values || [], _selectedYear);
+  } catch {
+    _goalsData = { totalGoal: 0, monthlyTargets: new Array(12).fill(0), serviceGoals: {} };
+  }
+}
+
+function parseGoals(rows, year) {
+  const empty = { totalGoal: 0, monthlyTargets: new Array(12).fill(0), serviceGoals: {} };
+  if (!rows || !rows.length) return empty;
+
+  // Detect header row (first row with text)
+  const headers = rows[0].map(h => String(h||'').trim().toLowerCase());
+  const yearCI    = headers.findIndex(h => h.includes('year') || h.includes('fiscal'));
+  const goalCI    = headers.findIndex(h => h.includes('annual') || h.includes('goal') || h.includes('total target'));
+  const serviceCI = headers.findIndex(h => h.includes('service'));
+  const monthCIs  = MONTHS_ABBR.map(m => {
+    const idx = headers.indexOf(m.toLowerCase());
+    return idx >= 0 ? idx : headers.findIndex(h => h.startsWith(m.toLowerCase()));
+  });
+
+  let totalGoal = 0;
+  const monthlyTargets = new Array(12).fill(0);
+  const serviceGoals   = {};
+
+  rows.slice(1).forEach(row => {
+    if (!row.some(c => c)) return; // skip blank rows
+    const rowYear = yearCI >= 0 ? parseInt(row[yearCI]) : year;
+    if (rowYear && rowYear !== year) return;
+
+    const goal = parseFloat(String(row[goalCI >= 0 ? goalCI : 1] || '').replace(/[^0-9.-]/g,'')) || 0;
+    const svc  = serviceCI >= 0 ? String(row[serviceCI] || '').trim() : '';
+
+    if (!svc) {
+      if (goal) totalGoal = goal;
+      monthCIs.forEach((ci, mi) => {
+        if (ci >= 0) {
+          const v = parseFloat(String(row[ci]||'').replace(/[^0-9.-]/g,'')) || 0;
+          if (v) monthlyTargets[mi] = v;
+        }
+      });
+    } else {
+      serviceGoals[svc] = (serviceGoals[svc] || 0) + goal;
+    }
+  });
+
+  // If monthlyTargets all zero but totalGoal set, distribute evenly
+  if (totalGoal > 0 && monthlyTargets.every(t => t === 0)) {
+    const each = totalGoal / 12;
+    for (let i = 0; i < 12; i++) monthlyTargets[i] = each;
+  }
+
+  return { totalGoal, monthlyTargets, serviceGoals };
+}
+
+function dashSetYear(y) {
+  _selectedYear = y;
+  loadGoals().then(() => renderDashboard());
+}
+
+function fmtUSD(v) { return '$' + Math.round(v).toLocaleString('en-US'); }
+function attClass(pct) {
+  return pct >= 100 ? 'dash-att-green' : pct >= 75 ? 'dash-att-gold' : 'dash-att-red';
+}
+function kpiClass(pct) {
+  return pct >= 100 ? 'kpi-green' : pct >= 75 ? 'kpi-gold' : 'kpi-red';
+}
+
+function renderDashboard() {
+  const now      = new Date();
+  const curMonth = now.getMonth(); // 0-indexed
+  const goals    = _goalsData || { totalGoal: 0, monthlyTargets: new Array(12).fill(0), serviceGoals: {} };
+
+  // Won deals for selected year
+  const wonRows = _pRows.filter(r => (r[STATUS_CI]||'').toLowerCase() === 'won');
+
+  // YTD Target = sum monthly targets Jan → current month (inclusive)
+  const ytdTarget = goals.monthlyTargets.slice(0, curMonth + 1).reduce((s, v) => s + v, 0);
+
+  // YTD Actual = sum of Won deal monthly cols Jan → current month
+  let ytdActual = 0;
+  wonRows.forEach(r => {
+    for (let m = 0; m <= curMonth; m++) ytdActual += parseFloat(r[14 + m]) || 0;
+  });
+
+  const attPct = ytdTarget > 0 ? (ytdActual / ytdTarget * 100) : 0;
+
+  // ── Row 1: KPI cards ──────────────────────────────────────
+  const kpiGoal   = document.getElementById('kpi-goal');
+  const kpiAct    = document.getElementById('kpi-ytd-actual');
+  const kpiLbl    = document.getElementById('kpi-ytd-actual-lbl');
+  const kpiTgt    = document.getElementById('kpi-ytd-target');
+  const kpiTgtLbl = document.getElementById('kpi-ytd-target-lbl');
+  const kpiAtt    = document.getElementById('kpi-att');
+
+  if (kpiGoal) kpiGoal.textContent = goals.totalGoal ? fmtUSD(goals.totalGoal) : '—';
+  if (kpiAct) {
+    kpiAct.textContent = ytdActual ? fmtUSD(ytdActual) : '—';
+    kpiAct.className   = 'dash-kpi-val ' + (ytdTarget ? kpiClass(attPct) : '');
+  }
+  if (kpiLbl)    kpiLbl.textContent    = `YTD Actual (as of ${MONTH_NAMES[curMonth]})`;
+  if (kpiTgt)    kpiTgt.textContent    = ytdTarget ? fmtUSD(ytdTarget) : '—';
+  if (kpiTgtLbl) kpiTgtLbl.textContent = `YTD Target (Jan–${MONTHS_ABBR[curMonth]})`;
+  if (kpiAtt) {
+    kpiAtt.textContent  = ytdTarget ? attPct.toFixed(1) + '%' : '—';
+    kpiAtt.className    = 'dash-kpi-val ' + (ytdTarget ? kpiClass(attPct) : '');
+  }
+
+  // ── Row 2: Monthly performance ────────────────────────────
+  const tbody2 = document.getElementById('dash-monthly-body');
+  if (tbody2) {
+    let html = '';
+    for (let m = 0; m < 12; m++) {
+      const isCur    = m === curMonth;
+      const isFuture = m > curMonth;
+      const tgt = goals.monthlyTargets[m] || 0;
+      let actual = 0;
+      wonRows.forEach(r => { actual += parseFloat(r[14 + m]) || 0; });
+      const variance = actual - tgt;
+      const att      = tgt > 0 ? (actual / tgt * 100) : 0;
+      const varClass = variance >= 0 ? 'dash-var-pos' : 'dash-var-neg';
+      const varStr   = variance >= 0 ? '+' + fmtUSD(variance) : fmtUSD(variance);
+      const rowCls   = isCur ? 'dash-cur-month' : isFuture ? 'dash-future' : '';
+      const attStr   = isFuture ? '—' : (tgt > 0 ? `<span class="${attClass(att)}">${att.toFixed(0)}%</span>` : '—');
+      const actualStr = isFuture ? '—' : fmtUSD(actual);
+      const varCell  = isFuture ? '—' : `<span class="${varClass}">${varStr}</span>`;
+      html += `<tr class="${rowCls}">
+        <td><strong>${MONTH_NAMES[m]}</strong></td>
+        <td>${tgt ? fmtUSD(tgt) : '—'}</td>
+        <td>${actualStr}</td>
+        <td>${varCell}</td>
+        <td>${attStr}</td>
+      </tr>`;
+    }
+    tbody2.innerHTML = html;
+  }
+
+  // ── Row 3: Service breakdown ──────────────────────────────
+  const tbody3 = document.getElementById('dash-service-body');
+  if (tbody3) {
+    // Collect actuals by service from Won rows
+    const svcActuals = {};
+    wonRows.forEach(r => {
+      const svc = (r[4] || 'Other').trim();
+      svcActuals[svc] = (svcActuals[svc] || 0) + (parseFloat(r[VALUE_CI]) || 0);
+    });
+
+    // Merge with goals
+    const allSvcs = new Set([...Object.keys(goals.serviceGoals), ...Object.keys(svcActuals)]);
+    if (!allSvcs.size) {
+      tbody3.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted);padding:16px 12px">No service data yet</td></tr>';
+    } else {
+      let html = '';
+      allSvcs.forEach(svc => {
+        const tgt    = goals.serviceGoals[svc] || 0;
+        const actual = svcActuals[svc]         || 0;
+        const variance = actual - tgt;
+        const att   = tgt > 0 ? Math.min((actual / tgt * 100), 100) : 0;
+        const varClass = variance >= 0 ? 'dash-var-pos' : 'dash-var-neg';
+        const varStr   = variance >= 0 ? '+' + fmtUSD(variance) : fmtUSD(variance);
+        const attStr   = tgt > 0 ? `<span class="${attClass(att < 0 ? 0 : att)}">${att.toFixed(0)}%</span>` : '—';
+        html += `<tr>
+          <td>
+            <div style="font-weight:600">${esc(svc)}</div>
+            <div class="dash-svc-bar-wrap"><div class="dash-svc-bar" style="width:${Math.max(2,att)}%"></div></div>
+          </td>
+          <td>${tgt ? fmtUSD(tgt) : '—'}</td>
+          <td>${fmtUSD(actual)}</td>
+          <td>${tgt ? `<span class="${varClass}">${varStr}</span>` : '—'}</td>
+          <td>${attStr}</td>
+        </tr>`;
+      });
+      tbody3.innerHTML = html;
+    }
+  }
+
+  // ── Row 4: Office breakdown (USD / JPY totals — all active deals) ──
   let usd = 0, jpy = 0, usdCount = 0, jpyCount = 0;
-  rows.forEach(r => {
-    const cur = (r[CURRENCY_CI] || '').toUpperCase().trim();
-    const v   = parseFloat(String(r[VALUE_CI] || '').replace(/[^0-9.-]/g,'')) || 0;
+  _pRows.forEach(r => {
+    const s = (r[STATUS_CI]||'').toLowerCase();
+    if (s === 'lost' || s === 'closed') return;
+    const cur = (r[CURRENCY_CI]||'').toUpperCase();
+    const v   = parseFloat(String(r[VALUE_CI]||'').replace(/[^0-9.-]/g,'')) || 0;
     if (cur === 'USD') { usd += v; usdCount++; }
     else if (cur === 'JPY') { jpy += v; jpyCount++; }
   });
-  document.getElementById('summaryUSD').textContent =
-    '$' + usd.toLocaleString('en-US', { maximumFractionDigits: 0 });
-  document.getElementById('summaryJPY').textContent =
-    '¥' + jpy.toLocaleString('ja-JP');
-  const uSub = document.querySelector('#summaryUSD + .summary-sub');
-  const jSub = document.querySelector('#summaryJPY + .summary-sub');
-  // update deal count labels if elements exist
-  const cards = document.querySelectorAll('.summary-card');
-  if (cards[0]) cards[0].querySelector('.summary-sub').textContent =
-    `${usdCount} deal${usdCount!==1?'s':''} · USD`;
-  if (cards[1]) cards[1].querySelector('.summary-sub').textContent =
-    `${jpyCount} deal${jpyCount!==1?'s':''} · JPY`;
+  const elUSD = document.getElementById('summaryUSD');
+  const elJPY = document.getElementById('summaryJPY');
+  if (elUSD) elUSD.textContent = '$' + usd.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  if (elJPY) elJPY.textContent = '¥' + jpy.toLocaleString('ja-JP');
+  const uSub = document.getElementById('summaryUSD-sub');
+  const jSub = document.getElementById('summaryJPY-sub');
+  if (uSub) uSub.textContent = `${usdCount} active deal${usdCount!==1?'s':''} · USD`;
+  if (jSub) jSub.textContent = `${jpyCount} active deal${jpyCount!==1?'s':''} · JPY`;
+
+  // ── Row 5: Pipeline by stage ──────────────────────────────
+  const stagesEl = document.getElementById('dash-stages');
+  if (stagesEl) {
+    const ACTIVE_STAGES = ['Lead','Qualified','Pitch','Negotiation'];
+    const stageCounts = {}, stageValues = {};
+    ACTIVE_STAGES.forEach(s => { stageCounts[s] = 0; stageValues[s] = 0; });
+    _pRows.forEach(r => {
+      const s = (r[STATUS_CI]||'').trim();
+      if (ACTIVE_STAGES.includes(s)) {
+        stageCounts[s]++;
+        stageValues[s] += parseFloat(String(r[VALUE_CI]||'').replace(/[^0-9.-]/g,'')) || 0;
+      }
+    });
+    const maxCount = Math.max(...ACTIVE_STAGES.map(s => stageCounts[s]), 1);
+    stagesEl.innerHTML = ACTIVE_STAGES.map(stage => {
+      const count = stageCounts[stage], val = stageValues[stage];
+      const pct   = (count / maxCount * 100).toFixed(1);
+      const pill  = STATUS_CSS[stage.toLowerCase()] || '';
+      return `<div class="dash-stage-row">
+        <div class="dash-stage-lbl"><span class="st-pill" style="${pill}">${esc(stage)}</span></div>
+        <div class="dash-stage-track"><div class="dash-stage-fill" style="width:${pct}%"></div></div>
+        <div class="dash-stage-meta">${count} deal${count!==1?'s':''} · ${fmtUSD(val)}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ─── Summary cards ───────────────────────────────────────────
+
+function calcSummary() {
+  renderDashboard();
 }
 
 // ─── Add Deal ────────────────────────────────────────────────
@@ -3380,6 +3780,10 @@ function showView(name) {
   buildAddContactForm();
   updateBanners();
   setConn('none');
+
+  // Init year selector
+  const _yrEl = document.getElementById('dash-year');
+  if (_yrEl) _yrEl.value = new Date().getFullYear();
 
   // Auto-connect: test API on load
   apiReq('test')
