@@ -3412,21 +3412,23 @@ function renderDashboard() {
     ...Object.fromEntries(MONTHS_12.map((m,i) => [m, r[14+i]])),
   }));
 
-  const wonRows = srcRows.filter(r =>
-    String(r['Status']||'').trim().toLowerCase() === 'won' &&
-    (!r['Fiscal Year'] || String(r['Fiscal Year']).trim() === '' ||
-     String(r['Fiscal Year']).trim() === String(_selectedYear))
-  );
+  const wonRows = srcRows.filter(r => {
+    const s = String(r['Status']||'').trim().toLowerCase();
+    return ['won','closed'].includes(s) &&
+      (!r['Fiscal Year'] || String(r['Fiscal Year']).trim() === '' ||
+       String(r['Fiscal Year']).trim() === String(_selectedYear));
+  });
 
   // YTD Target = sum monthly targets Jan → current month (inclusive)
   const ytdTarget = goals.monthlyTargets.slice(0, curMonth + 1).reduce((s, v) => s + v, 0);
 
-  // YTD Actual = sum of Won deal monthly values Jan → current month
+  // YTD Actual = sum of Won+Closed deal monthly values Jan → current month
   let ytdActual = 0;
   wonRows.forEach(r => {
     for (let m = 0; m <= curMonth; m++) ytdActual += parseNum(r[MONTHS_12[m]]);
   });
 
+  console.log('Attainment calc:', ytdActual, '/', ytdTarget, '=', (ytdTarget > 0 ? (ytdActual/ytdTarget*100).toFixed(1) : '0') + '%');
   const attPct = ytdTarget > 0 ? (ytdActual / ytdTarget * 100) : 0;
 
   // ── Row 1: KPI cards ──────────────────────────────────────
