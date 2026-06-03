@@ -1553,6 +1553,62 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 .summary-office { display: flex; align-items: center; gap: 5px; }
 
 
+.insights-section {
+  border-left: 4px solid #00BCD4;
+  background: #F0FAFB;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+.insights-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.insights-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: #1A1A1A;
+  letter-spacing: 0.05em;
+}
+.insights-meta {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 11px;
+  color: #9CA3AF;
+}
+.insights-body p {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #4A4A4A;
+  margin-bottom: 10px;
+}
+.insights-steps {
+  background: white;
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin-top: 16px;
+}
+.insights-steps-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  color: #1A1A1A;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+.insights-step {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 13px;
+  color: #4A4A4A;
+  line-height: 1.6;
+  padding: 4px 0;
+  border-bottom: 1px solid #F0F0F0;
+}
+.insights-step:last-child {
+  border-bottom: none;
+}
+
 /* ── Leads KPI row (5 cards) ─────────────────────────────── */
 .leads-kpi-row {
   display: grid;
@@ -2095,6 +2151,27 @@ GROUP BY [Currency]  -- USD → US Office, JPY → JP Office</code>
           <button class="date-range-btn" onclick="setLeadsRange(7, this)">7 days</button>
           <button class="date-range-btn" onclick="setLeadsRange(28, this)">28 days</button>
           <button class="date-range-btn active" onclick="setLeadsRange(90, this)">3 months</button>
+        </div>
+      </div>
+
+      <!-- Inbound Insights -->
+      <div class="insights-section">
+        <div class="insights-header">
+          <span class="insights-title">INBOUND INSIGHTS</span>
+          <span class="insights-meta">Auto-generated · Based on 3 month data · June 2026</span>
+        </div>
+        <div class="insights-body">
+          <p>btrax.com received 3,842 sessions from 2,917 unique visitors in the last 3 months. Your average search position is 7.9, with 1,610 clicks from 17,000 impressions — a 9.4% click-through rate. There is room to improve search rankings to reach page 1.</p>
+          <p>6 of 8 top queries are discovery searches — people finding Btrax without knowing the brand. This signals strong organic demand for your services beyond brand awareness.</p>
+          <p>Your highest-opportunity search term is "japan market entry design" with 412 impressions but only 5.8% CTR at position 8.4. Improving this page's title and meta description could significantly increase clicks.</p>
+          <p>Your largest audience is from the United States (1,923 sessions), followed by Japan (1,124 sessions). Japanese-language content could better serve this second audience.</p>
+        </div>
+        <div class="insights-steps">
+          <div class="insights-steps-title">SUGGESTED NEXT STEPS</div>
+          <div class="insights-step">→ Optimize page titles for discovery queries to improve search position from 7.9 toward top 5</div>
+          <div class="insights-step">→ Create a dedicated landing page for "Japan market entry design" to improve the 5.8% CTR</div>
+          <div class="insights-step">→ Japanese-language content could better serve your 1,124 Japanese visitors</div>
+          <div class="insights-step">→ Connect live GA4 and GSC data to get real-time insights instead of sample data</div>
         </div>
       </div>
 
