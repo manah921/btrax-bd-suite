@@ -1553,6 +1553,26 @@ hr.modal-divider { border: none; border-top: 1px solid var(--border); margin: 20
 .summary-office { display: flex; align-items: center; gap: 5px; }
 
 
+/* ── Inbound Insights ────────────────────────────────────── */
+.inbound-insights {
+  background: #F0FAFB;
+  border-left: 4px solid var(--primary);
+  border-radius: 0 var(--r) var(--r) 0;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.ii-header { display:flex; align-items:baseline; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+.ii-title  { font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:1.5px; color:var(--navy); }
+.ii-sub    { font-size:11px; color:var(--text-muted); }
+.ii-body   { margin-bottom:16px; }
+.ii-p      { font-family:'Open Sans',sans-serif; font-size:14px; line-height:1.7; color:var(--text); margin-bottom:12px; }
+.ii-p:last-child { margin-bottom:0; }
+.ii-steps  { background:#fff; border-radius:var(--r-sm); padding:14px 18px; border:1px solid var(--border); }
+.ii-steps-title { font-family:'Open Sans',sans-serif; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); margin-bottom:10px; }
+.ii-steps-list  { list-style:none; padding:0; margin:0; }
+.ii-steps-list li { font-size:13px; line-height:1.6; color:var(--text); padding:3px 0 3px 16px; position:relative; }
+.ii-steps-list li::before { content:'→'; position:absolute; left:0; color:var(--primary); font-weight:700; }
+
 /* ── Leads KPI row (5 cards) ─────────────────────────────── */
 .leads-kpi-row {
   display: grid;
@@ -2095,6 +2115,34 @@ GROUP BY [Currency]  -- USD → US Office, JPY → JP Office</code>
           <button class="date-range-btn" onclick="setLeadsRange(7, this)">7 days</button>
           <button class="date-range-btn" onclick="setLeadsRange(28, this)">28 days</button>
           <button class="date-range-btn active" onclick="setLeadsRange(90, this)">3 months</button>
+        </div>
+      </div>
+
+      <!-- INBOUND INSIGHTS -->
+      <div class="inbound-insights">
+        <div class="ii-header">
+          <span class="ii-title">INBOUND INSIGHTS</span>
+          <span class="ii-sub">Auto-generated &nbsp;·&nbsp; Based on 3 month data &nbsp;·&nbsp; <span id="ii-date"></span></span>
+        </div>
+
+        <div class="ii-body">
+          <p class="ii-p"><strong>Performance Summary:</strong> btrax.com received 3,842 sessions from 2,917 unique visitors in the last 3 months. Your average search position is 7.9, with 1,610 clicks from 17,000 impressions — a 9.4% click-through rate. There is room to improve search rankings to reach page 1.</p>
+
+          <p class="ii-p"><strong>Branded vs. Discovery:</strong> Most searches (6 of 8) are discovery searches — people finding Btrax without knowing the brand. This signals strong organic demand for your services.</p>
+
+          <p class="ii-p"><strong>Top Opportunity:</strong> Your highest-opportunity search term is <em>"japan market entry design"</em> with 412 impressions but only 5.8% CTR at position 8.4. Improving this page's title and meta description could significantly increase clicks.</p>
+
+          <p class="ii-p"><strong>Top Market:</strong> Your largest audience is from the United States (1,923 sessions), followed by Japan (1,124 sessions). Consider creating Japanese-language content to capture this audience more effectively.</p>
+        </div>
+
+        <div class="ii-steps">
+          <div class="ii-steps-title">SUGGESTED NEXT STEPS</div>
+          <ul class="ii-steps-list">
+            <li>Optimize page titles for discovery queries to improve search position from 7.9 toward top 5</li>
+            <li>Create a dedicated landing page for <em>"Japan market entry design"</em> to improve the 5.8% CTR</li>
+            <li>Japanese-language content could better serve your 1,124 Japanese visitors</li>
+            <li>Connect live GA4 and GSC data to get real-time insights instead of sample data</li>
+          </ul>
         </div>
       </div>
 
@@ -4266,6 +4314,8 @@ function showView(name) {
   // Init year selector
   dndLoadOrder();
   initTooltips();
+  const _iiDate = document.getElementById('ii-date');
+  if (_iiDate) _iiDate.textContent = new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
   const _yrEl = document.getElementById('dash-year');
   if (_yrEl) _yrEl.value = new Date().getFullYear();
 
